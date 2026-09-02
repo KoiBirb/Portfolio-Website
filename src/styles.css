@@ -791,8 +791,18 @@ a {
   }
 
   .year-timeline {
-    right: 1.1rem;
-    bottom: calc(5% + 4rem);
+    display: none;
+  }
+
+  .social-links {
+    transition: opacity 220ms ease, transform 220ms ease, visibility 220ms;
+  }
+
+  .social-links.is-mobile-hidden {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(0.75rem);
+    pointer-events: none;
   }
 
   .project-panel {

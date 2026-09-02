@@ -60,6 +60,7 @@ export default function App() {
   const storyRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [activeYear, setActiveYear] = useState("2026");
+  const [mobileSocialVisible, setMobileSocialVisible] = useState(true);
   const timelineYears = ["2026", ...projects.map((project) => project.year)];
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export default function App() {
       }, { panel: panels[0], distance: Number.POSITIVE_INFINITY });
 
       if (focusedPanel.panel) setActiveYear(focusedPanel.panel.dataset.year ?? "2026");
+      setMobileSocialVisible(window.scrollY < Math.max(120, window.innerHeight * 0.18));
       frame = 0;
     };
 
@@ -113,7 +115,10 @@ export default function App() {
 
   return (
     <main>
-      <nav className="social-links" aria-label="Social profiles">
+      <nav
+        className={`social-links${mobileSocialVisible ? "" : " is-mobile-hidden"}`}
+        aria-label="Social profiles"
+      >
         <a href="https://www.linkedin.com/in/leo-bogaert/" target="_blank" rel="noreferrer">
           <img src="./linkedin.png" alt="LinkedIn" />
         </a>
