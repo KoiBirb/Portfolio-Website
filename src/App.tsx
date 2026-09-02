@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 const projects = [
   {
     number: "01",
-    eyebrow: "PCB Design / Flight Systems",
-    title: "Flight Controller",
+    eyebrow: "PCB Design / Electrical",
+    title: "Class D Amplifier",
     summary:
-      "A four-layer STM32 flight controller with USB, sensor interfaces, protected power, and nine PWM channels.",
-    tags: ["Altium", "STM32F446", "USB FS", "SPI + I²C"],
+      "A custom Class D audio amplifier designed from the ground up, using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run the MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
+    tags: ["Altium", "Audio Electronics", "Fusion 360", "Oscilloscope"],
     slides: ["PCB render", "Layer stack", "Bench testing"],
   },
   {
@@ -143,7 +143,7 @@ export default function App() {
                 <span>LTspice</span>
               </div>
             </div>
-            <p className="end-note">More project detail coming next.</p>
+            <p className="end-note">More projects coming soon!</p>
           </section>
         </div>
       </section>
