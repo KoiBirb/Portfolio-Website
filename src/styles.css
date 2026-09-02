@@ -154,12 +154,43 @@ a {
   left: 0.8rem;
   bottom: 0;
   transform: translateY(50%);
-  transition: opacity 120ms ease;
+  transition: visibility 0s;
 }
 
 .timeline-last.is-hidden {
-  opacity: 0;
+  visibility: hidden;
   transition-delay: 500ms;
+}
+
+.social-links {
+  position: fixed;
+  z-index: 10;
+  bottom: clamp(1rem, 3vw, 3rem);
+  left: clamp(1rem, 3vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.social-links a {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(255, 247, 233, 0.35);
+  color: #fff7e9;
+  background: rgba(43, 7, 4, 0.58);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  font-family: "DM Mono", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.social-links a:hover,
+.social-links a:focus-visible {
+  color: #2a0905;
+  background: #f8b331;
 }
 
 .story-content {
@@ -507,7 +538,7 @@ a {
 
 .about-card h2 {
   max-width: 11ch;
-  margin: clamp(2rem, 5vw, 4.5rem) 0 1.2rem;
+  margin: clamp(2rem, 5vw, 4.5rem) auto 1.2rem;
   font-family: "Playfair Display", Georgia, serif;
   font-size: clamp(3rem, 6vw, 6rem);
   font-weight: 500;
