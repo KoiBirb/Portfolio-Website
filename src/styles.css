@@ -91,22 +91,22 @@ a {
 }
 
 .marker-top {
-  top: 13%;
+  top: 5%;
   left: clamp(1rem, 3vw, 3rem);
 }
 
 .marker-bottom {
   right: clamp(1rem, 3vw, 3rem);
-  bottom: 13%;
+  bottom: 5%;
   transform: rotate(180deg);
 }
 
 .year-timeline {
   position: absolute;
   z-index: 4;
-  top: 13%;
-  right: clamp(2.65rem, 5vw, 5rem);
-  bottom: 30%;
+  top: 5%;
+  right: clamp(1rem, 3vw, 3rem);
+  bottom: calc(5% + 13.5rem);
   width: 1px;
   color: rgba(255, 248, 234, 0.82);
   background: rgba(255, 248, 234, 0.32);
@@ -131,7 +131,7 @@ a {
 .timeline-current {
   position: absolute;
   top: var(--timeline-position);
-  right: 0.8rem;
+  left: 0.8rem;
   transform: translateY(-50%);
   transition: top 500ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -139,19 +139,19 @@ a {
 .timeline-current::after {
   position: absolute;
   top: 50%;
-  left: calc(100% + 0.55rem);
+  left: -1.05rem;
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
   background: #fff7e9;
   box-shadow: 0 0 0 0.2rem rgba(255, 247, 233, 0.18);
   content: "";
-  transform: translate(50%, -50%);
+  transform: translateY(-50%);
 }
 
 .timeline-last {
   position: absolute;
-  right: 0.8rem;
+  left: 0.8rem;
   bottom: 0;
   transform: translateY(50%);
 }
@@ -250,9 +250,10 @@ a {
   max-width: 96rem;
   padding: clamp(1.5rem, 3vw, 2.6rem);
   border: 1px solid rgba(255, 247, 233, 0.28);
-  background: rgba(43, 7, 4, 0.74);
+  background: rgba(43, 7, 4, 0.58);
   box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
-  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
 .project-copy {
@@ -265,9 +266,10 @@ a {
   width: min(58rem, 84vw);
   padding: clamp(1.5rem, 3vw, 2.6rem);
   border: 1px solid rgba(255, 247, 233, 0.28);
-  background: rgba(27, 3, 2, 0.86);
+  background: rgba(27, 3, 2, 0.62);
   box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
-  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
 .project-meta {
@@ -464,7 +466,22 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 72svh;
   gap: 3rem;
+  padding-top: clamp(3rem, 6vw, 5rem);
+  padding-bottom: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+}
+
+.about-card .section-label,
+.about-card > p,
+.about-card h2 {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.about-card .skill-line {
+  justify-content: center;
 }
 
 .about-card h2 {
@@ -502,7 +519,7 @@ a {
 
   .year-timeline {
     right: 0.8rem;
-    bottom: 13%;
+    bottom: calc(5% + 1rem);
   }
 
   .project-panel {
@@ -515,7 +532,7 @@ a {
     grid-template-columns: 1fr;
     gap: 2.25rem;
     width: 100%;
-    background: rgba(43, 7, 4, 0.8);
+    background: rgba(43, 7, 4, 0.62);
   }
 
   .about-card {
