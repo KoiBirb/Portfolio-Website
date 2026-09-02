@@ -122,37 +122,16 @@ a {
     linear-gradient(90deg, #df5c0c 0%, #f5a821 50%, #df5c0c 100%);
 }
 
-.visual-pin::before,
-.visual-pin::after {
-  content: "";
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  bottom: 0;
-  width: max(0px, calc((100vw - 77svh) / 2 + 2px));
-  pointer-events: none;
-}
-
-.visual-pin::before {
-  left: 0;
-  background: linear-gradient(90deg, #e9690f 15%, rgba(233, 105, 15, 0));
-}
-
-.visual-pin::after {
-  right: 0;
-  background: linear-gradient(270deg, #e9690f 15%, rgba(233, 105, 15, 0));
-}
-
 .scene-image {
-  --scroll-progress: 0;
+  --image-offset: 0px;
   position: absolute;
   top: 0;
   left: 50%;
-  width: auto;
+  display: block;
+  width: max(100vw, 46.25svh);
   max-width: none;
-  height: 166.667svh;
-  object-fit: contain;
-  transform: translate3d(-50%, calc(var(--scroll-progress) * -66.667svh), 0);
+  height: auto;
+  transform: translate3d(-50%, var(--image-offset), 0);
   will-change: transform;
 }
 
