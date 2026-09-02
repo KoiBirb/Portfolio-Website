@@ -105,8 +105,8 @@ a {
   position: absolute;
   z-index: 4;
   top: 5%;
-  right: clamp(1rem, 3vw, 3rem);
-  bottom: calc(5% + 13.5rem);
+  right: clamp(1.4rem, 3.5vw, 3.5rem);
+  bottom: calc(5% + 17rem);
   width: 1px;
   color: rgba(255, 248, 234, 0.82);
   background: rgba(255, 248, 234, 0.32);
@@ -202,7 +202,7 @@ a {
 }
 
 .hero-intro {
-  margin: 2rem auto 0;
+  margin: 3rem auto 0;
   font-size: clamp(0.9rem, 1.5vw, 1.15rem);
   line-height: 1.65;
   text-shadow: 0 2px 14px rgba(52, 5, 2, 0.5);
@@ -473,6 +473,15 @@ a {
   text-align: center;
 }
 
+.hero-copy .section-label {
+  margin-bottom: 2.25rem;
+  color: #fff;
+}
+
+.project-panel:last-child {
+  padding-bottom: 5rem;
+}
+
 .about-card .section-label,
 .about-card > p,
 .about-card h2 {
@@ -495,10 +504,15 @@ a {
 }
 
 .end-note {
+  position: absolute;
+  bottom: 1.6rem;
+  left: 50%;
   margin: 0;
+  transform: translateX(-50%);
   font-family: "DM Mono", monospace;
   font-size: 0.62rem;
   letter-spacing: 0.18em;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -518,14 +532,18 @@ a {
   }
 
   .year-timeline {
-    right: 0.8rem;
-    bottom: calc(5% + 1rem);
+    right: 1.1rem;
+    bottom: calc(5% + 4rem);
   }
 
   .project-panel {
     min-height: auto;
     padding-top: 2rem;
     padding-bottom: 2rem;
+  }
+
+  .project-panel:last-child {
+    padding-bottom: 5rem;
   }
 
   .project-card {
