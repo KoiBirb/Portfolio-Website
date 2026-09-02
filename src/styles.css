@@ -836,7 +836,7 @@ a {
   }
 
   .hero-panel h1 {
-    font-size: clamp(4.4rem, min(24vw, 16svh), 7rem);
+    font-size: clamp(3.5rem, min(20vw, 14svh), 6rem);
   }
 
   .scroll-cue span {
