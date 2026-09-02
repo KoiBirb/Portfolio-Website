@@ -75,8 +75,8 @@ export default function App() {
   return (
     <main>
       <header className="site-header">
-        <a className="wordmark" href="#home" aria-label="Moiz Ahmad, home">
-          MA<span>.</span>
+        <a className="wordmark" href="#home" aria-label="Leo Bogaert, home">
+          LB<span>.</span>
         </a>
         <nav aria-label="Main navigation">
           <a href="#work">Work</a>
@@ -106,9 +106,9 @@ export default function App() {
             <div className="hero-copy">
               <p className="section-label">Engineering portfolio · 2026</p>
               <h1>
-                Moiz
+                Leo
                 <br />
-                Ahmad
+                Bogaert
               </h1>
               <p className="hero-intro">
                 Hardware, embedded systems,
