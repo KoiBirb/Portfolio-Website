@@ -51,8 +51,12 @@ export default function App() {
       const rect = story.getBoundingClientRect();
       const travel = story.offsetHeight - window.innerHeight;
       const progress = travel > 0 ? Math.min(1, Math.max(0, -rect.top / travel)) : 0;
+      const imageTravel = Math.max(0, image.offsetHeight - window.innerHeight);
 
-      image.style.setProperty("--scroll-progress", progress.toFixed(4));
+      image.style.setProperty(
+        "--image-offset",
+        `${(-progress * imageTravel).toFixed(2)}px`,
+      );
       progressRef.current?.style.setProperty("--scroll-progress", progress.toFixed(4));
       frame = 0;
     };
@@ -62,10 +66,12 @@ export default function App() {
     };
 
     update();
+    imageRef.current?.addEventListener("load", requestUpdate);
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
 
     return () => {
+      imageRef.current?.removeEventListener("load", requestUpdate);
       window.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", requestUpdate);
       if (frame) window.cancelAnimationFrame(frame);
@@ -95,6 +101,8 @@ export default function App() {
             className="scene-image"
             src="./firewatch-tower.webp"
             alt=""
+            width="947"
+            height="2048"
           />
           <div className="scene-shade" />
           <p className="image-marker marker-top">00° · Above the treeline</p>
