@@ -131,7 +131,20 @@ a {
   top: var(--timeline-position);
   left: 0.8rem;
   transform: translateY(-50%);
-  transition: top 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: top 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.timeline-current.pulse-a .timeline-year-label {
+  animation: year-pulse-a 600ms ease-out;
+}
+
+.timeline-current.pulse-b .timeline-year-label {
+  animation: year-pulse-b 600ms ease-out;
+}
+
+.timeline-year-label {
+  display: inline-block;
+  transform-origin: center;
 }
 
 .timeline-current::after {
@@ -147,17 +160,14 @@ a {
   transform: translateY(-50%);
 }
 
-.timeline-last {
-  position: absolute;
-  left: 0.8rem;
-  bottom: 0;
-  transform: translateY(50%);
-  transition: visibility 0s;
+@keyframes year-pulse-a {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
 }
 
-.timeline-last.is-hidden {
-  visibility: hidden;
-  transition-delay: 500ms;
+@keyframes year-pulse-b {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
 }
 
 .social-links {
@@ -178,7 +188,7 @@ a {
   padding: 0.9rem;
   border: 1px solid rgba(255, 247, 233, 0.35);
   color: #fff7e9;
-  background: rgba(43, 7, 4, 0.58);
+  background: rgba(43, 7, 4, 0.55);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   place-items: center;
@@ -301,7 +311,7 @@ a {
   max-width: 96rem;
   padding: clamp(1.5rem, 3vw, 2.6rem);
   border: 1px solid rgba(255, 247, 233, 0.28);
-  background: rgba(43, 7, 4, 0.58);
+  background: rgba(43, 7, 4, 0.55);
   box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
@@ -317,7 +327,7 @@ a {
   width: min(58rem, 84vw);
   padding: clamp(1.5rem, 3vw, 2.6rem);
   border: 1px solid rgba(255, 247, 233, 0.28);
-  background: rgba(27, 3, 2, 0.62);
+  background: rgba(27, 3, 2, 0.59);
   box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
@@ -472,7 +482,7 @@ a {
   padding: 0;
   border: 1px solid rgba(255, 247, 233, 0.3);
   color: inherit;
-  background: rgba(43, 7, 4, 0.74);
+  background: rgba(43, 7, 4, 0.71);
   place-items: center;
   cursor: pointer;
   transition: color 180ms ease, background 180ms ease;
@@ -549,7 +559,7 @@ a {
   min-height: 3.6rem;
   padding: 0.8rem 1rem;
   border: 1px solid rgba(255, 247, 233, 0.35);
-  background: rgba(43, 7, 4, 0.58);
+  background: rgba(43, 7, 4, 0.55);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   font-family: "DM Mono", monospace;
@@ -710,6 +720,10 @@ a {
   font-size: clamp(0.5rem, 0.6vw, 0.62rem);
 }
 
+.year-timeline {
+  font-size: clamp(0.65rem, 0.8vw, 0.8rem);
+}
+
 .social-links {
   gap: clamp(0.8rem, 1.2vw, 1.25rem);
 }
@@ -824,7 +838,7 @@ a {
     grid-template-columns: 1fr;
     gap: 2.25rem;
     width: 100%;
-    background: rgba(43, 7, 4, 0.62);
+    background: rgba(43, 7, 4, 0.59);
   }
 
   .about-card {

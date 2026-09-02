@@ -60,6 +60,8 @@ export default function App() {
   const storyRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [activeYear, setActiveYear] = useState("2026");
+  const activeYearRef = useRef("2026");
+  const [yearPulse, setYearPulse] = useState(false);
   const [mobileSocialVisible, setMobileSocialVisible] = useState(true);
   const timelineYears = ["2026", ...projects.map((project) => project.year)];
 
@@ -82,16 +84,24 @@ export default function App() {
       );
 
       const panels = Array.from(story.querySelectorAll<HTMLElement>("[data-year]"));
-      // A higher visual checkpoint delays the year change until the incoming
-      // project is substantially on screen.
-      const viewportFocus = window.innerHeight * 0.25;
-      const focusedPanel = panels.reduce((closest, panel) => {
+      const focusedPanel = panels.reduce((mostVisible, panel) => {
         const panelRect = panel.getBoundingClientRect();
-        const distance = Math.abs(panelRect.top + panelRect.height / 2 - viewportFocus);
-        return distance < closest.distance ? { panel, distance } : closest;
-      }, { panel: panels[0], distance: Number.POSITIVE_INFINITY });
+        const visibleHeight = Math.max(
+          0,
+          Math.min(panelRect.bottom, window.innerHeight) - Math.max(panelRect.top, 0),
+        );
+        const visibleRatio = visibleHeight / Math.min(panelRect.height, window.innerHeight);
+        return visibleRatio > mostVisible.ratio ? { panel, ratio: visibleRatio } : mostVisible;
+      }, { panel: panels[0], ratio: 0 });
 
-      if (focusedPanel.panel) setActiveYear(focusedPanel.panel.dataset.year ?? "2026");
+      if (focusedPanel.panel && focusedPanel.ratio >= 0.88) {
+        const nextYear = focusedPanel.panel.dataset.year ?? "2026";
+        if (nextYear !== activeYearRef.current) {
+          activeYearRef.current = nextYear;
+          setActiveYear(nextYear);
+          setYearPulse((pulse) => !pulse);
+        }
+      }
       setMobileSocialVisible(window.scrollY < Math.max(120, window.innerHeight * 0.18));
       frame = 0;
     };
@@ -141,17 +151,12 @@ export default function App() {
           <p className="image-marker marker-top">00° · Above the treeline</p>
           <div className="year-timeline">
             <span
-              className="timeline-current"
+              className={`timeline-current ${yearPulse ? "pulse-a" : "pulse-b"}`}
               style={{
                 "--timeline-position": `${Math.max(0, timelineYears.indexOf(activeYear)) / (timelineYears.length - 1) * 100}%`,
               } as CSSProperties}
             >
-              {activeYear}
-            </span>
-            <span
-              className={`timeline-last${activeYear === projects.at(-1)?.year ? " is-hidden" : ""}`}
-            >
-              {projects.at(-1)?.year}
+              <span className="timeline-year-label">{activeYear}</span>
             </span>
           </div>
           <p className="image-marker marker-bottom">Designed from the ground up</p>
