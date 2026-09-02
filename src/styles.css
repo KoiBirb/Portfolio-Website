@@ -844,6 +844,33 @@ a {
   }
 }
 
+/* Browser zoom and OS display scaling reduce the effective CSS viewport.
+   On short or narrow viewports, keep hero controls in normal flow so they
+   cannot overlap even when text is enlarged. */
+@media (max-height: 760px), (max-width: 900px) {
+  .hero-panel {
+    flex-direction: column;
+    min-height: max(100svh, 42rem);
+    padding-top: 3rem;
+    padding-bottom: 8rem;
+  }
+
+  .hero-copy {
+    transform: none;
+  }
+
+  .resume-link {
+    position: static;
+    margin-top: clamp(2rem, 5svh, 3.5rem);
+    transform: none;
+  }
+
+  .resume-link:hover,
+  .resume-link:focus-visible {
+    transform: scale(1.1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
