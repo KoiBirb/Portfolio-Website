@@ -4,6 +4,8 @@ const projects = [
   {
     number: "01",
     year: "2025",
+    showGithub: true,
+    githubUrl: "https://github.com/koibirb",
     eyebrow: "PCB Design / Electrical",
     title: "Class D Amplifier",
     summary:
@@ -14,6 +16,8 @@ const projects = [
   {
     number: "02",
     year: "2024",
+    showGithub: false,
+    githubUrl: "https://github.com/koibirb",
     eyebrow: "Industrial Controls / Communication",
     title: "HVAC–PLC Bridge",
     summary:
@@ -24,6 +28,8 @@ const projects = [
   {
     number: "03",
     year: "2023",
+    showGithub: false,
+    githubUrl: "https://github.com/koibirb",
     eyebrow: "Industrial Sensing / Analog Hardware",
     title: "Water Leak Module",
     summary:
@@ -203,11 +209,25 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
         <h2>{project.title}</h2>
         <p>{project.summary}</p>
-        <ul aria-label={`${project.title} technologies`}>
-          {project.tags.map((tag) => (
-            <li key={tag}>{tag}</li>
-          ))}
-        </ul>
+        <div className="project-links">
+          <ul aria-label={`${project.title} technologies`}>
+            {project.tags.map((tag) => (
+              <li key={tag}>{tag}</li>
+            ))}
+          </ul>
+          {project.showGithub && (
+            <a
+              className="project-github"
+              href={project.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`View ${project.title} on GitHub`}
+            >
+              <img src="./github.svg" alt="" />
+              <span>GitHub</span>
+            </a>
+          )}
+        </div>
       </div>
       <ProjectCarousel title={project.title} slides={project.slides} />
     </article>
