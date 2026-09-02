@@ -63,9 +63,7 @@ a {
   z-index: 1;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 50% 35%, rgba(255, 215, 88, 0.3), transparent 35%),
-    linear-gradient(90deg, rgba(95, 20, 7, 0.22), transparent 30%, transparent 70%, rgba(95, 20, 7, 0.22));
+  background: linear-gradient(90deg, rgba(95, 20, 7, 0.22), transparent 30%, transparent 70%, rgba(95, 20, 7, 0.22));
 }
 
 .scene-shade {
@@ -165,12 +163,12 @@ a {
 .social-links {
   position: fixed;
   z-index: 10;
-  bottom: clamp(1rem, 3vw, 3rem);
+  bottom: clamp(0.5rem, 1.5vw, 1.5rem);
   left: clamp(0.5rem, 1.5vw, 1.5rem);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.8rem;
+  gap: 1.25rem;
 }
 
 .social-links a {
@@ -184,7 +182,8 @@ a {
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   place-items: center;
-  transition: color 180ms ease, background 180ms ease;
+  transform-origin: center;
+  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
 .social-links img {
@@ -199,6 +198,7 @@ a {
 .social-links a:focus-visible {
   color: #2a0905;
   background: #f8b331;
+  transform: scale(1.1);
 }
 
 .social-links a:hover img,
@@ -225,7 +225,7 @@ a {
 }
 
 .hero-copy {
-  margin-top: 5vh;
+  transform: translateY(-5vh);
 }
 
 .section-label {
@@ -242,7 +242,7 @@ a {
   font-size: clamp(5rem, 12vw, 11rem);
   font-weight: 500;
   letter-spacing: -0.075em;
-  line-height: 0.72;
+  line-height: 0.78;
   text-transform: uppercase;
   text-shadow: 0 0.06em 0.5em rgba(54, 5, 2, 0.3);
 }
@@ -253,14 +253,15 @@ a {
 
 .hero-intro {
   margin: 3rem auto 0;
-  font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+  font-family: "DM Mono", monospace;
+  font-size: clamp(1.05rem, 1.7vw, 1.35rem);
   line-height: 1.65;
   text-shadow: 0 2px 14px rgba(52, 5, 2, 0.5);
 }
 
 .scroll-cue {
   position: absolute;
-  bottom: 1.6rem;
+  bottom: 3rem;
   left: 50%;
   display: flex;
   flex-direction: column;
@@ -523,6 +524,64 @@ a {
   text-align: center;
 }
 
+.hero-specialties {
+  margin: 1.25rem 0 0;
+  font-family: "DM Mono", monospace;
+  font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+  line-height: 1.65;
+  text-shadow: 0 2px 14px rgba(52, 5, 2, 0.5);
+}
+
+.hero-specialties span {
+  margin: 0 0.35em;
+  color: #f8b331;
+}
+
+.resume-link {
+  position: absolute;
+  top: 78%;
+  left: 50%;
+  display: grid;
+  grid-template-columns: 1.45rem 1fr 1.45rem;
+  align-items: center;
+  gap: 0.8rem;
+  width: 12rem;
+  min-height: 3.6rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(255, 247, 233, 0.35);
+  background: rgba(43, 7, 4, 0.58);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  font-family: "DM Mono", monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.resume-link svg {
+  width: 1.45rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.resume-link > span:last-child {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.resume-link:hover,
+.resume-link:focus-visible {
+  color: #2a0905;
+  background: #f8b331;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
 .project-links {
   display: flex;
   align-items: flex-end;
@@ -543,14 +602,16 @@ a {
   border: 1px solid rgba(255, 247, 233, 0.25);
   font-family: "DM Mono", monospace;
   font-size: 0.58rem;
+  line-height: normal;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  transition: color 180ms ease, background 180ms ease;
+  transform-origin: center;
+  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
 .project-github img {
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 0.7rem;
+  height: 0.7rem;
   filter: invert(96%) sepia(12%) saturate(530%) hue-rotate(326deg) brightness(106%);
 }
 
@@ -558,6 +619,7 @@ a {
 .project-github:focus-visible {
   color: #2a0905;
   background: #f8b331;
+  transform: scale(1.1);
 }
 
 .project-github:hover img,
@@ -568,6 +630,7 @@ a {
 .hero-copy .section-label {
   margin-bottom: 2.25rem;
   color: #fff;
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
 }
 
 .project-panel:last-child {
@@ -603,7 +666,7 @@ a {
 
 .end-note {
   position: absolute;
-  bottom: 4.25rem;
+  bottom: 5.5rem;
   left: 50%;
   margin: 0;
   transform: translateX(-50%);
@@ -612,6 +675,28 @@ a {
   letter-spacing: 0.18em;
   text-align: center;
   text-transform: uppercase;
+}
+
+.back-to-top {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: "DM Mono", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.back-to-top:hover,
+.back-to-top:focus-visible {
+  color: #f8b331;
+  transform: translate(-50%, -0.3rem);
 }
 
 @keyframes bounce {
@@ -642,6 +727,11 @@ a {
 
   .project-panel:last-child {
     padding-bottom: 8.25rem;
+  }
+
+  .back-to-top {
+    right: auto;
+    bottom: 2rem;
   }
 
   .project-card {

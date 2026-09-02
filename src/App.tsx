@@ -47,6 +47,15 @@ function ArrowDown() {
   );
 }
 
+function PageIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 2.75h8l4 4V21.25H6z" />
+      <path d="M14 2.75v4h4M9 12h6M9 16h6" />
+    </svg>
+  );
+}
+
 export default function App() {
   const storyRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -153,7 +162,19 @@ export default function App() {
                 Bogaert
               </h1>
               <p className="hero-intro">Electrical Engineering</p>
+              <p className="hero-specialties">Robotics <span>|</span> Aerospace</p>
             </div>
+
+            <a
+              className="resume-link"
+              href="./Leo%20Bogaert%20Resume.pdf"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <PageIcon />
+              <span>Resume</span>
+              <span aria-hidden="true">↗</span>
+            </a>
 
             <a className="scroll-cue" href="#work">
               <span>Scroll to explore</span>
@@ -190,6 +211,10 @@ export default function App() {
           <section className="story-panel project-panel project-left" data-year={projects[2].year}>
             <ProjectCard project={projects[2]} />
             <p className="end-note">More projects coming soon!</p>
+            <a className="back-to-top" href="#home">
+              <span aria-hidden="true">↑</span>
+              <span>Back to top</span>
+            </a>
           </section>
         </div>
       </section>
