@@ -239,7 +239,7 @@ a {
 .hero-panel h1 {
   margin: 0;
   font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(5rem, 12vw, 11rem);
+  font-size: clamp(5rem, min(12vw, 18svh), 11rem);
   font-weight: 500;
   letter-spacing: -0.075em;
   line-height: 0.78;
@@ -704,6 +704,82 @@ a {
   50% { transform: translateY(0.5rem); }
 }
 
+/* Fluid controls keep the same proportions from phones through large displays. */
+.image-marker,
+.year-timeline {
+  font-size: clamp(0.5rem, 0.6vw, 0.62rem);
+}
+
+.social-links {
+  gap: clamp(0.8rem, 1.2vw, 1.25rem);
+}
+
+.social-links a {
+  width: clamp(3.15rem, 4vw, 3.9rem);
+  height: clamp(3.15rem, 4vw, 3.9rem);
+  padding: clamp(0.7rem, 0.9vw, 0.9rem);
+}
+
+.resume-link {
+  grid-template-columns: clamp(1.15rem, 1.5vw, 1.45rem) 1fr clamp(1.15rem, 1.5vw, 1.45rem);
+  gap: clamp(0.55rem, 0.8vw, 0.8rem);
+  width: clamp(10rem, 18vw, 12rem);
+  min-height: clamp(3rem, 5vw, 3.6rem);
+  padding: clamp(0.65rem, 0.8vw, 0.8rem) clamp(0.8rem, 1vw, 1rem);
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+}
+
+.resume-link svg {
+  width: clamp(1.15rem, 1.5vw, 1.45rem);
+}
+
+.resume-link > span:last-child {
+  font-size: clamp(0.95rem, 1.25vw, 1.15rem);
+}
+
+.project-meta,
+.end-note {
+  font-size: clamp(0.54rem, 0.65vw, 0.65rem);
+}
+
+.project-card li,
+.skill-line span,
+.project-github {
+  padding: clamp(0.38rem, 0.45vw, 0.45rem) clamp(0.55rem, 0.7vw, 0.7rem);
+  font-size: clamp(0.52rem, 0.6vw, 0.6rem);
+}
+
+.project-github {
+  gap: clamp(0.35rem, 0.5vw, 0.5rem);
+}
+
+.carousel-controls > button,
+.carousel-dots button {
+  height: clamp(2.35rem, 3vw, 2.75rem);
+}
+
+.carousel-controls > button {
+  width: clamp(2.35rem, 3vw, 2.75rem);
+}
+
+.carousel-dots button {
+  width: clamp(1.3rem, 2vw, 1.8rem);
+}
+
+.scroll-cue {
+  gap: clamp(0.45rem, 0.7vw, 0.65rem);
+  font-size: clamp(0.52rem, 0.65vw, 0.62rem);
+}
+
+.scroll-cue svg {
+  width: clamp(1.1rem, 1.5vw, 1.4rem);
+}
+
+.back-to-top {
+  gap: clamp(0.25rem, 0.4vw, 0.4rem);
+  font-size: clamp(0.52rem, 0.6vw, 0.62rem);
+}
+
 @media (max-width: 780px) {
   .story-panel {
     padding-right: 1rem;
@@ -750,7 +826,7 @@ a {
   }
 
   .hero-panel h1 {
-    font-size: clamp(4.4rem, 24vw, 7rem);
+    font-size: clamp(4.4rem, min(24vw, 16svh), 7rem);
   }
 
   .scroll-cue span {
