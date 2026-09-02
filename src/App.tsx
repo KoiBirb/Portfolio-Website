@@ -89,8 +89,8 @@ export default function App() {
             className="scene-image"
             src="./firewatch-tower.svg"
             alt=""
-            width="947"
-            height="2048"
+            width="696"
+            height="1505"
           />
           <div className="scene-shade" />
           <p className="image-marker marker-top">00° · Above the treeline</p>
