@@ -479,7 +479,7 @@ a {
 }
 
 .project-panel:last-child {
-  padding-bottom: 5rem;
+  padding-bottom: 7.5rem;
 }
 
 .about-card .section-label,
@@ -505,7 +505,7 @@ a {
 
 .end-note {
   position: absolute;
-  bottom: 1.6rem;
+  bottom: 3rem;
   left: 50%;
   margin: 0;
   transform: translateX(-50%);
@@ -543,7 +543,7 @@ a {
   }
 
   .project-panel:last-child {
-    padding-bottom: 5rem;
+    padding-bottom: 7rem;
   }
 
   .project-card {

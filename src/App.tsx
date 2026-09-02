@@ -66,7 +66,9 @@ export default function App() {
       );
 
       const panels = Array.from(story.querySelectorAll<HTMLElement>("[data-year]"));
-      const viewportFocus = window.innerHeight * 0.5;
+      // A higher visual checkpoint delays the year change until the incoming
+      // project is substantially on screen.
+      const viewportFocus = window.innerHeight * 0.32;
       const focusedPanel = panels.reduce((closest, panel) => {
         const panelRect = panel.getBoundingClientRect();
         const distance = Math.abs(panelRect.top + panelRect.height / 2 - viewportFocus);
