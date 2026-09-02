@@ -154,6 +154,12 @@ a {
   left: 0.8rem;
   bottom: 0;
   transform: translateY(50%);
+  transition: opacity 120ms ease;
+}
+
+.timeline-last.is-hidden {
+  opacity: 0;
+  transition-delay: 500ms;
 }
 
 .story-content {
@@ -479,7 +485,7 @@ a {
 }
 
 .project-panel:last-child {
-  padding-bottom: 7.5rem;
+  padding-bottom: 8.75rem;
 }
 
 .about-card .section-label,
@@ -491,6 +497,12 @@ a {
 
 .about-card .skill-line {
   justify-content: center;
+}
+
+.about-card > p:not(.section-label) {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
 }
 
 .about-card h2 {
@@ -505,7 +517,7 @@ a {
 
 .end-note {
   position: absolute;
-  bottom: 3rem;
+  bottom: 4.25rem;
   left: 50%;
   margin: 0;
   transform: translateX(-50%);
@@ -543,7 +555,7 @@ a {
   }
 
   .project-panel:last-child {
-    padding-bottom: 7rem;
+    padding-bottom: 8.25rem;
   }
 
   .project-card {

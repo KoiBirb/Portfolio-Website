@@ -68,7 +68,7 @@ export default function App() {
       const panels = Array.from(story.querySelectorAll<HTMLElement>("[data-year]"));
       // A higher visual checkpoint delays the year change until the incoming
       // project is substantially on screen.
-      const viewportFocus = window.innerHeight * 0.32;
+      const viewportFocus = window.innerHeight * 0.25;
       const focusedPanel = panels.reduce((closest, panel) => {
         const panelRect = panel.getBoundingClientRect();
         const distance = Math.abs(panelRect.top + panelRect.height / 2 - viewportFocus);
@@ -120,9 +120,11 @@ export default function App() {
             >
               {activeYear}
             </span>
-            {activeYear !== projects.at(-1)?.year && (
-              <span className="timeline-last">{projects.at(-1)?.year}</span>
-            )}
+            <span
+              className={`timeline-last${activeYear === projects.at(-1)?.year ? " is-hidden" : ""}`}
+            >
+              {projects.at(-1)?.year}
+            </span>
           </div>
           <p className="image-marker marker-bottom">Designed from the ground up</p>
         </div>
