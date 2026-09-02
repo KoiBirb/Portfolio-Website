@@ -28,85 +28,8 @@ a {
   text-decoration: none;
 }
 
-.site-header {
-  position: fixed;
-  z-index: 50;
-  top: 0;
-  left: 0;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  width: 100%;
-  padding: 1.5rem clamp(1.25rem, 4vw, 4rem);
-  color: #fff8ea;
-  mix-blend-mode: difference;
-}
-
-.wordmark {
-  justify-self: start;
-  font-family: "DM Mono", monospace;
-  font-size: 1.15rem;
-  font-weight: 500;
-  letter-spacing: -0.08em;
-}
-
-.wordmark span {
-  color: #ff9b29;
-}
-
-.site-header nav {
-  display: flex;
-  gap: clamp(1.75rem, 5vw, 4.5rem);
-  font-family: "DM Mono", monospace;
-  font-size: 0.67rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.site-header nav a {
-  position: relative;
-  padding: 0.45rem 0;
-}
-
-.site-header nav a::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 220ms ease;
-}
-
-.site-header nav a:hover::after,
-.site-header nav a:focus-visible::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
-
-.scroll-progress {
-  justify-self: end;
-  width: clamp(3.5rem, 8vw, 7rem);
-  height: 1px;
-  background: rgba(255, 255, 255, 0.35);
-}
-
-.scroll-progress span {
-  --scroll-progress: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: currentColor;
-  transform: scaleX(var(--scroll-progress));
-  transform-origin: left;
-}
-
 .scroll-story {
   position: relative;
-  min-height: 500svh;
   isolation: isolate;
 }
 
@@ -257,22 +180,31 @@ a {
 
 .project-panel {
   align-items: center;
+  justify-content: center;
+  min-height: 76svh;
+  padding-top: clamp(2.75rem, 6vw, 5rem);
+  padding-bottom: clamp(2.75rem, 6vw, 5rem);
 }
 
-.project-left {
-  justify-content: flex-start;
-}
-
-.project-right {
-  justify-content: flex-end;
-}
-
-.project-card,
-.about-card {
-  width: min(39rem, 48vw);
+.project-card {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.8fr) minmax(25rem, 1.2fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 6rem);
+  width: 100%;
+  max-width: 96rem;
   padding: clamp(1.5rem, 3vw, 2.6rem);
   border: 1px solid rgba(255, 247, 233, 0.28);
   background: rgba(43, 7, 4, 0.74);
+  box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
+  backdrop-filter: blur(14px);
+}
+
+.about-card {
+  width: min(58rem, 84vw);
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+  border: 1px solid rgba(255, 247, 233, 0.28);
+  background: rgba(27, 3, 2, 0.86);
   box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
   backdrop-filter: blur(14px);
 }
@@ -293,18 +225,17 @@ a {
   text-align: right;
 }
 
-.project-card h2,
-.about-card h2 {
+.project-card h2 {
   max-width: 9ch;
-  margin: clamp(2rem, 5vw, 4.5rem) 0 1.2rem;
+  margin: clamp(2rem, 4vw, 3.5rem) 0 1.2rem;
   font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(3rem, 6vw, 6rem);
+  font-size: clamp(3rem, 5vw, 5.5rem);
   font-weight: 500;
   letter-spacing: -0.055em;
   line-height: 0.9;
 }
 
-.project-card > p,
+.project-copy > p,
 .about-card > p:not(.section-label) {
   max-width: 34rem;
   margin: 0;
@@ -333,6 +264,141 @@ a {
   text-transform: uppercase;
 }
 
+.project-carousel {
+  min-width: 0;
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border: 1px solid rgba(255, 247, 233, 0.3);
+  background: #3b0c06;
+}
+
+.carousel-track {
+  display: flex;
+  height: 100%;
+  transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.carousel-slide {
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 72% 30%, rgba(255, 193, 67, 0.55), transparent 24%),
+    linear-gradient(135deg, #8c260c, #e26711 55%, #6b160a);
+}
+
+.carousel-tone-2 {
+  background:
+    radial-gradient(circle at 28% 72%, rgba(255, 204, 89, 0.5), transparent 24%),
+    linear-gradient(145deg, #3d0b07, #a43410 55%, #ef8d1d);
+}
+
+.carousel-tone-3 {
+  background:
+    radial-gradient(circle at 70% 65%, rgba(255, 199, 78, 0.45), transparent 24%),
+    linear-gradient(120deg, #c84d0c, #72190a 58%, #240604);
+}
+
+.carousel-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.24;
+  background-image:
+    linear-gradient(rgba(255, 247, 233, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 247, 233, 0.35) 1px, transparent 1px);
+  background-size: 2rem 2rem;
+  mask-image: linear-gradient(135deg, #000, transparent 75%);
+}
+
+.carousel-slide figcaption {
+  position: absolute;
+  right: clamp(1.2rem, 3vw, 2.5rem);
+  bottom: clamp(1.2rem, 3vw, 2.5rem);
+  left: clamp(1.2rem, 3vw, 2.5rem);
+  display: grid;
+  gap: 0.3rem;
+  text-shadow: 0 2px 18px rgba(42, 4, 2, 0.5);
+}
+
+.carousel-slide figcaption span,
+.carousel-slide figcaption small {
+  font-family: "DM Mono", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.carousel-slide figcaption strong {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(2rem, 4vw, 4rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.carousel-slide figcaption small {
+  color: rgba(255, 247, 233, 0.7);
+}
+
+.carousel-controls {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.carousel-controls > button {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgba(255, 247, 233, 0.3);
+  color: inherit;
+  background: rgba(43, 7, 4, 0.74);
+  place-items: center;
+  cursor: pointer;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.carousel-controls > button:hover,
+.carousel-controls > button:focus-visible {
+  color: #2a0905;
+  background: #f8b331;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.carousel-dots button {
+  width: 1.8rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.carousel-dots button::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 247, 233, 0.35);
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.carousel-dots button.is-active::after {
+  background: #f8b331;
+  transform: scaleY(3);
+}
+
 .about-panel {
   flex-direction: column;
   align-items: center;
@@ -340,13 +406,14 @@ a {
   gap: 3rem;
 }
 
-.about-card {
-  width: min(58rem, 84vw);
-  background: rgba(27, 3, 2, 0.86);
-}
-
 .about-card h2 {
   max-width: 11ch;
+  margin: clamp(2rem, 5vw, 4.5rem) 0 1.2rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(3rem, 6vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
 }
 
 .end-note {
@@ -363,19 +430,6 @@ a {
 }
 
 @media (max-width: 780px) {
-  .site-header {
-    grid-template-columns: 1fr auto;
-    padding-top: 1.15rem;
-  }
-
-  .site-header nav {
-    gap: 1.25rem;
-  }
-
-  .scroll-progress {
-    display: none;
-  }
-
   .story-panel {
     padding-right: 1rem;
     padding-left: 1rem;
@@ -385,15 +439,25 @@ a {
     display: none;
   }
 
-  .project-left,
-  .project-right {
-    justify-content: center;
+  .project-panel {
+    min-height: auto;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 
-  .project-card,
+  .project-card {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+    width: 100%;
+    background: rgba(43, 7, 4, 0.8);
+  }
+
   .about-card {
     width: min(100%, 34rem);
-    background: rgba(43, 7, 4, 0.8);
+  }
+
+  .carousel-viewport {
+    aspect-ratio: 4 / 3;
   }
 
   .hero-panel h1 {

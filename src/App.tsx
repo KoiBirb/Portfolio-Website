@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const projects = [
   {
@@ -8,6 +8,7 @@ const projects = [
     summary:
       "A four-layer STM32 flight controller with USB, sensor interfaces, protected power, and nine PWM channels.",
     tags: ["Altium", "STM32F446", "USB FS", "SPI + I²C"],
+    slides: ["PCB render", "Layer stack", "Bench testing"],
   },
   {
     number: "02",
@@ -16,6 +17,7 @@ const projects = [
     summary:
       "A compact interface translating HVAC communication into PLC-ready Modbus RTU over RS-485.",
     tags: ["Modbus RTU", "RS-485", "UART", "Oscilloscope"],
+    slides: ["Communication interface", "Signal capture", "Prototype hardware"],
   },
   {
     number: "03",
@@ -24,6 +26,7 @@ const projects = [
     summary:
       "An isolated sensing module with analog signal conditioning, fault detection, and dual controller outputs.",
     tags: ["18–72 VDC", "24 VAC", "Op Amps", "Relay Outputs"],
+    slides: ["Schematic", "PCB layout", "Validation setup"],
   },
 ];
 
@@ -38,7 +41,6 @@ function ArrowDown() {
 export default function App() {
   const storyRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  const progressRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     let frame = 0;
@@ -57,7 +59,6 @@ export default function App() {
         "--image-offset",
         `${(-progress * imageTravel).toFixed(2)}px`,
       );
-      progressRef.current?.style.setProperty("--scroll-progress", progress.toFixed(4));
       frame = 0;
     };
 
@@ -80,29 +81,16 @@ export default function App() {
 
   return (
     <main>
-      <header className="site-header">
-        <a className="wordmark" href="#home" aria-label="Leo Bogaert, home">
-          LB<span>.</span>
-        </a>
-        <nav aria-label="Main navigation">
-          <a href="#work">Work</a>
-          <a href="#about">About</a>
-        </nav>
-        <div className="scroll-progress" aria-hidden="true">
-          <span ref={progressRef} />
-        </div>
-      </header>
-
       <section className="scroll-story" ref={storyRef}>
         <div className="visual-pin" aria-hidden="true">
           <div className="scene-haze" />
           <img
             ref={imageRef}
             className="scene-image"
-            src="./firewatch-tower.webp"
+            src="./firewatch-tower-hd.webp"
             alt=""
-            width="947"
-            height="2048"
+            width="1894"
+            height="4096"
           />
           <div className="scene-shade" />
           <p className="image-marker marker-top">00° · Above the treeline</p>
@@ -118,11 +106,7 @@ export default function App() {
                 <br />
                 Bogaert
               </h1>
-              <p className="hero-intro">
-                Hardware, embedded systems,
-                <br />
-                and controls built to work.
-              </p>
+              <p className="hero-intro">Electrical Engineering</p>
             </div>
 
             <a className="scroll-cue" href="#work">
@@ -172,17 +156,77 @@ type Project = (typeof projects)[number];
 function ProjectCard({ project }: { project: Project }) {
   return (
     <article className="project-card">
-      <div className="project-meta">
-        <span>{project.number}</span>
-        <span>{project.eyebrow}</span>
+      <div className="project-copy">
+        <div className="project-meta">
+          <span>{project.number}</span>
+          <span>{project.eyebrow}</span>
+        </div>
+        <h2>{project.title}</h2>
+        <p>{project.summary}</p>
+        <ul aria-label={`${project.title} technologies`}>
+          {project.tags.map((tag) => (
+            <li key={tag}>{tag}</li>
+          ))}
+        </ul>
       </div>
-      <h2>{project.title}</h2>
-      <p>{project.summary}</p>
-      <ul aria-label={`${project.title} technologies`}>
-        {project.tags.map((tag) => (
-          <li key={tag}>{tag}</li>
-        ))}
-      </ul>
+      <ProjectCarousel title={project.title} slides={project.slides} />
     </article>
+  );
+}
+
+function ProjectCarousel({ title, slides }: { title: string; slides: string[] }) {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const previousSlide = () => {
+    setActiveSlide((current) => (current - 1 + slides.length) % slides.length);
+  };
+
+  const nextSlide = () => {
+    setActiveSlide((current) => (current + 1) % slides.length);
+  };
+
+  return (
+    <div className="project-carousel" aria-label={`${title} image carousel`}>
+      <div className="carousel-viewport">
+        <div
+          className="carousel-track"
+          style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+        >
+          {slides.map((slide, index) => (
+            <figure className={`carousel-slide carousel-tone-${index + 1}`} key={slide}>
+              <div className="carousel-grid" aria-hidden="true" />
+              <figcaption>
+                <span>
+                  {String(index + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+                </span>
+                <strong>{slide}</strong>
+                <small>Project image slot</small>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+
+      <div className="carousel-controls">
+        <button type="button" onClick={previousSlide} aria-label={`Previous ${title} image`}>
+          ←
+        </button>
+        <div className="carousel-dots" aria-label="Choose image">
+          {slides.map((slide, index) => (
+            <button
+              type="button"
+              className={index === activeSlide ? "is-active" : ""}
+              onClick={() => setActiveSlide(index)}
+              aria-label={`Show ${slide}`}
+              aria-current={index === activeSlide ? "true" : undefined}
+              key={slide}
+            />
+          ))}
+        </div>
+        <button type="button" onClick={nextSlide} aria-label={`Next ${title} image`}>
+          →
+        </button>
+      </div>
+    </div>
   );
 }
