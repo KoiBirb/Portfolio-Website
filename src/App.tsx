@@ -100,10 +100,10 @@ export default function App() {
     <main>
       <nav className="social-links" aria-label="Social profiles">
         <a href="https://www.linkedin.com/in/leo-bogaert/" target="_blank" rel="noreferrer">
-          LinkedIn
+          <img src="./linkedin.png" alt="LinkedIn" />
         </a>
         <a href="https://github.com/koibirb" target="_blank" rel="noreferrer">
-          GitHub
+          <img src="./github.svg" alt="GitHub" />
         </a>
       </nav>
       <section className="scroll-story" ref={storyRef}>
