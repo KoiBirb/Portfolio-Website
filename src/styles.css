@@ -1,0 +1,438 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap");
+
+:root {
+  color: #fff7e9;
+  background: #2a0905;
+  font-family: "Manrope", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-color: #f8b331 #2a0905;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #2a0905;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-header {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  padding: 1.5rem clamp(1.25rem, 4vw, 4rem);
+  color: #fff8ea;
+  mix-blend-mode: difference;
+}
+
+.wordmark {
+  justify-self: start;
+  font-family: "DM Mono", monospace;
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: -0.08em;
+}
+
+.wordmark span {
+  color: #ff9b29;
+}
+
+.site-header nav {
+  display: flex;
+  gap: clamp(1.75rem, 5vw, 4.5rem);
+  font-family: "DM Mono", monospace;
+  font-size: 0.67rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.site-header nav a {
+  position: relative;
+  padding: 0.45rem 0;
+}
+
+.site-header nav a::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 220ms ease;
+}
+
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.scroll-progress {
+  justify-self: end;
+  width: clamp(3.5rem, 8vw, 7rem);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.scroll-progress span {
+  --scroll-progress: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  transform: scaleX(var(--scroll-progress));
+  transform-origin: left;
+}
+
+.scroll-story {
+  position: relative;
+  min-height: 500svh;
+  isolation: isolate;
+}
+
+.visual-pin {
+  position: sticky;
+  z-index: -1;
+  top: 0;
+  width: 100%;
+  height: 100svh;
+  margin-bottom: -100svh;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, #df5c0c 0%, #f5a821 50%, #df5c0c 100%);
+}
+
+.visual-pin::before,
+.visual-pin::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  width: max(0px, calc((100vw - 77svh) / 2 + 2px));
+  pointer-events: none;
+}
+
+.visual-pin::before {
+  left: 0;
+  background: linear-gradient(90deg, #e9690f 15%, rgba(233, 105, 15, 0));
+}
+
+.visual-pin::after {
+  right: 0;
+  background: linear-gradient(270deg, #e9690f 15%, rgba(233, 105, 15, 0));
+}
+
+.scene-image {
+  --scroll-progress: 0;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: auto;
+  max-width: none;
+  height: 166.667svh;
+  object-fit: contain;
+  transform: translate3d(-50%, calc(var(--scroll-progress) * -66.667svh), 0);
+  will-change: transform;
+}
+
+.scene-haze {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255, 215, 88, 0.3), transparent 35%),
+    linear-gradient(90deg, rgba(95, 20, 7, 0.22), transparent 30%, transparent 70%, rgba(95, 20, 7, 0.22));
+}
+
+.scene-shade {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(38, 5, 2, 0.08), transparent 35%, rgba(29, 3, 2, 0.42)),
+    radial-gradient(circle at 50% 50%, transparent 50%, rgba(36, 5, 2, 0.24) 100%);
+}
+
+.image-marker {
+  position: absolute;
+  z-index: 4;
+  margin: 0;
+  color: rgba(255, 248, 234, 0.72);
+  font-family: "DM Mono", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+
+.marker-top {
+  top: 20%;
+  left: clamp(1rem, 3vw, 3rem);
+}
+
+.marker-bottom {
+  right: clamp(1rem, 3vw, 3rem);
+  bottom: 13%;
+  transform: rotate(180deg);
+}
+
+.story-content {
+  position: relative;
+  z-index: 5;
+}
+
+.story-panel {
+  position: relative;
+  display: flex;
+  min-height: 100svh;
+  padding: clamp(6rem, 10vw, 9rem) clamp(1.25rem, 7vw, 7rem);
+}
+
+.hero-panel {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-copy {
+  margin-top: 5vh;
+}
+
+.section-label {
+  margin: 0 0 1.25rem;
+  font-family: "DM Mono", monospace;
+  font-size: clamp(0.62rem, 0.8vw, 0.75rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hero-panel h1 {
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(5rem, 12vw, 11rem);
+  font-weight: 500;
+  letter-spacing: -0.075em;
+  line-height: 0.72;
+  text-transform: uppercase;
+  text-shadow: 0 0.06em 0.5em rgba(54, 5, 2, 0.3);
+}
+
+.hero-panel h1::first-line {
+  font-style: italic;
+}
+
+.hero-intro {
+  margin: 2rem auto 0;
+  font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+  line-height: 1.65;
+  text-shadow: 0 2px 14px rgba(52, 5, 2, 0.5);
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 1.6rem;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  transform: translateX(-50%);
+  font-family: "DM Mono", monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.scroll-cue svg {
+  width: 1.4rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.25;
+  animation: bounce 1.8s ease-in-out infinite;
+}
+
+.project-panel {
+  align-items: center;
+}
+
+.project-left {
+  justify-content: flex-start;
+}
+
+.project-right {
+  justify-content: flex-end;
+}
+
+.project-card,
+.about-card {
+  width: min(39rem, 48vw);
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+  border: 1px solid rgba(255, 247, 233, 0.28);
+  background: rgba(43, 7, 4, 0.74);
+  box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
+  backdrop-filter: blur(14px);
+}
+
+.project-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  color: #f7ae36;
+  font-family: "DM Mono", monospace;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.project-meta span:last-child {
+  text-align: right;
+}
+
+.project-card h2,
+.about-card h2 {
+  max-width: 9ch;
+  margin: clamp(2rem, 5vw, 4.5rem) 0 1.2rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(3rem, 6vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+}
+
+.project-card > p,
+.about-card > p:not(.section-label) {
+  max-width: 34rem;
+  margin: 0;
+  color: rgba(255, 247, 233, 0.78);
+  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+  line-height: 1.7;
+}
+
+.project-card ul,
+.skill-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-card li,
+.skill-line span {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(255, 247, 233, 0.25);
+  font-family: "DM Mono", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.about-panel {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+}
+
+.about-card {
+  width: min(58rem, 84vw);
+  background: rgba(27, 3, 2, 0.86);
+}
+
+.about-card h2 {
+  max-width: 11ch;
+}
+
+.end-note {
+  margin: 0;
+  font-family: "DM Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(0.5rem); }
+}
+
+@media (max-width: 780px) {
+  .site-header {
+    grid-template-columns: 1fr auto;
+    padding-top: 1.15rem;
+  }
+
+  .site-header nav {
+    gap: 1.25rem;
+  }
+
+  .scroll-progress {
+    display: none;
+  }
+
+  .story-panel {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .image-marker {
+    display: none;
+  }
+
+  .project-left,
+  .project-right {
+    justify-content: center;
+  }
+
+  .project-card,
+  .about-card {
+    width: min(100%, 34rem);
+    background: rgba(43, 7, 4, 0.8);
+  }
+
+  .hero-panel h1 {
+    font-size: clamp(4.4rem, 24vw, 7rem);
+  }
+
+  .scroll-cue span {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
