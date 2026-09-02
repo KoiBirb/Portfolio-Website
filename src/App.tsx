@@ -87,10 +87,10 @@ export default function App() {
           <img
             ref={imageRef}
             className="scene-image"
-            src="./firewatch-tower-hd.webp"
+            src="./firewatch-tower.svg"
             alt=""
-            width="1894"
-            height="4096"
+            width="947"
+            height="2048"
           />
           <div className="scene-shade" />
           <p className="image-marker marker-top">00° · Above the treeline</p>

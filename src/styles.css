@@ -189,7 +189,7 @@ a {
 .project-card {
   display: grid;
   grid-template-columns: minmax(16rem, 0.8fr) minmax(25rem, 1.2fr);
-  align-items: center;
+  align-items: stretch;
   gap: clamp(2rem, 5vw, 6rem);
   width: 100%;
   max-width: 96rem;
@@ -198,6 +198,12 @@ a {
   background: rgba(43, 7, 4, 0.74);
   box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
   backdrop-filter: blur(14px);
+}
+
+.project-copy {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
 }
 
 .about-card {
