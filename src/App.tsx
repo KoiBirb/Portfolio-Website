@@ -37,6 +37,50 @@ const projects = [
     tags: ["18–72 VDC", "24 VAC", "Op Amps", "Relay Outputs"],
     slides: ["Schematic", "PCB layout", "Validation setup"],
   },
+  {
+    number: "04",
+    year: "2022",
+    showGithub: false,
+    githubUrl: "https://github.com/koibirb",
+    eyebrow: "Project category",
+    title: "Project Four",
+    summary: "Add a short description of your fourth project here.",
+    tags: ["Technology", "Tool", "Skill"],
+    slides: ["Project image", "Design detail", "Final result"],
+  },
+  {
+    number: "05",
+    year: "2021",
+    showGithub: false,
+    githubUrl: "https://github.com/koibirb",
+    eyebrow: "Project category",
+    title: "Project Five",
+    summary: "Add a short description of your fifth project here.",
+    tags: ["Technology", "Tool", "Skill"],
+    slides: ["Project image", "Design detail", "Final result"],
+  },
+  {
+    number: "06",
+    year: "2020",
+    showGithub: false,
+    githubUrl: "https://github.com/koibirb",
+    eyebrow: "Project category",
+    title: "Project Six",
+    summary: "Add a short description of your sixth project here.",
+    tags: ["Technology", "Tool", "Skill"],
+    slides: ["Project image", "Design detail", "Final result"],
+  },
+  {
+    number: "07",
+    year: "2019",
+    showGithub: false,
+    githubUrl: "https://github.com/koibirb",
+    eyebrow: "Project category",
+    title: "Project Seven",
+    summary: "Add a short description of your seventh project here.",
+    tags: ["Technology", "Tool", "Skill"],
+    slides: ["Project image", "Design detail", "Final result"],
+  },
 ];
 
 function ArrowDown() {
@@ -210,22 +254,29 @@ export default function App() {
             </div>
           </section>
 
-          <section className="story-panel project-panel project-left" id="work" data-year={projects[0].year}>
-            <ProjectCard project={projects[0]} />
-          </section>
+          {projects.map((project, index) => {
+            const isLastProject = index === projects.length - 1;
 
-          <section className="story-panel project-panel project-right" data-year={projects[1].year}>
-            <ProjectCard project={projects[1]} />
-          </section>
-
-          <section className="story-panel project-panel project-left" data-year={projects[2].year}>
-            <ProjectCard project={projects[2]} />
-            <p className="end-note">More projects coming soon!</p>
-            <a className="back-to-top" href="#home">
-              <span aria-hidden="true">↑</span>
-              <span>Back to top</span>
-            </a>
-          </section>
+            return (
+              <section
+                className={`story-panel project-panel ${index % 2 === 0 ? "project-left" : "project-right"}`}
+                id={index === 0 ? "work" : undefined}
+                data-year={project.year}
+                key={project.number}
+              >
+                <ProjectCard project={project} />
+                {isLastProject && (
+                  <>
+                    <p className="end-note">More projects coming soon!</p>
+                    <a className="back-to-top" href="#home">
+                      <span aria-hidden="true">↑</span>
+                      <span>Back to top</span>
+                    </a>
+                  </>
+                )}
+              </section>
+            );
+          })}
         </div>
       </section>
     </main>

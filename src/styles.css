@@ -15,6 +15,7 @@
 html {
   scroll-behavior: smooth;
   scrollbar-color: #f8b331 #2a0905;
+  background: #2a0905;
 }
 
 body {
@@ -39,7 +40,10 @@ a {
   top: 0;
   width: 100%;
   height: 100svh;
+  height: 100dvh;
+  min-height: 100svh;
   margin-bottom: -100svh;
+  margin-bottom: -100dvh;
   overflow: hidden;
   background:
     linear-gradient(90deg, #df5c0c 0%, #f5a821 50%, #df5c0c 100%);
@@ -271,7 +275,7 @@ a {
 
 .scroll-cue {
   position: absolute;
-  bottom: 3rem;
+  bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
   left: 50%;
   display: flex;
   flex-direction: column;
@@ -853,9 +857,6 @@ a {
     font-size: clamp(3.5rem, min(20vw, 14svh), 6rem);
   }
 
-  .scroll-cue span {
-    display: none;
-  }
 }
 
 /* Browser zoom and OS display scaling reduce the effective CSS viewport.
