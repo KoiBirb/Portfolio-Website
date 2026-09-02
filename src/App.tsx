@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 const projects = [
   {
     number: "01",
+    year: "2025",
     eyebrow: "PCB Design / Electrical",
     title: "Class D Amplifier",
     summary:
@@ -12,6 +13,7 @@ const projects = [
   },
   {
     number: "02",
+    year: "2024",
     eyebrow: "Industrial Controls / Communication",
     title: "HVAC–PLC Bridge",
     summary:
@@ -21,6 +23,7 @@ const projects = [
   },
   {
     number: "03",
+    year: "2023",
     eyebrow: "Industrial Sensing / Analog Hardware",
     title: "Water Leak Module",
     summary:
@@ -41,6 +44,8 @@ function ArrowDown() {
 export default function App() {
   const storyRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const [activeYear, setActiveYear] = useState("2026");
+  const timelineYears = ["2026", ...projects.map((project) => project.year)];
 
   useEffect(() => {
     let frame = 0;
@@ -59,6 +64,16 @@ export default function App() {
         "--image-offset",
         `${(-progress * imageTravel).toFixed(2)}px`,
       );
+
+      const panels = Array.from(story.querySelectorAll<HTMLElement>("[data-year]"));
+      const viewportFocus = window.innerHeight * 0.5;
+      const focusedPanel = panels.reduce((closest, panel) => {
+        const panelRect = panel.getBoundingClientRect();
+        const distance = Math.abs(panelRect.top + panelRect.height / 2 - viewportFocus);
+        return distance < closest.distance ? { panel, distance } : closest;
+      }, { panel: panels[0], distance: Number.POSITIVE_INFINITY });
+
+      if (focusedPanel.panel) setActiveYear(focusedPanel.panel.dataset.year ?? "2026");
       frame = 0;
     };
 
@@ -94,11 +109,24 @@ export default function App() {
           />
           <div className="scene-shade" />
           <p className="image-marker marker-top">00° · Above the treeline</p>
+          <div className="year-timeline">
+            <span
+              className="timeline-current"
+              style={{
+                "--timeline-position": `${Math.max(0, timelineYears.indexOf(activeYear)) / (timelineYears.length - 1) * 100}%`,
+              } as CSSProperties}
+            >
+              {activeYear}
+            </span>
+            {activeYear !== projects.at(-1)?.year && (
+              <span className="timeline-last">{projects.at(-1)?.year}</span>
+            )}
+          </div>
           <p className="image-marker marker-bottom">Designed from the ground up</p>
         </div>
 
         <div className="story-content">
-          <section className="story-panel hero-panel" id="home">
+          <section className="story-panel hero-panel" id="home" data-year="2026">
             <div className="hero-copy">
               <p className="section-label">Engineering portfolio · 2026</p>
               <h1>
@@ -115,21 +143,9 @@ export default function App() {
             </a>
           </section>
 
-          <section className="story-panel project-panel project-left" id="work">
-            <ProjectCard project={projects[0]} />
-          </section>
-
-          <section className="story-panel project-panel project-right">
-            <ProjectCard project={projects[1]} />
-          </section>
-
-          <section className="story-panel project-panel project-left">
-            <ProjectCard project={projects[2]} />
-          </section>
-
-          <section className="story-panel about-panel" id="about">
+          <section className="story-panel about-panel" id="about" data-year="2026">
             <div className="about-card">
-              <p className="section-label">04 · About</p>
+              <p className="section-label">About</p>
               <h2>From first trace to final test.</h2>
               <p>
                 I design custom PCBs, embedded interfaces, and control hardware,
@@ -143,6 +159,18 @@ export default function App() {
                 <span>LTspice</span>
               </div>
             </div>
+          </section>
+
+          <section className="story-panel project-panel project-left" id="work" data-year={projects[0].year}>
+            <ProjectCard project={projects[0]} />
+          </section>
+
+          <section className="story-panel project-panel project-right" data-year={projects[1].year}>
+            <ProjectCard project={projects[1]} />
+          </section>
+
+          <section className="story-panel project-panel project-left" data-year={projects[2].year}>
+            <ProjectCard project={projects[2]} />
             <p className="end-note">More projects coming soon!</p>
           </section>
         </div>
