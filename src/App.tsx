@@ -96,7 +96,7 @@ const projects: Project[] = [
     title: "Esp32 Asset Tracking",
     summary:
       "Developed an ESP32-based indoor tracking system designed to monitor BLE-enabled assets across hospital rooms and zones. Multiple ESP32 gateways scan for low-power Bluetooth beacons and use received signal strength to estimate each tag’s location, tracking data transmitted over Wi-Fi to a central MQTT server for monitoring and visualization on a web-based dashboard.",
-    tags: ["Esp32", "BLE", "MQTT", "Wifi"],
+    tags: ["Esp32", "BLE", "MQTT", "Wifi", "Onshape"],
     slides: ["Schematic", "PCB layout", "Validation setup"],
   },
   {
@@ -281,7 +281,6 @@ export default function App() {
         ? target.closest("button, a, .carousel-viewport, .lightbox-viewport")
         : null;
     const handlePointerOver = (event: PointerEvent) => {
-      if (window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
       const control = findControl(event.target);
       if (!control || (event.relatedTarget instanceof Node && control.contains(event.relatedTarget))) return;
       playSound(hoverSound);
@@ -604,7 +603,6 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [slideRatios, setSlideRatios] = useState<Record<number, number>>({});
   const dragRef = useRef<{ startX: number; pointerId: number; moved: boolean } | null>(null);
   const wheelLockRef = useRef<number | null>(null);
   const slideTitle = (slide: ProjectSlide) =>
@@ -701,14 +699,6 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
           src={slide.image}
           alt={slide.alt ?? slide.title}
           draggable="false"
-          onLoad={(event) => {
-            const image = event.currentTarget;
-            if (!image.naturalWidth || !image.naturalHeight) return;
-            const ratio = image.naturalWidth / image.naturalHeight;
-            setSlideRatios((current) => current[index] === ratio
-              ? current
-              : { ...current, [index]: ratio });
-          }}
         />
       )}
       <div className="carousel-grid" aria-hidden="true" />
@@ -727,7 +717,6 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
       <div className="project-carousel" aria-label={`${title} image carousel`}>
       <div
         className="carousel-viewport"
-        style={{ aspectRatio: slideRatios[activeSlide] ?? 16 / 10 }}
         role="button"
         tabIndex={0}
         aria-label={`Enlarge ${title} images`}
