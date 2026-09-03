@@ -685,30 +685,66 @@ function ProjectCarousel({
   slides: ProjectSlide[];
   autoPlay: boolean;
 }) {
+  const autoPlayInterval = 4000;
+  const interactionCooldown = 6000;
   const [activeSlide, setActiveSlide] = useState(0);
+  const [trackIndex, setTrackIndex] = useState(slides.length > 1 ? 1 : 0);
+  const [isResettingTrack, setIsResettingTrack] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [autoPlayResumeAt, setAutoPlayResumeAt] = useState(0);
   const [mobileCaptionHidden, setMobileCaptionHidden] = useState(false);
   const [slideRatios, setSlideRatios] = useState<Record<number, number>>({});
   const carouselViewportRef = useRef<HTMLDivElement>(null);
   const lightboxViewportRef = useRef<HTMLDivElement>(null);
+  const trackIndexRef = useRef(slides.length > 1 ? 1 : 0);
   const dragRef = useRef<{ startX: number; pointerId: number; moved: boolean } | null>(null);
   const wheelLockRef = useRef<number | null>(null);
-  const wheelGestureRef = useRef({ distance: 0, lastEvent: 0 });
+  const wheelGestureRef = useRef({
+    distance: 0,
+    lastEvent: 0,
+    lastMagnitude: 0,
+    lastDirection: 0,
+  });
   const slideTitle = (slide: ProjectSlide) =>
     typeof slide === "string" ? slide : slide.title;
   const activeRatio = slideRatios[activeSlide] ?? 16 / 10;
   const activeHasImage = typeof slides[activeSlide] !== "string" && Boolean(slides[activeSlide].image);
 
+  const postponeAutoPlay = () => {
+    setAutoPlayResumeAt(Date.now() + interactionCooldown);
+  };
+
   const previousSlide = () => {
+    if (slides.length > 1 && trackIndexRef.current <= 0) return;
+    trackIndexRef.current -= 1;
     setMobileCaptionHidden(false);
     setActiveSlide((current) => (current - 1 + slides.length) % slides.length);
+    setTrackIndex(trackIndexRef.current);
   };
 
   const nextSlide = () => {
+    if (slides.length > 1 && trackIndexRef.current >= slides.length + 1) return;
+    trackIndexRef.current += 1;
     setMobileCaptionHidden(false);
     setActiveSlide((current) => (current + 1) % slides.length);
+    setTrackIndex(trackIndexRef.current);
+  };
+
+  const finishTrackTransition = () => {
+    let normalizedIndex: number | null = null;
+    if (trackIndexRef.current === 0) normalizedIndex = slides.length;
+    else if (trackIndexRef.current === slides.length + 1) normalizedIndex = 1;
+    if (normalizedIndex === null) return;
+
+    trackIndexRef.current = normalizedIndex;
+    setIsResettingTrack(true);
+    setTrackIndex(normalizedIndex);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setIsResettingTrack(false));
+    });
   };
 
   useEffect(() => {
@@ -716,21 +752,32 @@ function ProjectCarousel({
       !autoPlay ||
       lightboxOpen ||
       isDragging ||
+      isHovered ||
       slides.length < 2 ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) return;
 
-    const timer = window.setInterval(() => {
-      if (document.visibilityState !== "visible" || !document.hasFocus()) return;
-      setMobileCaptionHidden(false);
-      setActiveSlide((current) => (current + 1) % slides.length);
-    }, 4000);
+    let timer = 0;
+    const advanceAndReschedule = () => {
+      if (document.visibilityState === "visible" && document.hasFocus()) {
+        setMobileCaptionHidden(false);
+        setActiveSlide((current) => (current + 1) % slides.length);
+      }
+      timer = window.setTimeout(advanceAndReschedule, autoPlayInterval);
+    };
 
-    return () => window.clearInterval(timer);
-  }, [autoPlay, isDragging, lightboxOpen, slides.length]);
+    const cooldownRemaining = Math.max(0, autoPlayResumeAt - Date.now());
+    timer = window.setTimeout(
+      advanceAndReschedule,
+      Math.max(autoPlayInterval, cooldownRemaining),
+    );
+
+    return () => window.clearTimeout(timer);
+  }, [autoPlay, autoPlayResumeAt, isDragging, isHovered, lightboxOpen, slides.length]);
 
   const beginDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    postponeAutoPlay();
     dragRef.current = { startX: event.clientX, pointerId: event.pointerId, moved: false };
     event.currentTarget.setPointerCapture(event.pointerId);
     setIsDragging(true);
@@ -778,21 +825,41 @@ function ProjectCarousel({
       // Let ordinary two-finger vertical scrolling continue moving the page.
       if (Math.abs(horizontalDistance) <= Math.abs(event.deltaY) * 1.1) return;
       event.preventDefault();
-      if (wheelLockRef.current !== null) {
-        // Momentum belongs to the same gesture. Keep extending the lock until
-        // the trackpad stops sending wheel events.
-        window.clearTimeout(wheelLockRef.current);
-        wheelLockRef.current = window.setTimeout(() => {
-          wheelLockRef.current = null;
-        }, 220);
-        return;
-      }
+      postponeAutoPlay();
 
       const now = performance.now();
+      const magnitude = Math.abs(horizontalDistance);
+      const direction = Math.sign(horizontalDistance);
+      if (wheelLockRef.current !== null) {
+        // Ignore momentum from the previous swipe, but immediately accept a
+        // new impulse so quick consecutive swipes do not feel locked out.
+        const gesture = wheelGestureRef.current;
+        const isFreshImpulse =
+          direction !== gesture.lastDirection ||
+          now - gesture.lastEvent > 70 ||
+          (magnitude >= 8 && magnitude > gesture.lastMagnitude * 1.75);
+
+        if (!isFreshImpulse) {
+          gesture.lastEvent = now;
+          gesture.lastMagnitude = magnitude;
+          window.clearTimeout(wheelLockRef.current);
+          wheelLockRef.current = window.setTimeout(() => {
+            wheelLockRef.current = null;
+          }, 140);
+          return;
+        }
+
+        window.clearTimeout(wheelLockRef.current);
+        wheelLockRef.current = null;
+        gesture.distance = 0;
+      }
+
       if (now - wheelGestureRef.current.lastEvent > 180) {
         wheelGestureRef.current.distance = 0;
       }
       wheelGestureRef.current.lastEvent = now;
+      wheelGestureRef.current.lastMagnitude = magnitude;
+      wheelGestureRef.current.lastDirection = direction;
       wheelGestureRef.current.distance += horizontalDistance;
 
       // Trackpads emit several small wheel events per swipe. Accumulate them so
@@ -804,7 +871,7 @@ function ProjectCarousel({
       wheelGestureRef.current.distance = 0;
       wheelLockRef.current = window.setTimeout(() => {
         wheelLockRef.current = null;
-      }, 220);
+      }, 140);
     };
 
     const viewports = [carouselViewportRef.current, lightboxViewportRef.current].filter(
@@ -817,6 +884,8 @@ function ProjectCarousel({
     return () => {
       viewports.forEach((viewport) => viewport.removeEventListener("wheel", handleTrackpadSwipe));
       wheelGestureRef.current.distance = 0;
+      wheelGestureRef.current.lastMagnitude = 0;
+      wheelGestureRef.current.lastDirection = 0;
       if (wheelLockRef.current !== null) {
         window.clearTimeout(wheelLockRef.current);
         wheelLockRef.current = null;
@@ -830,9 +899,16 @@ function ProjectCarousel({
     document.body.style.overflow = "hidden";
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setLightboxOpen(false);
-      else if (event.key === "ArrowLeft") previousSlide();
-      else if (event.key === "ArrowRight") nextSlide();
+      if (event.key === "Escape") {
+        postponeAutoPlay();
+        setLightboxOpen(false);
+      } else if (event.key === "ArrowLeft") {
+        postponeAutoPlay();
+        previousSlide();
+      } else if (event.key === "ArrowRight") {
+        postponeAutoPlay();
+        nextSlide();
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
 
@@ -843,7 +919,12 @@ function ProjectCarousel({
     };
   }, [lightboxOpen]);
 
-  const renderSlides = (expanded = false) => slides.map((slide, index) => {
+  const renderSlide = (
+    slide: ProjectSlide,
+    index: number,
+    expanded: boolean,
+    clonePosition?: "leading" | "trailing",
+  ) => {
     const hasImage = typeof slide !== "string" && Boolean(slide.image);
     const imageRatio = slideRatios[index] ?? 16 / 10;
     const caption = (
@@ -857,6 +938,7 @@ function ProjectCarousel({
         onClick={(event) => {
           if (!window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
           event.stopPropagation();
+          postponeAutoPlay();
           setMobileCaptionHidden((hidden) => !hidden);
         }}
       >
@@ -870,7 +952,8 @@ function ProjectCarousel({
     return (
       <figure
         className={`carousel-slide carousel-tone-${index + 1}${hasImage ? " has-image" : ""}${expanded ? " is-expanded" : ""}`}
-        key={`${slideTitle(slide)}-${index}`}
+        key={`${clonePosition ?? "slide"}-${slideTitle(slide)}-${index}`}
+        aria-hidden={clonePosition ? true : undefined}
       >
         {hasImage && typeof slide !== "string" ? (
           <div
@@ -883,7 +966,7 @@ function ProjectCarousel({
             <img
               className="carousel-image"
               src={slide.image}
-              alt={slide.alt ?? `${title} project — ${slide.title}`}
+              alt={clonePosition ? "" : (slide.alt ?? `${title} project — ${slide.title}`)}
               draggable="false"
               onLoad={(event) => {
                 const ratio = event.currentTarget.naturalWidth / event.currentTarget.naturalHeight;
@@ -903,11 +986,39 @@ function ProjectCarousel({
         )}
       </figure>
     );
-  });
+  };
+
+  const renderSlides = (expanded = false) => {
+    if (slides.length < 2) {
+      return slides.map((slide, index) => renderSlide(slide, index, expanded));
+    }
+
+    return [
+      renderSlide(slides[slides.length - 1], slides.length - 1, expanded, "leading"),
+      ...slides.map((slide, index) => renderSlide(slide, index, expanded)),
+      renderSlide(slides[0], 0, expanded, "trailing"),
+    ];
+  };
 
   return (
     <>
-      <div className="project-carousel" aria-label={`${title} image carousel`}>
+      <div
+        className="project-carousel"
+        aria-label={`${title} image carousel`}
+        onPointerEnter={(event) => {
+          if (event.pointerType !== "mouse") return;
+          setIsHovered(true);
+          postponeAutoPlay();
+        }}
+        onPointerLeave={(event) => {
+          if (event.pointerType !== "mouse") return;
+          setIsHovered(false);
+          postponeAutoPlay();
+        }}
+        onFocusCapture={() => {
+          postponeAutoPlay();
+        }}
+      >
       <div
         ref={carouselViewportRef}
         className={`carousel-viewport${activeHasImage ? " has-active-image" : ""}`}
@@ -915,7 +1026,10 @@ function ProjectCarousel({
         tabIndex={0}
         aria-label={`Enlarge ${title} images`}
         onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") setLightboxOpen(true);
+          if (event.key === "Enter" || event.key === " ") {
+            postponeAutoPlay();
+            setLightboxOpen(true);
+          }
         }}
         onPointerDown={beginDrag}
         onPointerMove={updateDrag}
@@ -923,15 +1037,28 @@ function ProjectCarousel({
         onPointerCancel={cancelDrag}
       >
         <div
-          className={`carousel-track${isDragging ? " is-dragging" : ""}`}
-          style={{ transform: `translateX(calc(-${activeSlide * 100}% + ${dragOffset}px))` }}
+          className={`carousel-track${isDragging ? " is-dragging" : ""}${isResettingTrack ? " is-resetting" : ""}`}
+          style={{ transform: `translateX(calc(-${trackIndex * 100}% + ${dragOffset}px))` }}
+          onTransitionEnd={(event) => {
+            if (event.target === event.currentTarget && event.propertyName === "transform") {
+              finishTrackTransition();
+            }
+          }}
+          onTransitionCancel={(event) => {
+            if (event.target === event.currentTarget && event.propertyName === "transform") {
+              finishTrackTransition();
+            }
+          }}
         >
           {renderSlides()}
         </div>
       </div>
 
       <div className="carousel-controls">
-        <button type="button" onClick={previousSlide} aria-label={`Previous ${title} image`}>
+        <button type="button" onClick={() => {
+          postponeAutoPlay();
+          previousSlide();
+        }} aria-label={`Previous ${title} image`}>
           ←
         </button>
         <div className="carousel-dots" aria-label="Choose image">
@@ -940,8 +1067,11 @@ function ProjectCarousel({
               type="button"
               className={index === activeSlide ? "is-active" : ""}
               onClick={() => {
+                postponeAutoPlay();
                 setMobileCaptionHidden(false);
                 setActiveSlide(index);
+                trackIndexRef.current = slides.length > 1 ? index + 1 : index;
+                setTrackIndex(trackIndexRef.current);
               }}
               aria-label={`Show ${slideTitle(slide)}`}
               aria-current={index === activeSlide ? "true" : undefined}
@@ -949,7 +1079,10 @@ function ProjectCarousel({
             />
           ))}
         </div>
-        <button type="button" onClick={nextSlide} aria-label={`Next ${title} image`}>
+        <button type="button" onClick={() => {
+          postponeAutoPlay();
+          nextSlide();
+        }} aria-label={`Next ${title} image`}>
           →
         </button>
       </div>
@@ -961,18 +1094,27 @@ function ProjectCarousel({
           aria-modal="true"
           aria-label={`${title} enlarged images`}
           onPointerDown={(event) => {
-            if (event.target === event.currentTarget) setLightboxOpen(false);
+            if (event.target === event.currentTarget) {
+              postponeAutoPlay();
+              setLightboxOpen(false);
+            }
           }}
         >
           <button
             className="lightbox-close"
             type="button"
-            onClick={() => setLightboxOpen(false)}
+            onClick={() => {
+              postponeAutoPlay();
+              setLightboxOpen(false);
+            }}
             aria-label="Close enlarged images"
           >
             ×
           </button>
-          <button className="lightbox-arrow lightbox-previous" type="button" onClick={previousSlide} aria-label="Previous image">
+          <button className="lightbox-arrow lightbox-previous" type="button" onClick={() => {
+            postponeAutoPlay();
+            previousSlide();
+          }} aria-label="Previous image">
             ←
           </button>
           <div
@@ -988,13 +1130,26 @@ function ProjectCarousel({
             onPointerCancel={cancelDrag}
           >
             <div
-              className={`carousel-track${isDragging ? " is-dragging" : ""}`}
-              style={{ transform: `translateX(calc(-${activeSlide * 100}% + ${dragOffset}px))` }}
+              className={`carousel-track${isDragging ? " is-dragging" : ""}${isResettingTrack ? " is-resetting" : ""}`}
+              style={{ transform: `translateX(calc(-${trackIndex * 100}% + ${dragOffset}px))` }}
+              onTransitionEnd={(event) => {
+                if (event.target === event.currentTarget && event.propertyName === "transform") {
+                  finishTrackTransition();
+                }
+              }}
+              onTransitionCancel={(event) => {
+                if (event.target === event.currentTarget && event.propertyName === "transform") {
+                  finishTrackTransition();
+                }
+              }}
             >
               {renderSlides(true)}
             </div>
           </div>
-          <button className="lightbox-arrow lightbox-next" type="button" onClick={nextSlide} aria-label="Next image">
+          <button className="lightbox-arrow lightbox-next" type="button" onClick={() => {
+            postponeAutoPlay();
+            nextSlide();
+          }} aria-label="Next image">
             →
           </button>
           <p className="lightbox-count">
