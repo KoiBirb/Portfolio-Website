@@ -228,9 +228,7 @@ export default function App() {
   const [musicMuted, setMusicMuted] = useState(() => readAudioSettings().muted);
   const [musicVolume, setMusicVolume] = useState(() => readAudioSettings().volume);
   const [playbackBlocked, setPlaybackBlocked] = useState(true);
-  const [mobileVolumeOpen, setMobileVolumeOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const audioControlRef = useRef<HTMLDivElement>(null);
   const lastVolumeRef = useRef(musicVolume);
   const autoplayBlockedRef = useRef(false);
   const resumeAfterFocusRef = useRef(false);
@@ -355,22 +353,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!mobileVolumeOpen) return;
-
-    const closeVolumeWhenTappedOutside = (event: PointerEvent) => {
-      if (
-        event.target instanceof Node &&
-        !audioControlRef.current?.contains(event.target)
-      ) {
-        setMobileVolumeOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", closeVolumeWhenTappedOutside);
-    return () => document.removeEventListener("pointerdown", closeVolumeWhenTappedOutside);
-  }, [mobileVolumeOpen]);
-
-  useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !backgroundSong.src) return;
 
@@ -455,21 +437,6 @@ export default function App() {
     }
   };
 
-  const handleAudioButton = async () => {
-    const isTouchDevice = window.matchMedia("(hover: none), (pointer: coarse)").matches;
-    if (!isTouchDevice) {
-      await toggleMusicMute();
-      return;
-    }
-
-    if (!mobileVolumeOpen) {
-      setMobileVolumeOpen(true);
-      return;
-    }
-
-    await toggleMusicMute();
-  };
-
   const handleVolumeChange = async (value: number) => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -500,10 +467,7 @@ export default function App() {
         aria-label="Social profiles"
       >
         {backgroundSong.src && (
-          <div
-            ref={audioControlRef}
-            className={`audio-control${mobileVolumeOpen ? " is-open" : ""}`}
-          >
+          <div className="audio-control">
             <audio ref={audioRef} src={backgroundSong.src} preload="auto" loop />
             <div className="volume-popover">
               <input
@@ -519,7 +483,7 @@ export default function App() {
             <button
               className="audio-toggle"
               type="button"
-              onClick={handleAudioButton}
+              onClick={toggleMusicMute}
               aria-label={audioAppearsMuted ? `Play or unmute ${backgroundSong.title}` : `Mute ${backgroundSong.title}`}
               aria-pressed={!audioAppearsMuted}
             >
@@ -697,6 +661,7 @@ function ProjectCarousel({
   const [autoPlayResumeAt, setAutoPlayResumeAt] = useState(0);
   const [mobileCaptionHidden, setMobileCaptionHidden] = useState(false);
   const [slideRatios, setSlideRatios] = useState<Record<number, number>>({});
+  const [loadedSlides, setLoadedSlides] = useState<Record<number, boolean>>({});
   const carouselViewportRef = useRef<HTMLDivElement>(null);
   const lightboxViewportRef = useRef<HTMLDivElement>(null);
   const trackIndexRef = useRef(slides.length > 1 ? 1 : 0);
@@ -963,8 +928,12 @@ function ProjectCarousel({
               "--image-width-at-full-height": `${imageRatio * 100}cqh`,
             } as CSSProperties}
           >
+            <div
+              className={`carousel-image-skeleton${loadedSlides[index] ? " is-hidden" : ""}`}
+              aria-hidden="true"
+            />
             <img
-              className="carousel-image"
+              className={`carousel-image${loadedSlides[index] ? " is-loaded" : ""}`}
               src={slide.image}
               alt={clonePosition ? "" : (slide.alt ?? `${title} project — ${slide.title}`)}
               draggable="false"
@@ -974,6 +943,9 @@ function ProjectCarousel({
                 setSlideRatios((current) => current[index] === ratio
                   ? current
                   : { ...current, [index]: ratio });
+                setLoadedSlides((current) => current[index]
+                  ? current
+                  : { ...current, [index]: true });
               }}
             />
             {caption}
