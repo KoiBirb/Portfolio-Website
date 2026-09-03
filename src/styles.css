@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap");
-
 :root {
   color: #fff7e9;
   background: #2a0905;
@@ -87,7 +85,6 @@ a {
   margin: 0;
   color: rgba(255, 248, 234, 0.72);
   font-family: "DM Mono", monospace;
-  font-size: 0.58rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   writing-mode: vertical-rl;
@@ -114,7 +111,6 @@ a {
   color: rgba(255, 248, 234, 0.82);
   background: rgba(255, 248, 234, 0.32);
   font-family: "DM Mono", monospace;
-  font-size: 0.58rem;
   letter-spacing: 0.12em;
 }
 
@@ -183,14 +179,10 @@ a {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1.25rem;
 }
 
 .social-links a {
   display: grid;
-  width: 3.9rem;
-  height: 3.9rem;
-  padding: 0.9rem;
   border: 1px solid rgba(255, 247, 233, 0.35);
   color: #fff7e9;
   background: rgba(43, 7, 4, 0.55);
@@ -225,18 +217,13 @@ a {
   position: relative;
   order: -1;
   align-self: flex-start;
-  width: 3.9rem;
-  height: 3.9rem;
 }
 
 .audio-toggle {
   position: absolute;
   inset: 0;
   display: grid;
-  width: 100%;
-  height: 3.9rem;
   margin: 0;
-  padding: 0.9rem;
   border: 1px solid rgba(255, 247, 233, 0.35);
   color: #fff7e9;
   background: rgba(43, 7, 4, 0.55);
@@ -284,8 +271,7 @@ a {
 }
 
 .audio-control:hover .volume-popover,
-.audio-control:has(.volume-popover input:focus-visible) .volume-popover,
-.audio-control.is-open .volume-popover {
+.audio-control:has(.volume-popover input:focus-visible) .volume-popover {
   visibility: visible;
   opacity: 1;
   transform: translateX(-50%) scaleY(1);
@@ -360,16 +346,13 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.65rem;
   transform: translateX(-50%);
   font-family: "DM Mono", monospace;
-  font-size: 0.6rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
 .scroll-cue svg {
-  width: 1.4rem;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -423,7 +406,6 @@ a {
   gap: 2rem;
   color: #f7ae36;
   font-family: "DM Mono", monospace;
-  font-size: 0.62rem;
   line-height: 1.5;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -444,17 +426,50 @@ a {
 }
 
 .project-card h2:has(+ .project-collaboration) {
-  margin-bottom: 1.15rem;
+  margin-bottom: 1.5rem;
 }
 
 .project-copy > .project-collaboration {
   max-width: 34rem;
-  margin: 0 0 1.75rem;
-  color: #f8b331;
+  margin: 0 0 1rem;
+  color: #f7ae36;
   font-family: "DM Mono", monospace;
   font-size: clamp(0.65rem, 0.85vw, 0.78rem);
   line-height: 1.5;
   letter-spacing: 0.08em;
+}
+
+.project-collaboration-highlight {
+  display: inline-block;
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transform-origin: left center;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+a.project-collaboration-highlight {
+  cursor: pointer;
+}
+
+.project-collaboration-highlight:focus-visible {
+  color: #f8b331;
+  outline: 1px solid currentColor;
+  outline-offset: 0.2rem;
+  transform: scale(1.045);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-collaboration-highlight:hover {
+    color: #f8b331;
+    transform: scale(1.045);
+  }
+}
+
+.project-copy > p {
+  padding-left: 0.3rem;
 }
 
 .project-copy > p,
@@ -478,10 +493,8 @@ a {
 
 .project-card li,
 .skill-line span {
-  padding: 0.45rem 0.7rem;
   border: 1px solid rgba(255, 247, 233, 0.25);
   font-family: "DM Mono", monospace;
-  font-size: 0.58rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -496,7 +509,7 @@ a {
   overflow: hidden;
   overscroll-behavior-x: contain;
   aspect-ratio: 16 / 10;
-  border: 1px solid rgba(255, 247, 233, 0.3);
+  border: 1px solid transparent;
   background: transparent;
   container-type: inline-size;
   cursor: zoom-in;
@@ -510,21 +523,19 @@ a {
   transform: scale(1.025);
 }
 
-.carousel-viewport.has-active-image,
-.lightbox-viewport.has-active-image {
-  border-color: transparent;
-}
-
 .carousel-track {
   display: flex;
   height: 100%;
   transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
 }
 
 .carousel-track.is-dragging,
 .carousel-track.is-resetting {
   transition: none;
+}
+
+.carousel-track.is-dragging {
+  will-change: transform;
 }
 
 .carousel-slide {
@@ -534,21 +545,10 @@ a {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 72% 30%, rgba(255, 193, 67, 0.55), transparent 24%),
-    linear-gradient(135deg, #8c260c, #e26711 55%, #6b160a);
-  transition: transform 220ms ease;
+  background: transparent;
   user-select: none;
   container-type: size;
   place-items: center;
-}
-
-.carousel-slide.has-image {
-  background: transparent;
-}
-
-.carousel-slide.has-image .carousel-grid {
-  display: none;
 }
 
 .carousel-image-frame {
@@ -590,11 +590,20 @@ a {
   filter: blur(5px);
   transform: translateX(-125%);
   animation: carousel-image-shimmer 1.8s ease-in-out infinite;
+  animation-play-state: paused;
 }
 
 .carousel-image-skeleton.is-hidden {
+  visibility: hidden;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 260ms ease, visibility 0s 260ms;
+}
+
+/* Offscreen placeholders stay static to avoid dozens of unnecessary animations. */
+.project-carousel.is-active .carousel-image-skeleton:not(.is-hidden)::after,
+.image-lightbox .carousel-image-skeleton:not(.is-hidden)::after {
+  animation-play-state: running;
 }
 
 @keyframes carousel-image-shimmer {
@@ -603,33 +612,9 @@ a {
   }
 }
 
-.carousel-tone-2 {
-  background:
-    radial-gradient(circle at 28% 72%, rgba(255, 204, 89, 0.5), transparent 24%),
-    linear-gradient(145deg, #3d0b07, #a43410 55%, #ef8d1d);
-}
-
-.carousel-tone-3 {
-  background:
-    radial-gradient(circle at 70% 65%, rgba(255, 199, 78, 0.45), transparent 24%),
-    linear-gradient(120deg, #c84d0c, #72190a 58%, #240604);
-}
-
-.carousel-grid {
-  position: absolute;
-  inset: 0;
-  opacity: 0.24;
-  background-image:
-    linear-gradient(rgba(255, 247, 233, 0.35) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 247, 233, 0.35) 1px, transparent 1px);
-  background-size: 2rem 2rem;
-  mask-image: linear-gradient(135deg, #000, transparent 75%);
-}
-
 .carousel-slide figcaption {
   position: absolute;
   z-index: 3;
-  right: auto;
   bottom: clamp(0.6rem, 1.25vw, 1rem);
   left: clamp(0.6rem, 1.25vw, 1rem);
   display: grid;
@@ -641,7 +626,6 @@ a {
   background: rgba(43, 7, 4, 0.55);
   text-align: left;
   text-shadow: 0 2px 18px rgba(42, 4, 2, 0.5);
-  transform: none;
   transition: opacity 220ms ease;
 }
 
@@ -651,8 +635,7 @@ a {
   }
 }
 
-.carousel-slide figcaption span,
-.carousel-slide figcaption small {
+.carousel-slide figcaption span {
   font-family: "DM Mono", monospace;
   font-size: clamp(0.32rem, 1.1cqw, 0.406rem);
   letter-spacing: 0.15em;
@@ -666,10 +649,6 @@ a {
   line-height: 1;
 }
 
-.carousel-slide figcaption small {
-  color: rgba(255, 247, 233, 0.7);
-}
-
 .carousel-controls {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -679,8 +658,6 @@ a {
 
 .carousel-controls > button {
   display: grid;
-  width: 2.75rem;
-  height: 2.75rem;
   padding: 0;
   border: 1px solid rgba(255, 247, 233, 0.3);
   color: inherit;
@@ -703,8 +680,6 @@ a {
 }
 
 .carousel-dots button {
-  width: 1.8rem;
-  height: 2.75rem;
   padding: 0;
   border: 0;
   background: transparent;
@@ -772,7 +747,7 @@ a {
   height: auto;
   overflow: hidden;
   overscroll-behavior-x: contain;
-  border: 1px solid rgba(255, 247, 233, 0.3);
+  border: 1px solid transparent;
   background: transparent;
   container-type: inline-size;
   cursor: grab;
@@ -781,15 +756,6 @@ a {
 
 .lightbox-viewport:active {
   cursor: grabbing;
-}
-
-.lightbox-viewport .carousel-slide {
-  display: grid;
-  place-items: center;
-}
-
-.lightbox-viewport .carousel-image {
-  object-fit: contain;
 }
 
 .lightbox-close,
@@ -872,18 +838,12 @@ a {
   top: 78%;
   left: 50%;
   display: grid;
-  grid-template-columns: 1.45rem 1fr 1.45rem;
   align-items: center;
-  gap: 0.8rem;
-  width: 12rem;
-  min-height: 3.6rem;
-  padding: 0.8rem 1rem;
   border: 1px solid rgba(255, 247, 233, 0.35);
   background: rgba(43, 7, 4, 0.55);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   font-family: "DM Mono", monospace;
-  font-size: 0.9rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   transform: translate(-50%, -50%);
@@ -892,7 +852,6 @@ a {
 }
 
 .resume-link svg {
-  width: 1.45rem;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -901,7 +860,6 @@ a {
 }
 
 .resume-link > span:last-child {
-  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -927,11 +885,8 @@ a {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.7rem;
   border: 1px solid rgba(255, 247, 233, 0.25);
   font-family: "DM Mono", monospace;
-  font-size: 0.58rem;
   line-height: normal;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1006,7 +961,6 @@ a {
   margin: 0;
   transform: translateX(-50%);
   font-family: "DM Mono", monospace;
-  font-size: 0.62rem;
   letter-spacing: 0.18em;
   text-align: center;
   text-transform: uppercase;
@@ -1019,9 +973,7 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
   font-family: "DM Mono", monospace;
-  font-size: 0.58rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   transform: translateX(-50%);
@@ -1121,7 +1073,13 @@ a {
   font-size: clamp(0.52rem, 0.6vw, 0.62rem);
 }
 
-@media (max-width: 780px) {
+@media (max-width: 900px), (hover: none), (pointer: coarse) {
+  .volume-popover {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
   .visual-pin {
     position: fixed;
     top: 0;
@@ -1156,10 +1114,6 @@ a {
     opacity: 0;
     transform: translateY(0.75rem);
     pointer-events: none;
-  }
-
-  .volume-popover {
-    display: none;
   }
 
   .project-panel {
@@ -1228,10 +1182,6 @@ a {
 /* Touch browsers can leave :hover active after a tap. Keep hover-only feedback
    exclusive to devices with a precise pointer. */
 @media (hover: none), (pointer: coarse) {
-  .volume-popover {
-    display: none;
-  }
-
   .carousel-slide figcaption.is-mobile-hidden {
     opacity: 0;
   }
@@ -1246,12 +1196,6 @@ a {
   .social-links a:hover img,
   .project-github:hover img {
     filter: invert(96%) sepia(12%) saturate(530%) hue-rotate(326deg) brightness(106%);
-  }
-
-  .audio-control:hover:not(.is-open) .volume-popover {
-    visibility: hidden;
-    opacity: 0;
-    transform: translateX(-50%) scaleY(0.75);
   }
 
   .carousel-viewport:hover,

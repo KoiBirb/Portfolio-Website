@@ -1,12 +1,15 @@
 import {
+  memo,
   useEffect,
   useRef,
   useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
+  type TransitionEvent as ReactTransitionEvent,
 } from "react";
 import { createPortal } from "react-dom";
 
+// Asset paths and shared interaction timing.
 const backgroundSong = {
   // Add a file to public/music, then set its path here, for example:
   // src: "./music/background-song.mp3",
@@ -21,6 +24,11 @@ const interfaceSounds = {
 };
 
 const audioSettingsKey = "portfolio-audio-settings";
+const autoPlayInterval = 4000;
+const interactionCooldown = 6000;
+
+const coarsePointerQuery = "(hover: none), (pointer: coarse)";
+const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
 
 function readAudioSettings() {
   try {
@@ -35,36 +43,38 @@ function readAudioSettings() {
   }
 }
 
-type ProjectSlide =
-  | string
-  | {
-      title: string;
-      image: string;
-      alt?: string;
-    };
+type ProjectSlide = {
+  title: string;
+  image: string;
+  alt?: string;
+};
+
+type Collaboration = {
+  label: string;
+  highlight: string;
+  url?: string;
+};
 
 type Project = {
   number: string;
   year: string;
-  showGithub: boolean;
-  githubUrl: string;
+  githubUrl?: string;
   eyebrow: string;
   title: string;
-  collaboration?: string;
+  collaboration?: Collaboration;
   summary: string;
   tags: string[];
   slides: ProjectSlide[];
 };
 
+// Portfolio content is kept separate from rendering logic for quick updates.
 const projects: Project[] = [
   {
     number: "01",
     year: "2026",
-    showGithub: false,
-    githubUrl: "",
     eyebrow: "Audio Electronics / Electrical",
     title: "Class D Amplifier",
-    // collaboration: "Built in collaboration with Name",
+    // collaboration: { label: "Built in collaboration with", highlight: "Name", url: "https://example.com" },
     summary:
       "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
     tags: ["Altium", "PCB Design", "Circuit Design", "Fusion 360", "Oscilloscope"],
@@ -79,11 +89,9 @@ const projects: Project[] = [
   {
     number: "02",
     year: "2026",
-    showGithub: false,
-    githubUrl: "",
     eyebrow: "Embedded Systems / Electrical",
     title: "STM32 Flight Controller",
-    collaboration: "In collaboration with Moiz Ahmad",
+    collaboration: { label: "In collaboration with", highlight: "Moiz Ahmad", url: "https://moizahmad.com" },
     summary:
       "Designed and developed a custom STM32-based flight controller for a fixed-wing RC aircraft. The board integrates an STM32F446 microcontroller, IMU and barometric pressure sensors, USB communication, ELRS radio connectivity, and multiple PWM outputs for flight-control hardware. The project involved schematic design, component selection, power regulation, four-layer PCB layout, USB differential-pair routing, and hardware bring-up using STM32CubeMX, C/C++, and SWD debugging.",
     tags: ["Altium", "SPI & I2C", "UART", "USB", "STM32CubeMX"],
@@ -97,11 +105,10 @@ const projects: Project[] = [
   {
     number: "03",
     year: "2025",
-    showGithub: true,
     githubUrl: "https://github.com/mynteee/tracking-14-a",
     eyebrow: "IoT Asset Tracking / Software & Hardware",
     title: "Esp32 Asset Tracking",
-    collaboration: "In collaboration with Western ES 1050",
+    collaboration: { label: "In collaboration with", highlight: "ES1050", url: "https://www.eng.uwo.ca/media/news/2024/Thompson-Centre-ES1050-professors-making-an-impact.html" },
     summary:
       "Developed an ESP32-based indoor tracking system designed to monitor BLE-enabled assets across hospital rooms and zones. Multiple ESP32 gateways scan for low-power Bluetooth beacons and use received signal strength to estimate each tag’s location, tracking data transmitted over Wi-Fi to a central MQTT server for monitoring and visualization on a web-based dashboard.",
     tags: ["Esp32", "BLE", "MQTT", "Wifi", "Onshape"],
@@ -115,8 +122,6 @@ const projects: Project[] = [
   {
     number: "04",
     year: "2025",
-    showGithub: false,
-    githubUrl: "",
     eyebrow: "Gearbox Design / Mechanical",
     title: "Harmonic Drive",
     summary: "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and wave generator to achieve compact, high-ratio 20:1 motion transmission. The project was to be used on a nema 17 stepper motor and focused on mechanical design, gear geometry, material selection, and designing components specifically for additive manufacturing while balancing flexibility, stiffness and durability.",
@@ -132,8 +137,6 @@ const projects: Project[] = [
   {
     number: "05",
     year: "2025",
-    showGithub: false,
-    githubUrl: "",
     eyebrow: "Drone Design / Mechanical & Electrical",
     title: "3D Printed Drone",
     summary: "Designed and built a custom 3D-printed drone, developing the airframe from scratch, printed with carbon-filled petg with a focus on weight, strength, and component integration. I used betaflight to configure a F405 mini flight controller stack to enable smooth flight. This project combined CAD modelling, additive manufacturing, electronics integration, assembly, and iterative testing to refine the frame and overall flight platform.",
@@ -149,11 +152,10 @@ const projects: Project[] = [
   {
     number: "06",
     year: "2025",
-    showGithub: true,
     githubUrl: "https://github.com/KoiBirb/Forsaken-Crown",
     eyebrow: "Game Design / Software",
     title: "Arcade Machine Game",
-    collaboration: "In collaboration with London Central Secondary School",
+    collaboration: { label: "In collaboration with London Central Secondary School", highlight: "", url: "" },
     summary: "Designed and developed a hack and slash platformer game inspired by hollow knight. I used java swing to display the graphics and developed fundamental skills in organization of an over 20k+ line project. Tiled and json simple was used to create and store the map.",
     tags: ["Java", "Intelij", "JSON", "Github", "Tiled"],
     slides: [
@@ -169,11 +171,10 @@ const projects: Project[] = [
   {
     number: "07",
     year: "2024",
-    showGithub: true,
     githubUrl: "https://github.com/KoiBirb/Robot-Dog",
     eyebrow: "Quadruped Robotics / Mechanical / Electrical",
     title: "Robot Dog",
-    collaboration: "In collaboration with Western Mathmatics Expo",
+    collaboration: { label: "In collaboration with", highlight: "Moiz Ahmad", url: "https://moizahmad.com" },
     summary: "Designed and built a custom quadruped robot dog for a Western University competition, integrating an ESP32, custom KiCad PCB, servo driver, and 12 actuated joints. The project combined mechanical design, electronics, and inverse kinematics to coordinate multi-joint leg motion and produce controlled walking movements.",
     tags: ["C++", "Arduino IDE", "KiCad", "Esp32", "Inverse Kinematics", "Servos"],
     slides: [
@@ -187,6 +188,11 @@ const projects: Project[] = [
     ],
   },
 ];
+
+const timelineYears = Array.from(
+  new Set(["2026", ...projects.map((project) => project.year)]),
+);
+
 function ArrowDown() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -224,38 +230,48 @@ export default function App() {
   const activeYearRef = useRef("2026");
   const [yearPulse, setYearPulse] = useState(false);
   const [mobileSocialVisible, setMobileSocialVisible] = useState(true);
+  const mobileSocialVisibleRef = useRef(true);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
+  const activeProjectIndexRef = useRef<number | null>(null);
   const [musicMuted, setMusicMuted] = useState(() => readAudioSettings().muted);
   const [musicVolume, setMusicVolume] = useState(() => readAudioSettings().volume);
   const [playbackBlocked, setPlaybackBlocked] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
   const lastVolumeRef = useRef(musicVolume);
-  const autoplayBlockedRef = useRef(false);
   const resumeAfterFocusRef = useRef(false);
   const interfaceVolumeRef = useRef({ muted: musicMuted, volume: musicVolume });
-  const timelineYears = Array.from(
-    new Set(["2026", ...projects.map((project) => project.year)]),
-  );
+  interfaceVolumeRef.current = {
+    muted: musicMuted || playbackBlocked,
+    volume: musicVolume,
+  };
 
   useEffect(() => {
+    const story = storyRef.current;
+    const image = imageRef.current;
+    if (!story || !image) return;
+
+    // Cache the panels once; only their viewport geometry changes while scrolling.
+    const panels = Array.from(story.querySelectorAll<HTMLElement>("[data-year]"));
     let frame = 0;
+    let storyTravel = 0;
+    let imageTravel = 0;
+
+    const measureScrollableArea = () => {
+      storyTravel = Math.max(0, story.offsetHeight - window.innerHeight);
+      imageTravel = Math.max(0, image.offsetHeight - window.innerHeight);
+    };
 
     const update = () => {
-      const story = storyRef.current;
-      const image = imageRef.current;
-      if (!story || !image) return;
-
       const rect = story.getBoundingClientRect();
-      const travel = story.offsetHeight - window.innerHeight;
-      const progress = travel > 0 ? Math.min(1, Math.max(0, -rect.top / travel)) : 0;
-      const imageTravel = Math.max(0, image.offsetHeight - window.innerHeight);
+      const progress = storyTravel > 0
+        ? Math.min(1, Math.max(0, -rect.top / storyTravel))
+        : 0;
 
       image.style.setProperty(
         "--image-offset",
         `${(-progress * imageTravel).toFixed(2)}px`,
       );
 
-      const panels = Array.from(story.querySelectorAll<HTMLElement>("[data-year]"));
       const focusedPanel = panels.reduce((mostVisible, panel) => {
         const panelRect = panel.getBoundingClientRect();
         const visibleHeight = Math.max(
@@ -275,12 +291,19 @@ export default function App() {
         }
       }
       const focusedProjectIndex = focusedPanel.panel?.dataset.projectIndex;
-      setActiveProjectIndex(
-        focusedProjectIndex !== undefined && focusedPanel.ratio > 0
-          ? Number(focusedProjectIndex)
-          : null,
-      );
-      setMobileSocialVisible(window.scrollY < Math.max(120, window.innerHeight * 0.18));
+      const nextProjectIndex = focusedProjectIndex !== undefined && focusedPanel.ratio > 0
+        ? Number(focusedProjectIndex)
+        : null;
+      if (nextProjectIndex !== activeProjectIndexRef.current) {
+        activeProjectIndexRef.current = nextProjectIndex;
+        setActiveProjectIndex(nextProjectIndex);
+      }
+
+      const nextSocialVisible = window.scrollY < Math.max(120, window.innerHeight * 0.18);
+      if (nextSocialVisible !== mobileSocialVisibleRef.current) {
+        mobileSocialVisibleRef.current = nextSocialVisible;
+        setMobileSocialVisible(nextSocialVisible);
+      }
       frame = 0;
     };
 
@@ -288,31 +311,42 @@ export default function App() {
       if (!frame) frame = window.requestAnimationFrame(update);
     };
 
+    const handleResize = () => {
+      measureScrollableArea();
+      requestUpdate();
+    };
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(story);
+    resizeObserver.observe(image);
+
+    measureScrollableArea();
     update();
-    imageRef.current?.addEventListener("load", requestUpdate);
+    image.addEventListener("load", handleResize);
     window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      imageRef.current?.removeEventListener("load", requestUpdate);
+      resizeObserver.disconnect();
+      image.removeEventListener("load", handleResize);
       window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
+      window.removeEventListener("resize", handleResize);
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(
-      audioSettingsKey,
-      JSON.stringify({ muted: musicMuted, volume: musicVolume }),
-    );
-    interfaceVolumeRef.current = {
-      muted: musicMuted || playbackBlocked,
-      volume: musicVolume,
-    };
-  }, [musicMuted, musicVolume, playbackBlocked]);
+    // Debounce synchronous storage writes while the desktop slider is moving.
+    const timer = window.setTimeout(() => {
+      window.localStorage.setItem(
+        audioSettingsKey,
+        JSON.stringify({ muted: musicMuted, volume: musicVolume }),
+      );
+    }, 200);
+    return () => window.clearTimeout(timer);
+  }, [musicMuted, musicVolume]);
 
   useEffect(() => {
+    // Event delegation provides UI sounds without attaching listeners to every control.
     const hoverSound = new Audio(interfaceSounds.hover);
     const clickSound = new Audio(interfaceSounds.click);
     hoverSound.preload = "auto";
@@ -327,7 +361,7 @@ export default function App() {
     };
     const findControl = (target: EventTarget | null) =>
       target instanceof Element
-        ? target.closest("button, a, .carousel-slide figcaption, .carousel-viewport, .lightbox-viewport")
+        ? target.closest("button, a, .project-collaboration-highlight, .carousel-slide figcaption, .carousel-viewport, .lightbox-viewport")
         : null;
     const handlePointerOver = (event: PointerEvent) => {
       if (
@@ -339,7 +373,10 @@ export default function App() {
       playSound(hoverSound);
     };
     const handleClick = (event: MouseEvent) => {
-      if (findControl(event.target)) playSound(clickSound, 1.5);
+      const control = findControl(event.target);
+      if (control && !control.matches(".project-collaboration-highlight:not(a)")) {
+        playSound(clickSound, 1.5);
+      }
     };
 
     document.addEventListener("pointerover", handlePointerOver);
@@ -354,7 +391,7 @@ export default function App() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !backgroundSong.src) return;
+    if (!audio) return;
 
     audio.volume = musicVolume;
     audio.muted = musicMuted;
@@ -362,8 +399,9 @@ export default function App() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !backgroundSong.src) return;
+    if (!audio) return;
 
+    // Do not keep media decoding in a hidden or unfocused tab.
     const pauseWhenInactive = () => {
       if (!audio.paused) resumeAfterFocusRef.current = true;
       audio.pause();
@@ -404,12 +442,10 @@ export default function App() {
     if (audio.paused) {
       audio.muted = false;
       setMusicMuted(false);
-      autoplayBlockedRef.current = false;
       try {
         await audio.play();
         setPlaybackBlocked(false);
       } catch {
-        autoplayBlockedRef.current = true;
         setPlaybackBlocked(true);
       }
       return;
@@ -419,7 +455,6 @@ export default function App() {
       const restoredVolume = lastVolumeRef.current || backgroundSong.volume;
       audio.volume = restoredVolume;
       audio.muted = false;
-      autoplayBlockedRef.current = false;
       setMusicVolume(restoredVolume);
       setMusicMuted(false);
       try {
@@ -466,36 +501,35 @@ export default function App() {
         className={`social-links${mobileSocialVisible ? "" : " is-mobile-hidden"}`}
         aria-label="Social profiles"
       >
-        {backgroundSong.src && (
-          <div className="audio-control">
-            <audio ref={audioRef} src={backgroundSong.src} preload="auto" loop />
-            <div className="volume-popover">
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={musicVolume}
-                onChange={(event) => handleVolumeChange(Number(event.target.value))}
-                aria-label="Background music volume"
-              />
-            </div>
-            <button
-              className="audio-toggle"
-              type="button"
-              onClick={toggleMusicMute}
-              aria-label={audioAppearsMuted ? `Play or unmute ${backgroundSong.title}` : `Mute ${backgroundSong.title}`}
-              aria-pressed={!audioAppearsMuted}
-            >
-              <AudioIcon muted={audioAppearsMuted} />
-            </button>
+        <div className="audio-control">
+          {/* The large music file is fetched only after the visitor presses play. */}
+          <audio ref={audioRef} src={backgroundSong.src} preload="none" loop />
+          <div className="volume-popover">
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={musicVolume}
+              onChange={(event) => handleVolumeChange(Number(event.target.value))}
+              aria-label="Background music volume"
+            />
           </div>
-        )}
+          <button
+            className="audio-toggle"
+            type="button"
+            onClick={toggleMusicMute}
+            aria-label={audioAppearsMuted ? `Play or unmute ${backgroundSong.title}` : `Mute ${backgroundSong.title}`}
+            aria-pressed={!audioAppearsMuted}
+          >
+            <AudioIcon muted={audioAppearsMuted} />
+          </button>
+        </div>
         <a href="https://www.linkedin.com/in/leo-bogaert/" target="_blank" rel="noreferrer">
-          <img src="./linkedin.png" alt="Leo Bogaert on LinkedIn" />
+          <img src="./linkedin.png" alt="Leo Bogaert on LinkedIn" decoding="async" />
         </a>
         <a href="https://github.com/koibirb" target="_blank" rel="noreferrer">
-          <img src="./github.svg" alt="Leo Bogaert on GitHub" />
+          <img src="./github.svg" alt="Leo Bogaert on GitHub" decoding="async" />
         </a>
       </nav>
       <section className="scroll-story" ref={storyRef}>
@@ -508,6 +542,8 @@ export default function App() {
             alt=""
             width="696"
             height="1505"
+            decoding="async"
+            fetchPriority="high"
           />
           <div className="scene-shade" />
           <p className="image-marker marker-top">00° · Above the treeline</p>
@@ -577,7 +613,7 @@ export default function App() {
 
             return (
               <section
-                className={`story-panel project-panel ${index % 2 === 0 ? "project-left" : "project-right"}`}
+                className="story-panel project-panel"
                 id={index === 0 ? "work" : undefined}
                 data-year={project.year}
                 data-project-index={index}
@@ -602,7 +638,13 @@ export default function App() {
   );
 }
 
-function ProjectCard({ project, autoPlay }: { project: Project; autoPlay: boolean }) {
+const ProjectCard = memo(function ProjectCard({
+  project,
+  autoPlay,
+}: {
+  project: Project;
+  autoPlay: boolean;
+}) {
   return (
     <article className="project-card">
       <div className="project-copy">
@@ -612,7 +654,23 @@ function ProjectCard({ project, autoPlay }: { project: Project; autoPlay: boolea
         </div>
         <h2>{project.title}</h2>
         {project.collaboration && (
-          <p className="project-collaboration">{project.collaboration}</p>
+          <p className="project-collaboration">
+            {project.collaboration.label}{" "}
+            {project.collaboration.url ? (
+              <a
+                className="project-collaboration-highlight"
+                href={project.collaboration.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {project.collaboration.highlight}
+              </a>
+            ) : (
+              <strong className="project-collaboration-highlight">
+                {project.collaboration.highlight}
+              </strong>
+            )}
+          </p>
         )}
         <p>{project.summary}</p>
         <div className="project-links">
@@ -621,7 +679,7 @@ function ProjectCard({ project, autoPlay }: { project: Project; autoPlay: boolea
               <li key={tag}>{tag}</li>
             ))}
           </ul>
-          {project.showGithub && (
+          {project.githubUrl && (
             <a
               className="project-github"
               href={project.githubUrl}
@@ -629,7 +687,7 @@ function ProjectCard({ project, autoPlay }: { project: Project; autoPlay: boolea
               rel="noreferrer"
               aria-label={`View ${project.title} on GitHub`}
             >
-              <img src="./github.svg" alt="" />
+              <img src="./github.svg" alt="" loading="lazy" decoding="async" />
               <span>GitHub</span>
             </a>
           )}
@@ -638,7 +696,7 @@ function ProjectCard({ project, autoPlay }: { project: Project; autoPlay: boolea
       <ProjectCarousel title={project.title} slides={project.slides} autoPlay={autoPlay} />
     </article>
   );
-}
+});
 
 function ProjectCarousel({
   title,
@@ -649,8 +707,7 @@ function ProjectCarousel({
   slides: ProjectSlide[];
   autoPlay: boolean;
 }) {
-  const autoPlayInterval = 4000;
-  const interactionCooldown = 6000;
+  // activeSlide is the real content index; trackIndex also includes edge clones.
   const [activeSlide, setActiveSlide] = useState(0);
   const [trackIndex, setTrackIndex] = useState(slides.length > 1 ? 1 : 0);
   const [isResettingTrack, setIsResettingTrack] = useState(false);
@@ -658,47 +715,58 @@ function ProjectCarousel({
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [autoPlayResumeAt, setAutoPlayResumeAt] = useState(0);
   const [mobileCaptionHidden, setMobileCaptionHidden] = useState(false);
   const [slideRatios, setSlideRatios] = useState<Record<number, number>>({});
   const [loadedSlides, setLoadedSlides] = useState<Record<number, boolean>>({});
   const carouselViewportRef = useRef<HTMLDivElement>(null);
   const lightboxViewportRef = useRef<HTMLDivElement>(null);
   const trackIndexRef = useRef(slides.length > 1 ? 1 : 0);
+  const autoPlayResumeAtRef = useRef(0);
+  const dragFrameRef = useRef<number | null>(null);
+  const pendingDragOffsetRef = useRef(0);
+  const trackResetFrameRef = useRef<number | null>(null);
   const dragRef = useRef<{ startX: number; pointerId: number; moved: boolean } | null>(null);
   const wheelLockRef = useRef<number | null>(null);
+  // These values distinguish a new trackpad impulse from momentum tail events.
   const wheelGestureRef = useRef({
     distance: 0,
     lastEvent: 0,
     lastMagnitude: 0,
     lastDirection: 0,
   });
-  const slideTitle = (slide: ProjectSlide) =>
-    typeof slide === "string" ? slide : slide.title;
   const activeRatio = slideRatios[activeSlide] ?? 16 / 10;
-  const activeHasImage = typeof slides[activeSlide] !== "string" && Boolean(slides[activeSlide].image);
 
   const postponeAutoPlay = () => {
-    setAutoPlayResumeAt(Date.now() + interactionCooldown);
+    // A ref avoids re-rendering for every event in a trackpad momentum stream.
+    autoPlayResumeAtRef.current = Date.now() + interactionCooldown;
   };
 
-  const previousSlide = () => {
-    if (slides.length > 1 && trackIndexRef.current <= 0) return;
-    trackIndexRef.current -= 1;
+  const moveSlide = (direction: -1 | 1) => {
+    if (slides.length < 2) return;
+    const nextTrackIndex = trackIndexRef.current + direction;
+    if (nextTrackIndex < 0 || nextTrackIndex > slides.length + 1) return;
+
+    trackIndexRef.current = nextTrackIndex;
     setMobileCaptionHidden(false);
-    setActiveSlide((current) => (current - 1 + slides.length) % slides.length);
-    setTrackIndex(trackIndexRef.current);
+    setActiveSlide((current) => (current + direction + slides.length) % slides.length);
+    setTrackIndex(nextTrackIndex);
   };
 
-  const nextSlide = () => {
-    if (slides.length > 1 && trackIndexRef.current >= slides.length + 1) return;
-    trackIndexRef.current += 1;
-    setMobileCaptionHidden(false);
-    setActiveSlide((current) => (current + 1) % slides.length);
-    setTrackIndex(trackIndexRef.current);
+  const previousSlide = () => moveSlide(-1);
+  const nextSlide = () => moveSlide(1);
+  const moveSlideManually = (direction: -1 | 1) => {
+    postponeAutoPlay();
+    moveSlide(direction);
+  };
+
+  const closeLightbox = () => {
+    postponeAutoPlay();
+    setLightboxOpen(false);
   };
 
   const finishTrackTransition = () => {
+    // Edge clones create the visible wrap; this resets to the matching real
+    // slide without a transition once that one-slide animation completes.
     let normalizedIndex: number | null = null;
     if (trackIndexRef.current === 0) normalizedIndex = slides.length;
     else if (trackIndexRef.current === slides.length + 1) normalizedIndex = 1;
@@ -707,10 +775,27 @@ function ProjectCarousel({
     trackIndexRef.current = normalizedIndex;
     setIsResettingTrack(true);
     setTrackIndex(normalizedIndex);
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setIsResettingTrack(false));
+    if (trackResetFrameRef.current !== null) {
+      window.cancelAnimationFrame(trackResetFrameRef.current);
+    }
+    trackResetFrameRef.current = window.requestAnimationFrame(() => {
+      trackResetFrameRef.current = window.requestAnimationFrame(() => {
+        trackResetFrameRef.current = null;
+        setIsResettingTrack(false);
+      });
     });
   };
+
+  const handleTrackTransition = (event: ReactTransitionEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget && event.propertyName === "transform") {
+      finishTrackTransition();
+    }
+  };
+
+  useEffect(() => () => {
+    if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
+    if (trackResetFrameRef.current !== null) window.cancelAnimationFrame(trackResetFrameRef.current);
+  }, []);
 
   useEffect(() => {
     if (
@@ -719,26 +804,31 @@ function ProjectCarousel({
       isDragging ||
       isHovered ||
       slides.length < 2 ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.matchMedia(reducedMotionQuery).matches
     ) return;
 
     let timer = 0;
     const advanceAndReschedule = () => {
+      const cooldownRemaining = autoPlayResumeAtRef.current - Date.now();
+      if (cooldownRemaining > 0) {
+        timer = window.setTimeout(advanceAndReschedule, cooldownRemaining);
+        return;
+      }
+
       if (document.visibilityState === "visible" && document.hasFocus()) {
-        setMobileCaptionHidden(false);
-        setActiveSlide((current) => (current + 1) % slides.length);
+        nextSlide();
       }
       timer = window.setTimeout(advanceAndReschedule, autoPlayInterval);
     };
 
-    const cooldownRemaining = Math.max(0, autoPlayResumeAt - Date.now());
+    const cooldownRemaining = Math.max(0, autoPlayResumeAtRef.current - Date.now());
     timer = window.setTimeout(
       advanceAndReschedule,
       Math.max(autoPlayInterval, cooldownRemaining),
     );
 
     return () => window.clearTimeout(timer);
-  }, [autoPlay, autoPlayResumeAt, isDragging, isHovered, lightboxOpen, slides.length]);
+  }, [autoPlay, isDragging, isHovered, lightboxOpen, slides.length]);
 
   const beginDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -753,7 +843,14 @@ function ProjectCarousel({
     if (!drag || drag.pointerId !== event.pointerId) return;
     const distance = event.clientX - drag.startX;
     if (Math.abs(distance) > 6) drag.moved = true;
-    setDragOffset(distance);
+    pendingDragOffsetRef.current = distance;
+    if (dragFrameRef.current === null) {
+      // Pointer events can outpace the display refresh rate; render at most once per frame.
+      dragFrameRef.current = window.requestAnimationFrame(() => {
+        dragFrameRef.current = null;
+        setDragOffset(pendingDragOffsetRef.current);
+      });
+    }
   };
 
   const finishDrag = (
@@ -772,6 +869,10 @@ function ProjectCarousel({
     else if (!drag.moved) onTap?.();
 
     dragRef.current = null;
+    if (dragFrameRef.current !== null) {
+      window.cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
     setDragOffset(0);
     setIsDragging(false);
   };
@@ -779,6 +880,10 @@ function ProjectCarousel({
   const cancelDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (dragRef.current?.pointerId !== event.pointerId) return;
     dragRef.current = null;
+    if (dragFrameRef.current !== null) {
+      window.cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
     setDragOffset(0);
     setIsDragging(false);
   };
@@ -865,14 +970,11 @@ function ProjectCarousel({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        postponeAutoPlay();
-        setLightboxOpen(false);
+        closeLightbox();
       } else if (event.key === "ArrowLeft") {
-        postponeAutoPlay();
-        previousSlide();
+        moveSlideManually(-1);
       } else if (event.key === "ArrowRight") {
-        postponeAutoPlay();
-        nextSlide();
+        moveSlideManually(1);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -887,21 +989,19 @@ function ProjectCarousel({
   const renderSlide = (
     slide: ProjectSlide,
     index: number,
-    expanded: boolean,
     clonePosition?: "leading" | "trailing",
   ) => {
-    const hasImage = typeof slide !== "string" && Boolean(slide.image);
     const imageRatio = slideRatios[index] ?? 16 / 10;
     const caption = (
       <figcaption
         className={mobileCaptionHidden && index === activeSlide ? "is-mobile-hidden" : undefined}
         onPointerDown={(event) => {
-          if (window.matchMedia("(hover: none), (pointer: coarse)").matches) {
+          if (window.matchMedia(coarsePointerQuery).matches) {
             event.stopPropagation();
           }
         }}
         onClick={(event) => {
-          if (!window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
+          if (!window.matchMedia(coarsePointerQuery).matches) return;
           event.stopPropagation();
           postponeAutoPlay();
           setMobileCaptionHidden((hidden) => !hidden);
@@ -910,72 +1010,68 @@ function ProjectCarousel({
         <span>
           {String(index + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
         </span>
-        <strong>{slideTitle(slide)}</strong>
+        <strong>{slide.title}</strong>
       </figcaption>
     );
 
     return (
       <figure
-        className={`carousel-slide carousel-tone-${index + 1}${hasImage ? " has-image" : ""}${expanded ? " is-expanded" : ""}`}
-        key={`${clonePosition ?? "slide"}-${slideTitle(slide)}-${index}`}
+        className="carousel-slide"
+        key={`${clonePosition ?? "slide"}-${slide.title}-${index}`}
         aria-hidden={clonePosition ? true : undefined}
       >
-        {hasImage && typeof slide !== "string" ? (
+        <div
+          className="carousel-image-frame"
+          style={{
+            "--image-ratio": imageRatio,
+            "--image-width-at-full-height": `${imageRatio * 100}cqh`,
+          } as CSSProperties}
+        >
           <div
-            className="carousel-image-frame"
-            style={{
-              "--image-ratio": imageRatio,
-              "--image-width-at-full-height": `${imageRatio * 100}cqh`,
-            } as CSSProperties}
-          >
-            <div
-              className={`carousel-image-skeleton${loadedSlides[index] ? " is-hidden" : ""}`}
-              aria-hidden="true"
-            />
-            <img
-              className={`carousel-image${loadedSlides[index] ? " is-loaded" : ""}`}
-              src={slide.image}
-              alt={clonePosition ? "" : (slide.alt ?? `${title} project — ${slide.title}`)}
-              draggable="false"
-              onLoad={(event) => {
-                const ratio = event.currentTarget.naturalWidth / event.currentTarget.naturalHeight;
-                if (!Number.isFinite(ratio) || ratio <= 0) return;
-                setSlideRatios((current) => current[index] === ratio
-                  ? current
-                  : { ...current, [index]: ratio });
-                setLoadedSlides((current) => current[index]
-                  ? current
-                  : { ...current, [index]: true });
-              }}
-            />
-            {caption}
-          </div>
-        ) : (
-          <>
-            <div className="carousel-grid" aria-hidden="true" />
-            {caption}
-          </>
-        )}
+            className={`carousel-image-skeleton${loadedSlides[index] ? " is-hidden" : ""}`}
+            aria-hidden="true"
+          />
+          <img
+            className={`carousel-image${loadedSlides[index] ? " is-loaded" : ""}`}
+            src={slide.image}
+            alt={clonePosition ? "" : (slide.alt ?? `${title} project — ${slide.title}`)}
+            draggable="false"
+            loading="lazy"
+            decoding="async"
+            onLoad={(event) => {
+              const ratio = event.currentTarget.naturalWidth / event.currentTarget.naturalHeight;
+              if (!Number.isFinite(ratio) || ratio <= 0) return;
+              setSlideRatios((current) => current[index] === ratio
+                ? current
+                : { ...current, [index]: ratio });
+              setLoadedSlides((current) => current[index]
+                ? current
+                : { ...current, [index]: true });
+            }}
+          />
+          {caption}
+        </div>
       </figure>
     );
   };
 
-  const renderSlides = (expanded = false) => {
+  const renderSlides = () => {
     if (slides.length < 2) {
-      return slides.map((slide, index) => renderSlide(slide, index, expanded));
+      return slides.map((slide, index) => renderSlide(slide, index));
     }
 
+    // One clone on each edge lets the carousel wrap in the requested direction.
     return [
-      renderSlide(slides[slides.length - 1], slides.length - 1, expanded, "leading"),
-      ...slides.map((slide, index) => renderSlide(slide, index, expanded)),
-      renderSlide(slides[0], 0, expanded, "trailing"),
+      renderSlide(slides[slides.length - 1], slides.length - 1, "leading"),
+      ...slides.map((slide, index) => renderSlide(slide, index)),
+      renderSlide(slides[0], 0, "trailing"),
     ];
   };
 
   return (
     <>
       <div
-        className="project-carousel"
+        className={`project-carousel${autoPlay ? " is-active" : ""}`}
         aria-label={`${title} image carousel`}
         onPointerEnter={(event) => {
           if (event.pointerType !== "mouse") return;
@@ -991,74 +1087,69 @@ function ProjectCarousel({
           postponeAutoPlay();
         }}
       >
-      <div
-        ref={carouselViewportRef}
-        className={`carousel-viewport${activeHasImage ? " has-active-image" : ""}`}
-        role="button"
-        tabIndex={0}
-        aria-label={`Enlarge ${title} images`}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            postponeAutoPlay();
-            setLightboxOpen(true);
-          }
-        }}
-        onPointerDown={beginDrag}
-        onPointerMove={updateDrag}
-        onPointerUp={(event) => finishDrag(event, () => setLightboxOpen(true))}
-        onPointerCancel={cancelDrag}
-      >
         <div
-          className={`carousel-track${isDragging ? " is-dragging" : ""}${isResettingTrack ? " is-resetting" : ""}`}
-          style={{ transform: `translateX(calc(-${trackIndex * 100}% + ${dragOffset}px))` }}
-          onTransitionEnd={(event) => {
-            if (event.target === event.currentTarget && event.propertyName === "transform") {
-              finishTrackTransition();
+          ref={carouselViewportRef}
+          className="carousel-viewport"
+          role="button"
+          tabIndex={0}
+          aria-label={`Enlarge ${title} images`}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              postponeAutoPlay();
+              setLightboxOpen(true);
             }
           }}
-          onTransitionCancel={(event) => {
-            if (event.target === event.currentTarget && event.propertyName === "transform") {
-              finishTrackTransition();
-            }
-          }}
+          onPointerDown={beginDrag}
+          onPointerMove={updateDrag}
+          onPointerUp={(event) => finishDrag(event, () => setLightboxOpen(true))}
+          onPointerCancel={cancelDrag}
         >
-          {renderSlides()}
+          <div
+            className={`carousel-track${isDragging ? " is-dragging" : ""}${isResettingTrack ? " is-resetting" : ""}`}
+            style={{ transform: `translateX(calc(-${trackIndex * 100}% + ${dragOffset}px))` }}
+            onTransitionEnd={handleTrackTransition}
+            onTransitionCancel={handleTrackTransition}
+          >
+            {renderSlides()}
+          </div>
         </div>
-      </div>
 
-      <div className="carousel-controls">
-        <button type="button" onClick={() => {
-          postponeAutoPlay();
-          previousSlide();
-        }} aria-label={`Previous ${title} image`}>
-          ←
-        </button>
-        <div className="carousel-dots" aria-label="Choose image">
-          {slides.map((slide, index) => (
-            <button
-              type="button"
-              className={index === activeSlide ? "is-active" : ""}
-              onClick={() => {
-                postponeAutoPlay();
-                setMobileCaptionHidden(false);
-                setActiveSlide(index);
-                trackIndexRef.current = slides.length > 1 ? index + 1 : index;
-                setTrackIndex(trackIndexRef.current);
-              }}
-              aria-label={`Show ${slideTitle(slide)}`}
-              aria-current={index === activeSlide ? "true" : undefined}
-              key={`${slideTitle(slide)}-${index}`}
-            />
-          ))}
+        <div className="carousel-controls">
+          <button
+            type="button"
+            onClick={() => moveSlideManually(-1)}
+            aria-label={`Previous ${title} image`}
+          >
+            ←
+          </button>
+          <div className="carousel-dots" aria-label="Choose image">
+            {slides.map((slide, index) => (
+              <button
+                type="button"
+                className={index === activeSlide ? "is-active" : ""}
+                onClick={() => {
+                  postponeAutoPlay();
+                  setMobileCaptionHidden(false);
+                  setActiveSlide(index);
+                  trackIndexRef.current = slides.length > 1 ? index + 1 : index;
+                  setTrackIndex(trackIndexRef.current);
+                }}
+                aria-label={`Show ${slide.title}`}
+                aria-current={index === activeSlide ? "true" : undefined}
+                key={`${slide.title}-${index}`}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => moveSlideManually(1)}
+            aria-label={`Next ${title} image`}
+          >
+            →
+          </button>
         </div>
-        <button type="button" onClick={() => {
-          postponeAutoPlay();
-          nextSlide();
-        }} aria-label={`Next ${title} image`}>
-          →
-        </button>
       </div>
-    </div>
       {lightboxOpen && createPortal(
         <div
           className="image-lightbox"
@@ -1067,31 +1158,29 @@ function ProjectCarousel({
           aria-label={`${title} enlarged images`}
           onPointerDown={(event) => {
             if (event.target === event.currentTarget) {
-              postponeAutoPlay();
-              setLightboxOpen(false);
+              closeLightbox();
             }
           }}
         >
           <button
             className="lightbox-close"
             type="button"
-            onClick={() => {
-              postponeAutoPlay();
-              setLightboxOpen(false);
-            }}
+            onClick={closeLightbox}
             aria-label="Close enlarged images"
           >
             ×
           </button>
-          <button className="lightbox-arrow lightbox-previous" type="button" onClick={() => {
-            postponeAutoPlay();
-            previousSlide();
-          }} aria-label="Previous image">
+          <button
+            className="lightbox-arrow lightbox-previous"
+            type="button"
+            onClick={() => moveSlideManually(-1)}
+            aria-label="Previous image"
+          >
             ←
           </button>
           <div
             ref={lightboxViewportRef}
-            className={`lightbox-viewport${activeHasImage ? " has-active-image" : ""}`}
+            className="lightbox-viewport"
             style={{
               aspectRatio: activeRatio,
               "--lightbox-width-by-height": `${82 * activeRatio}dvh`,
@@ -1104,24 +1193,18 @@ function ProjectCarousel({
             <div
               className={`carousel-track${isDragging ? " is-dragging" : ""}${isResettingTrack ? " is-resetting" : ""}`}
               style={{ transform: `translateX(calc(-${trackIndex * 100}% + ${dragOffset}px))` }}
-              onTransitionEnd={(event) => {
-                if (event.target === event.currentTarget && event.propertyName === "transform") {
-                  finishTrackTransition();
-                }
-              }}
-              onTransitionCancel={(event) => {
-                if (event.target === event.currentTarget && event.propertyName === "transform") {
-                  finishTrackTransition();
-                }
-              }}
+              onTransitionEnd={handleTrackTransition}
+              onTransitionCancel={handleTrackTransition}
             >
-              {renderSlides(true)}
+              {renderSlides()}
             </div>
           </div>
-          <button className="lightbox-arrow lightbox-next" type="button" onClick={() => {
-            postponeAutoPlay();
-            nextSlide();
-          }} aria-label="Next image">
+          <button
+            className="lightbox-arrow lightbox-next"
+            type="button"
+            onClick={() => moveSlideManually(1)}
+            aria-label="Next image"
+          >
             →
           </button>
           <p className="lightbox-count">
