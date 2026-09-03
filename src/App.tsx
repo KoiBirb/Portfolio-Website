@@ -13,7 +13,7 @@ const backgroundSong = {
   // src: "./music/background-song.mp3",
   src: "./music/Background.mp3",
   title: "Background music",
-  volume: 0.35,
+  volume: 0.30,
 };
 
 const interfaceSounds = {
@@ -65,7 +65,7 @@ const projects: Project[] = [
     eyebrow: "Audio Electronics / Electrical",
     title: "Class D Amplifier",
     summary:
-      "A custom Class D audio amplifier designed from the ground up, using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
+      "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
     tags: ["Altium", "PCB Design", "Circuit Design", "Fusion 360", "Oscilloscope"],
     slides: [
       // Add an image by setting its path, for example:
@@ -519,17 +519,17 @@ export default function App() {
           <section className="story-panel about-panel" id="about" data-year="2026">
             <div className="about-card">
               <p className="section-label">About</p>
-              <h2>From first trace to final test.</h2>
+              <h2>Designed from the ground up.</h2>
               <p>
-                I design custom PCBs, embedded interfaces, and control hardware,
-                then validate the details with real instruments and real constraints.
+                A student from Western University who loves PCB design, embedded systems, robotics and CAD. 
+                I enjoy combining electrical, mechanical, and software skills to design and build practical engineering systems.
               </p>
               <div className="skill-line">
-                <span>Altium</span>
-                <span>KiCad</span>
-                <span>STM32</span>
-                <span>ESP32</span>
-                <span>LTspice</span>
+                <span>PCB Design</span>
+                <span>Circuit Design</span>
+                <span>Microcontrollers</span>
+                <span>CAD</span>
+                <span>Additive Manufacturing</span>
               </div>
             </div>
           </section>
