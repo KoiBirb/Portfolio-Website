@@ -22,6 +22,7 @@ body {
   margin: 0;
   min-width: 320px;
   background: #2a0905;
+  overscroll-behavior-y: none;
 }
 
 a {
@@ -55,7 +56,7 @@ a {
   top: 0;
   left: 50%;
   display: block;
-  width: max(100vw, 46.25svh);
+  width: max(100vw, 53.5svh, 53.5dvh, 53.5lvh);
   max-width: none;
   height: auto;
   transform: translate3d(-50%, var(--image-offset), 0);
@@ -355,7 +356,7 @@ a {
 
 .project-card h2 {
   max-width: 9ch;
-  margin: clamp(2rem, 4vw, 3.5rem) 0 1.2rem;
+  margin: clamp(2rem, 4vw, 3.5rem) 0 1.75rem;
   font-family: "Playfair Display", Georgia, serif;
   font-size: clamp(3rem, 5vw, 5.5rem);
   font-weight: 500;
@@ -799,6 +800,18 @@ a {
 }
 
 @media (max-width: 780px) {
+  .visual-pin {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    z-index: 0;
+    height: 100lvh;
+    min-height: 100dvh;
+    margin-bottom: 0;
+  }
+
   .story-panel {
     padding-right: 1rem;
     padding-left: 1rem;

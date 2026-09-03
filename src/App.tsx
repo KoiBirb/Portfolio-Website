@@ -3,86 +3,85 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 const projects = [
   {
     number: "01",
-    year: "2025",
-    showGithub: true,
-    githubUrl: "https://github.com/koibirb",
-    eyebrow: "PCB Design / Electrical",
+    year: "2026",
+    showGithub: false,
+    githubUrl: "",
+    eyebrow: "Audio Electronics / Electrical",
     title: "Class D Amplifier",
     summary:
-      "A custom Class D audio amplifier designed from the ground up, using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run the MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
-    tags: ["Altium", "Audio Electronics", "Fusion 360", "Oscilloscope"],
+      "A custom Class D audio amplifier designed from the ground up, using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
+    tags: ["Altium", "PCB Design", "Circuit Design", "Fusion 360", "Oscilloscope"],
     slides: ["PCB render", "Layer stack", "Bench testing"],
   },
   {
     number: "02",
-    year: "2024",
+    year: "2026",
     showGithub: false,
-    githubUrl: "https://github.com/koibirb",
-    eyebrow: "Industrial Controls / Communication",
-    title: "HVAC–PLC Bridge",
+    githubUrl: "",
+    eyebrow: "Embedded Systems / Electrical",
+    title: "STM32 Flight Controller",
     summary:
-      "A compact interface translating HVAC communication into PLC-ready Modbus RTU over RS-485.",
-    tags: ["Modbus RTU", "RS-485", "UART", "Oscilloscope"],
+      "Designed and developed a custom STM32-based flight controller for a fixed-wing RC aircraft. The board integrates an STM32F446 microcontroller, IMU and barometric pressure sensors, USB communication, ELRS radio connectivity, and multiple PWM outputs for flight-control hardware. The project involved schematic design, component selection, power regulation, four-layer PCB layout, USB differential-pair routing, and hardware bring-up using STM32CubeMX, C/C++, and SWD debugging.",
+    tags: ["Altium", "SPI & I2C", "UART", "USB", "STM32CubeMX"],
     slides: ["Communication interface", "Signal capture", "Prototype hardware"],
   },
   {
     number: "03",
-    year: "2023",
-    showGithub: false,
-    githubUrl: "https://github.com/koibirb",
-    eyebrow: "Industrial Sensing / Analog Hardware",
-    title: "Water Leak Module",
+    year: "2025",
+    showGithub: true,
+    githubUrl: "https://github.com/mynteee/tracking-14-a",
+    eyebrow: "IoT Asset Tracking / Software & Hardware",
+    title: "Esp32 Asset Tracking",
     summary:
-      "An isolated sensing module with analog signal conditioning, fault detection, and dual controller outputs.",
-    tags: ["18–72 VDC", "24 VAC", "Op Amps", "Relay Outputs"],
+      "Developed an ESP32-based indoor tracking system designed to monitor BLE-enabled assets across hospital rooms and zones. Multiple ESP32 gateways scan for low-power Bluetooth beacons and use received signal strength to estimate each tag’s location, tracking data transmitted over Wi-Fi to a central MQTT server for monitoring and visualization on a web-based dashboard.",
+    tags: ["Esp32", "BLE", "MQTT", "Wifi"],
     slides: ["Schematic", "PCB layout", "Validation setup"],
   },
   {
     number: "04",
-    year: "2022",
+    year: "2025",
     showGithub: false,
-    githubUrl: "https://github.com/koibirb",
-    eyebrow: "Project category",
-    title: "Project Four",
-    summary: "Add a short description of your fourth project here.",
-    tags: ["Technology", "Tool", "Skill"],
+    githubUrl: "",
+    eyebrow: "Gearbox Design / Mechanical",
+    title: "Harmonic Drive",
+    summary: "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and wave generator to achieve compact, high-ratio 20:1 motion transmission. The project was to be used on a nema 17 stepper motor and focused on mechanical design, gear geometry, material selection, and designing components specifically for additive manufacturing while balancing flexibility, stiffness and durability.",
+    tags: ["Gear Design", "Fusion 360", "Material Selection", "Additive Manufacturing", "Stepper Motor"],
     slides: ["Project image", "Design detail", "Final result"],
   },
   {
     number: "05",
-    year: "2021",
+    year: "2025",
     showGithub: false,
-    githubUrl: "https://github.com/koibirb",
-    eyebrow: "Project category",
-    title: "Project Five",
-    summary: "Add a short description of your fifth project here.",
-    tags: ["Technology", "Tool", "Skill"],
+    githubUrl: "",
+    eyebrow: "Drone Design / Mechanical & Electrical",
+    title: "3D Printed Drone",
+    summary: "Designed and built a custom 3D-printed drone, developing the airframe from scratch, printed with carbon-filled petg with a focus on weight, strength, and component integration. I used betaflight to configure a F405 mini flight controller stack to enable smooth flight. This project combined CAD modelling, additive manufacturing, electronics integration, assembly, and iterative testing to refine the frame and overall flight platform.",
+    tags: ["Fusion 360", "Bambu Slicer", "Betaflight", "Additive Manufacturing"],
     slides: ["Project image", "Design detail", "Final result"],
   },
   {
     number: "06",
-    year: "2020",
-    showGithub: false,
-    githubUrl: "https://github.com/koibirb",
-    eyebrow: "Project category",
-    title: "Project Six",
-    summary: "Add a short description of your sixth project here.",
-    tags: ["Technology", "Tool", "Skill"],
+    year: "2025",
+    showGithub: true,
+    githubUrl: "https://github.com/KoiBirb/Forsaken-Crown",
+    eyebrow: "Game Design / Software",
+    title: "Arcade Machine Game",
+    summary: "Designed and developed a hack and slash platformer game inspired by hollow knight. I used java swing to display the graphics and developed fundamental skills in organization of an over 20k+ line project. Tiled and json simple was used to create and store the map.",
+    tags: ["Java", "Intelij", "JSON", "Github", "Tiled"],
     slides: ["Project image", "Design detail", "Final result"],
   },
   {
     number: "07",
-    year: "2019",
-    showGithub: false,
-    githubUrl: "https://github.com/koibirb",
-    eyebrow: "Project category",
-    title: "Project Seven",
-    summary: "Add a short description of your seventh project here.",
-    tags: ["Technology", "Tool", "Skill"],
+    year: "2024",
+    showGithub: true,
+    githubUrl: "https://github.com/KoiBirb/Robot-Dog",
+    eyebrow: "Quadruped Robotics / Mechanical / Electrical",
+    title: "Robot Dog",
+    summary: "Designed and built a custom quadruped robot dog for a Western University competition, integrating an ESP32, custom KiCad PCB, servo driver, and 12 actuated joints. The project combined mechanical design, electronics, and inverse kinematics to coordinate multi-joint leg motion and produce controlled walking movements.",
+    tags: ["C++", "Arduino IDE", "KiCad", "ESP32", "Inverse Kinematics", "Servos"],
     slides: ["Project image", "Design detail", "Final result"],
   },
 ];
-
 function ArrowDown() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -107,7 +106,9 @@ export default function App() {
   const activeYearRef = useRef("2026");
   const [yearPulse, setYearPulse] = useState(false);
   const [mobileSocialVisible, setMobileSocialVisible] = useState(true);
-  const timelineYears = ["2026", ...projects.map((project) => project.year)];
+  const timelineYears = Array.from(
+    new Set(["2026", ...projects.map((project) => project.year)]),
+  );
 
   useEffect(() => {
     let frame = 0;
@@ -197,7 +198,7 @@ export default function App() {
             <span
               className={`timeline-current ${yearPulse ? "pulse-a" : "pulse-b"}`}
               style={{
-                "--timeline-position": `${Math.max(0, timelineYears.indexOf(activeYear)) / (timelineYears.length - 1) * 100}%`,
+                "--timeline-position": `${Math.max(0, timelineYears.indexOf(activeYear)) / Math.max(1, timelineYears.length - 1) * 100}%`,
               } as CSSProperties}
             >
               <span className="timeline-year-label">{activeYear}</span>
