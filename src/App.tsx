@@ -4,7 +4,6 @@ import {
   useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
-  type WheelEvent as ReactWheelEvent,
 } from "react";
 import { createPortal } from "react-dom";
 
@@ -70,9 +69,7 @@ const projects: Project[] = [
     slides: [
       // Add an image by setting its path, for example:
       // { title: "PCB render", image: "./projects/amplifier-pcb.jpg", alt: "Amplifier PCB render" },
-      "PCB render",
-      "Layer stack",
-      "Bench testing",
+      {title: "Schematic", image: "./projects/Class D Amplifier/Schmatic.png"}
     ],
   },
   {
@@ -186,6 +183,7 @@ export default function App() {
   const [playbackBlocked, setPlaybackBlocked] = useState(true);
   const [mobileVolumeOpen, setMobileVolumeOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const audioControlRef = useRef<HTMLDivElement>(null);
   const lastVolumeRef = useRef(musicVolume);
   const autoplayBlockedRef = useRef(false);
   const resumeAfterFocusRef = useRef(false);
@@ -278,9 +276,13 @@ export default function App() {
     };
     const findControl = (target: EventTarget | null) =>
       target instanceof Element
-        ? target.closest("button, a, .carousel-viewport, .lightbox-viewport")
+        ? target.closest("button, a, .carousel-slide figcaption, .carousel-viewport, .lightbox-viewport")
         : null;
     const handlePointerOver = (event: PointerEvent) => {
+      if (
+        event.pointerType !== "mouse" ||
+        !window.matchMedia("(hover: hover) and (pointer: fine)").matches
+      ) return;
       const control = findControl(event.target);
       if (!control || (event.relatedTarget instanceof Node && control.contains(event.relatedTarget))) return;
       playSound(hoverSound);
@@ -298,6 +300,22 @@ export default function App() {
       clickSound.pause();
     };
   }, []);
+
+  useEffect(() => {
+    if (!mobileVolumeOpen) return;
+
+    const closeVolumeWhenTappedOutside = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !audioControlRef.current?.contains(event.target)
+      ) {
+        setMobileVolumeOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", closeVolumeWhenTappedOutside);
+    return () => document.removeEventListener("pointerdown", closeVolumeWhenTappedOutside);
+  }, [mobileVolumeOpen]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -429,7 +447,10 @@ export default function App() {
         aria-label="Social profiles"
       >
         {backgroundSong.src && (
-          <div className={`audio-control${mobileVolumeOpen ? " is-open" : ""}`}>
+          <div
+            ref={audioControlRef}
+            className={`audio-control${mobileVolumeOpen ? " is-open" : ""}`}
+          >
             <audio ref={audioRef} src={backgroundSong.src} preload="auto" loop />
             <div className="volume-popover">
               <input
@@ -603,16 +624,22 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [mobileCaptionHidden, setMobileCaptionHidden] = useState(false);
+  const carouselViewportRef = useRef<HTMLDivElement>(null);
+  const lightboxViewportRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; pointerId: number; moved: boolean } | null>(null);
   const wheelLockRef = useRef<number | null>(null);
+  const wheelGestureRef = useRef({ distance: 0, lastEvent: 0 });
   const slideTitle = (slide: ProjectSlide) =>
     typeof slide === "string" ? slide : slide.title;
 
   const previousSlide = () => {
+    setMobileCaptionHidden(false);
     setActiveSlide((current) => (current - 1 + slides.length) % slides.length);
   };
 
   const nextSlide = () => {
+    setMobileCaptionHidden(false);
     setActiveSlide((current) => (current + 1) % slides.length);
   };
 
@@ -658,16 +685,50 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
     setIsDragging(false);
   };
 
-  const handleLightboxWheel = (event: ReactWheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    if (wheelLockRef.current !== null) return;
-    const direction = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-    if (direction > 0) nextSlide();
-    else if (direction < 0) previousSlide();
-    wheelLockRef.current = window.setTimeout(() => {
-      wheelLockRef.current = null;
-    }, 420);
-  };
+  useEffect(() => {
+    const handleTrackpadSwipe = (event: WheelEvent) => {
+      const horizontalDistance = event.deltaX;
+
+      // Let ordinary two-finger vertical scrolling continue moving the page.
+      if (Math.abs(horizontalDistance) <= Math.abs(event.deltaY) * 1.1) return;
+      event.preventDefault();
+      if (wheelLockRef.current !== null) return;
+
+      const now = performance.now();
+      if (now - wheelGestureRef.current.lastEvent > 180) {
+        wheelGestureRef.current.distance = 0;
+      }
+      wheelGestureRef.current.lastEvent = now;
+      wheelGestureRef.current.distance += horizontalDistance;
+
+      // Trackpads emit several small wheel events per swipe. Accumulate them so
+      // one deliberate gesture always produces exactly one slide change.
+      if (Math.abs(wheelGestureRef.current.distance) < 36) return;
+      if (wheelGestureRef.current.distance > 0) nextSlide();
+      else previousSlide();
+
+      wheelGestureRef.current.distance = 0;
+      wheelLockRef.current = window.setTimeout(() => {
+        wheelLockRef.current = null;
+      }, 320);
+    };
+
+    const viewports = [carouselViewportRef.current, lightboxViewportRef.current].filter(
+      (viewport): viewport is HTMLDivElement => viewport !== null,
+    );
+    viewports.forEach((viewport) => {
+      viewport.addEventListener("wheel", handleTrackpadSwipe, { passive: false });
+    });
+
+    return () => {
+      viewports.forEach((viewport) => viewport.removeEventListener("wheel", handleTrackpadSwipe));
+      wheelGestureRef.current.distance = 0;
+      if (wheelLockRef.current !== null) {
+        window.clearTimeout(wheelLockRef.current);
+        wheelLockRef.current = null;
+      }
+    };
+  }, [lightboxOpen, slides.length]);
 
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -702,7 +763,19 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
         />
       )}
       <div className="carousel-grid" aria-hidden="true" />
-      <figcaption>
+      <figcaption
+        className={mobileCaptionHidden && index === activeSlide ? "is-mobile-hidden" : undefined}
+        onPointerDown={(event) => {
+          if (window.matchMedia("(hover: none), (pointer: coarse)").matches) {
+            event.stopPropagation();
+          }
+        }}
+        onClick={(event) => {
+          if (!window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
+          event.stopPropagation();
+          setMobileCaptionHidden((hidden) => !hidden);
+        }}
+      >
         <span>
           {String(index + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
         </span>
@@ -716,6 +789,7 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
     <>
       <div className="project-carousel" aria-label={`${title} image carousel`}>
       <div
+        ref={carouselViewportRef}
         className="carousel-viewport"
         role="button"
         tabIndex={0}
@@ -745,7 +819,10 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
             <button
               type="button"
               className={index === activeSlide ? "is-active" : ""}
-              onClick={() => setActiveSlide(index)}
+              onClick={() => {
+                setMobileCaptionHidden(false);
+                setActiveSlide(index);
+              }}
               aria-label={`Show ${slideTitle(slide)}`}
               aria-current={index === activeSlide ? "true" : undefined}
               key={`${slideTitle(slide)}-${index}`}
@@ -779,12 +856,12 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
             ←
           </button>
           <div
+            ref={lightboxViewportRef}
             className="lightbox-viewport"
             onPointerDown={beginDrag}
             onPointerMove={updateDrag}
             onPointerUp={finishDrag}
             onPointerCancel={cancelDrag}
-            onWheel={handleLightboxWheel}
           >
             <div
               className={`carousel-track${isDragging ? " is-dragging" : ""}`}

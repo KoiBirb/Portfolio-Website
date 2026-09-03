@@ -480,6 +480,7 @@ a {
 
 .carousel-viewport {
   overflow: hidden;
+  overscroll-behavior-x: contain;
   aspect-ratio: 16 / 10;
   border: 1px solid rgba(255, 247, 233, 0.3);
   background: #3b0c06;
@@ -543,25 +544,37 @@ a {
 
 .carousel-slide figcaption {
   position: absolute;
-  right: clamp(1.2rem, 3vw, 2.5rem);
-  bottom: clamp(1.7rem, 3.5vw, 3rem);
-  left: clamp(1.2rem, 3vw, 2.5rem);
+  right: auto;
+  bottom: clamp(0.6rem, 1.25vw, 1rem);
+  left: clamp(0.6rem, 1.25vw, 1rem);
   display: grid;
   gap: 0.3rem;
+  width: fit-content;
+  max-width: calc(100% - clamp(1.2rem, 2.5vw, 2rem));
+  padding: clamp(0.7rem, 1.2vw, 1rem) clamp(0.85rem, 1.5vw, 1.25rem);
+  border: 1px solid rgba(255, 247, 233, 0.28);
+  background: rgba(43, 7, 4, 0.55);
   text-shadow: 0 2px 18px rgba(42, 4, 2, 0.5);
+  transition: opacity 220ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .carousel-slide figcaption:hover {
+    opacity: 0;
+  }
 }
 
 .carousel-slide figcaption span,
 .carousel-slide figcaption small {
   font-family: "DM Mono", monospace;
-  font-size: 0.58rem;
+  font-size: 0.406rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 
 .carousel-slide figcaption strong {
   font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(2rem, 4vw, 4rem);
+  font-size: clamp(1.4rem, 2.8vw, 2.8rem);
   font-weight: 500;
   line-height: 1;
 }
@@ -664,6 +677,7 @@ a {
   width: min(86vw, 88rem);
   height: var(--lightbox-height);
   overflow: hidden;
+  overscroll-behavior-x: contain;
   border: 1px solid rgba(255, 247, 233, 0.3);
   background: #260604;
   cursor: grab;
@@ -1113,6 +1127,66 @@ a {
   .resume-link:hover,
   .resume-link:focus-visible {
     transform: scale(1.1);
+  }
+}
+
+/* Touch browsers can leave :hover active after a tap. Keep hover-only feedback
+   exclusive to devices with a precise pointer. */
+@media (hover: none), (pointer: coarse) {
+  .carousel-slide figcaption.is-mobile-hidden {
+    opacity: 0;
+  }
+
+  .social-links a:hover,
+  .audio-toggle:hover {
+    color: #fff7e9;
+    background: rgba(43, 7, 4, 0.55);
+    transform: none;
+  }
+
+  .social-links a:hover img,
+  .project-github:hover img {
+    filter: invert(96%) sepia(12%) saturate(530%) hue-rotate(326deg) brightness(106%);
+  }
+
+  .audio-control:hover:not(.is-open) .volume-popover {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-50%) scaleY(0.75);
+  }
+
+  .carousel-viewport:hover,
+  .project-github:hover {
+    transform: none;
+  }
+
+  .carousel-controls > button:hover,
+  .lightbox-close:hover,
+  .lightbox-arrow:hover,
+  .project-github:hover {
+    color: inherit;
+    background: rgba(43, 7, 4, 0.71);
+  }
+
+  .lightbox-close:hover {
+    transform: none;
+  }
+
+  .lightbox-arrow:hover {
+    transform: translateY(-50%);
+  }
+
+  .back-to-top:hover {
+    color: inherit;
+    transform: translateX(-50%);
+  }
+}
+
+@media (hover: none) and (max-width: 900px), (pointer: coarse) and (max-width: 900px) {
+  .resume-link:hover {
+    color: inherit;
+    background: rgba(43, 7, 4, 0.55);
+    transform: none;
   }
 }
 
