@@ -50,6 +50,7 @@ type Project = {
   githubUrl: string;
   eyebrow: string;
   title: string;
+  collaboration?: string;
   summary: string;
   tags: string[];
   slides: ProjectSlide[];
@@ -63,13 +64,16 @@ const projects: Project[] = [
     githubUrl: "",
     eyebrow: "Audio Electronics / Electrical",
     title: "Class D Amplifier",
+    // collaboration: "Built in collaboration with Name",
     summary:
       "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
     tags: ["Altium", "PCB Design", "Circuit Design", "Fusion 360", "Oscilloscope"],
     slides: [
       // Add an image by setting its path, for example:
       // { title: "PCB render", image: "./projects/amplifier-pcb.jpg", alt: "Amplifier PCB render" },
-      {title: "Schematic", image: "./projects/Class D Amplifier/Schmatic.png"}
+      {title: "Schematic", image: "./projects/Class D Amplifier/Schmatic.png"},
+      {title: "PCB Layout", image: "./projects/Class D Amplifier/Routing.png"},
+      {title: "3D Model", image: "./projects/Class D Amplifier/3D Model.png"}
     ],
   },
   {
@@ -79,10 +83,16 @@ const projects: Project[] = [
     githubUrl: "",
     eyebrow: "Embedded Systems / Electrical",
     title: "STM32 Flight Controller",
+    collaboration: "In collaboration with Moiz Ahmad",
     summary:
       "Designed and developed a custom STM32-based flight controller for a fixed-wing RC aircraft. The board integrates an STM32F446 microcontroller, IMU and barometric pressure sensors, USB communication, ELRS radio connectivity, and multiple PWM outputs for flight-control hardware. The project involved schematic design, component selection, power regulation, four-layer PCB layout, USB differential-pair routing, and hardware bring-up using STM32CubeMX, C/C++, and SWD debugging.",
     tags: ["Altium", "SPI & I2C", "UART", "USB", "STM32CubeMX"],
-    slides: ["Communication interface", "Signal capture", "Prototype hardware"],
+    slides: [
+      {title: "Schematic", image: "./projects/STM Flight Controller/Schematic Altium.png"},
+      {title: "PCB Layout", image: "./projects/STM Flight Controller/Routing.png"},
+      {title: "3D Model", image: "./projects/STM Flight Controller/3D model.png"},
+      {title: "Manufactured", image: "./projects/STM Flight Controller/Top IRL PCB.jpg"}
+    ],
   },
   {
     number: "03",
@@ -91,10 +101,16 @@ const projects: Project[] = [
     githubUrl: "https://github.com/mynteee/tracking-14-a",
     eyebrow: "IoT Asset Tracking / Software & Hardware",
     title: "Esp32 Asset Tracking",
+    collaboration: "In collaboration with Western ES 1050",
     summary:
       "Developed an ESP32-based indoor tracking system designed to monitor BLE-enabled assets across hospital rooms and zones. Multiple ESP32 gateways scan for low-power Bluetooth beacons and use received signal strength to estimate each tag’s location, tracking data transmitted over Wi-Fi to a central MQTT server for monitoring and visualization on a web-based dashboard.",
     tags: ["Esp32", "BLE", "MQTT", "Wifi", "Onshape"],
-    slides: ["Schematic", "PCB layout", "Validation setup"],
+    slides: [
+      {title: "Esp32 Case", image: "./projects/Tracker System/CaseOpen.jpg"},
+      {title: "Tag", image: "./projects/Tracker System/TagHousing.jpg"},
+      {title: "Tag Battery", image: "./projects/Tracker System/TagBattery.jpg"},
+      {title: "Dashboard", image: "./projects/Tracker System/WebApp.png"}
+    ],
   },
   {
     number: "04",
@@ -105,7 +121,13 @@ const projects: Project[] = [
     title: "Harmonic Drive",
     summary: "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and wave generator to achieve compact, high-ratio 20:1 motion transmission. The project was to be used on a nema 17 stepper motor and focused on mechanical design, gear geometry, material selection, and designing components specifically for additive manufacturing while balancing flexibility, stiffness and durability.",
     tags: ["Gear Design", "Fusion 360", "Material Selection", "Additive Manufacturing", "Stepper Motor"],
-    slides: ["Project image", "Design detail", "Final result"],
+    slides: [
+      {title: "Exploded", image: "./projects/Harmonic Drive/Exploded.png"},
+      {title: "Cross Section", image: "./projects/Harmonic Drive/Cross.png"},
+      {title: "Open", image: "./projects/Harmonic Drive/Open.jpg"},
+      {title: "Closed", image: "./projects/Harmonic Drive/Closed.jpg"},
+      {title: "Bread board", image: "./projects/Harmonic Drive/BreadBoard.jpg"},
+    ],
   },
   {
     number: "05",
@@ -116,7 +138,13 @@ const projects: Project[] = [
     title: "3D Printed Drone",
     summary: "Designed and built a custom 3D-printed drone, developing the airframe from scratch, printed with carbon-filled petg with a focus on weight, strength, and component integration. I used betaflight to configure a F405 mini flight controller stack to enable smooth flight. This project combined CAD modelling, additive manufacturing, electronics integration, assembly, and iterative testing to refine the frame and overall flight platform.",
     tags: ["Fusion 360", "Bambu Slicer", "Betaflight", "Additive Manufacturing"],
-    slides: ["Project image", "Design detail", "Final result"],
+    slides: [
+      {title: "Front", image: "./projects/3D Printed Drone/Front.jpg"},
+      {title: "Back", image: "./projects/3D Printed Drone/Back.jpg"},
+      {title: "Top", image: "./projects/3D Printed Drone/Top.jpg"},
+      {title: "CAD", image: "./projects/3D Printed Drone/Cad Top.png"},
+      {title: "Bumper", image: "./projects/3D Printed Drone/Bumper.png"},
+    ],
   },
   {
     number: "06",
@@ -125,9 +153,18 @@ const projects: Project[] = [
     githubUrl: "https://github.com/KoiBirb/Forsaken-Crown",
     eyebrow: "Game Design / Software",
     title: "Arcade Machine Game",
+    collaboration: "In collaboration with London Central Secondary School",
     summary: "Designed and developed a hack and slash platformer game inspired by hollow knight. I used java swing to display the graphics and developed fundamental skills in organization of an over 20k+ line project. Tiled and json simple was used to create and store the map.",
     tags: ["Java", "Intelij", "JSON", "Github", "Tiled"],
-    slides: ["Project image", "Design detail", "Final result"],
+    slides: [
+      {title: "Main", image: "./projects/Forsaken Crown/Main.jpg"},
+      {title: "Dark Cave", image: "./projects/Forsaken Crown/Start.jpg"},
+      {title: "Checkpoint", image: "./projects/Forsaken Crown/Checkpoint.jpg"},
+      {title: "Bone Castle", image: "./projects/Forsaken Crown/Mid.jpg"},
+      {title: "Arena", image: "./projects/Forsaken Crown/Boss.jpg"},
+      {title: "Map", image: "./projects/Forsaken Crown/Map.png"},
+      {title: "Controls", image: "./projects/Forsaken Crown/Controls.jpg"}
+    ],
   },
   {
     number: "07",
@@ -136,9 +173,18 @@ const projects: Project[] = [
     githubUrl: "https://github.com/KoiBirb/Robot-Dog",
     eyebrow: "Quadruped Robotics / Mechanical / Electrical",
     title: "Robot Dog",
+    collaboration: "In collaboration with Western Mathmatics Expo",
     summary: "Designed and built a custom quadruped robot dog for a Western University competition, integrating an ESP32, custom KiCad PCB, servo driver, and 12 actuated joints. The project combined mechanical design, electronics, and inverse kinematics to coordinate multi-joint leg motion and produce controlled walking movements.",
-    tags: ["C++", "Arduino IDE", "KiCad", "ESP32", "Inverse Kinematics", "Servos"],
-    slides: ["Project image", "Design detail", "Final result"],
+    tags: ["C++", "Arduino IDE", "KiCad", "Esp32", "Inverse Kinematics", "Servos"],
+    slides: [
+      {title: "Folded", image: "./projects/Robot dog/Folded.jpg"},
+      {title: "Side", image: "./projects/Robot dog/Side.jpg"},
+      {title: "Top", image: "./projects/Robot dog/Top.jpg"},
+      {title: "Front", image: "./projects/Robot dog/Front.jpg"},
+      {title: "Unassembled", image: "./projects/Robot dog/Unassembled.jpg"},
+      {title: "Poster", image: "./projects/Robot dog/Poster.png"}
+
+    ],
   },
 ];
 function ArrowDown() {
@@ -178,6 +224,7 @@ export default function App() {
   const activeYearRef = useRef("2026");
   const [yearPulse, setYearPulse] = useState(false);
   const [mobileSocialVisible, setMobileSocialVisible] = useState(true);
+  const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
   const [musicMuted, setMusicMuted] = useState(() => readAudioSettings().muted);
   const [musicVolume, setMusicVolume] = useState(() => readAudioSettings().volume);
   const [playbackBlocked, setPlaybackBlocked] = useState(true);
@@ -229,6 +276,12 @@ export default function App() {
           setYearPulse((pulse) => !pulse);
         }
       }
+      const focusedProjectIndex = focusedPanel.panel?.dataset.projectIndex;
+      setActiveProjectIndex(
+        focusedProjectIndex !== undefined && focusedPanel.ratio > 0
+          ? Number(focusedProjectIndex)
+          : null,
+      );
       setMobileSocialVisible(window.scrollY < Math.max(120, window.innerHeight * 0.18));
       frame = 0;
     };
@@ -475,10 +528,10 @@ export default function App() {
           </div>
         )}
         <a href="https://www.linkedin.com/in/leo-bogaert/" target="_blank" rel="noreferrer">
-          <img src="./linkedin.png" alt="LinkedIn" />
+          <img src="./linkedin.png" alt="Leo Bogaert on LinkedIn" />
         </a>
         <a href="https://github.com/koibirb" target="_blank" rel="noreferrer">
-          <img src="./github.svg" alt="GitHub" />
+          <img src="./github.svg" alt="Leo Bogaert on GitHub" />
         </a>
       </nav>
       <section className="scroll-story" ref={storyRef}>
@@ -563,9 +616,10 @@ export default function App() {
                 className={`story-panel project-panel ${index % 2 === 0 ? "project-left" : "project-right"}`}
                 id={index === 0 ? "work" : undefined}
                 data-year={project.year}
+                data-project-index={index}
                 key={project.number}
               >
-                <ProjectCard project={project} />
+                <ProjectCard project={project} autoPlay={activeProjectIndex === index} />
                 {isLastProject && (
                   <>
                     <p className="end-note">More projects coming soon!</p>
@@ -584,7 +638,7 @@ export default function App() {
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, autoPlay }: { project: Project; autoPlay: boolean }) {
   return (
     <article className="project-card">
       <div className="project-copy">
@@ -593,6 +647,9 @@ function ProjectCard({ project }: { project: Project }) {
           <span>{project.eyebrow}</span>
         </div>
         <h2>{project.title}</h2>
+        {project.collaboration && (
+          <p className="project-collaboration">{project.collaboration}</p>
+        )}
         <p>{project.summary}</p>
         <div className="project-links">
           <ul aria-label={`${project.title} technologies`}>
@@ -614,17 +671,26 @@ function ProjectCard({ project }: { project: Project }) {
           )}
         </div>
       </div>
-      <ProjectCarousel title={project.title} slides={project.slides} />
+      <ProjectCarousel title={project.title} slides={project.slides} autoPlay={autoPlay} />
     </article>
   );
 }
 
-function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlide[] }) {
+function ProjectCarousel({
+  title,
+  slides,
+  autoPlay,
+}: {
+  title: string;
+  slides: ProjectSlide[];
+  autoPlay: boolean;
+}) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [mobileCaptionHidden, setMobileCaptionHidden] = useState(false);
+  const [slideRatios, setSlideRatios] = useState<Record<number, number>>({});
   const carouselViewportRef = useRef<HTMLDivElement>(null);
   const lightboxViewportRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; pointerId: number; moved: boolean } | null>(null);
@@ -632,6 +698,8 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
   const wheelGestureRef = useRef({ distance: 0, lastEvent: 0 });
   const slideTitle = (slide: ProjectSlide) =>
     typeof slide === "string" ? slide : slide.title;
+  const activeRatio = slideRatios[activeSlide] ?? 16 / 10;
+  const activeHasImage = typeof slides[activeSlide] !== "string" && Boolean(slides[activeSlide].image);
 
   const previousSlide = () => {
     setMobileCaptionHidden(false);
@@ -642,6 +710,24 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
     setMobileCaptionHidden(false);
     setActiveSlide((current) => (current + 1) % slides.length);
   };
+
+  useEffect(() => {
+    if (
+      !autoPlay ||
+      lightboxOpen ||
+      isDragging ||
+      slides.length < 2 ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) return;
+
+    const timer = window.setInterval(() => {
+      if (document.visibilityState !== "visible" || !document.hasFocus()) return;
+      setMobileCaptionHidden(false);
+      setActiveSlide((current) => (current + 1) % slides.length);
+    }, 4000);
+
+    return () => window.clearInterval(timer);
+  }, [autoPlay, isDragging, lightboxOpen, slides.length]);
 
   const beginDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -692,7 +778,15 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
       // Let ordinary two-finger vertical scrolling continue moving the page.
       if (Math.abs(horizontalDistance) <= Math.abs(event.deltaY) * 1.1) return;
       event.preventDefault();
-      if (wheelLockRef.current !== null) return;
+      if (wheelLockRef.current !== null) {
+        // Momentum belongs to the same gesture. Keep extending the lock until
+        // the trackpad stops sending wheel events.
+        window.clearTimeout(wheelLockRef.current);
+        wheelLockRef.current = window.setTimeout(() => {
+          wheelLockRef.current = null;
+        }, 220);
+        return;
+      }
 
       const now = performance.now();
       if (now - wheelGestureRef.current.lastEvent > 180) {
@@ -710,7 +804,7 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
       wheelGestureRef.current.distance = 0;
       wheelLockRef.current = window.setTimeout(() => {
         wheelLockRef.current = null;
-      }, 320);
+      }, 220);
     };
 
     const viewports = [carouselViewportRef.current, lightboxViewportRef.current].filter(
@@ -749,20 +843,10 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
     };
   }, [lightboxOpen]);
 
-  const renderSlides = (expanded = false) => slides.map((slide, index) => (
-    <figure
-      className={`carousel-slide carousel-tone-${index + 1}${expanded ? " is-expanded" : ""}`}
-      key={`${slideTitle(slide)}-${index}`}
-    >
-      {typeof slide !== "string" && slide.image && (
-        <img
-          className="carousel-image"
-          src={slide.image}
-          alt={slide.alt ?? slide.title}
-          draggable="false"
-        />
-      )}
-      <div className="carousel-grid" aria-hidden="true" />
+  const renderSlides = (expanded = false) => slides.map((slide, index) => {
+    const hasImage = typeof slide !== "string" && Boolean(slide.image);
+    const imageRatio = slideRatios[index] ?? 16 / 10;
+    const caption = (
       <figcaption
         className={mobileCaptionHidden && index === activeSlide ? "is-mobile-hidden" : undefined}
         onPointerDown={(event) => {
@@ -780,17 +864,53 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
           {String(index + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
         </span>
         <strong>{slideTitle(slide)}</strong>
-        <small>{typeof slide !== "string" && slide.image ? "Project image" : "Project image slot"}</small>
       </figcaption>
-    </figure>
-  ));
+    );
+
+    return (
+      <figure
+        className={`carousel-slide carousel-tone-${index + 1}${hasImage ? " has-image" : ""}${expanded ? " is-expanded" : ""}`}
+        key={`${slideTitle(slide)}-${index}`}
+      >
+        {hasImage && typeof slide !== "string" ? (
+          <div
+            className="carousel-image-frame"
+            style={{
+              "--image-ratio": imageRatio,
+              "--image-width-at-full-height": `${imageRatio * 100}cqh`,
+            } as CSSProperties}
+          >
+            <img
+              className="carousel-image"
+              src={slide.image}
+              alt={slide.alt ?? `${title} project — ${slide.title}`}
+              draggable="false"
+              onLoad={(event) => {
+                const ratio = event.currentTarget.naturalWidth / event.currentTarget.naturalHeight;
+                if (!Number.isFinite(ratio) || ratio <= 0) return;
+                setSlideRatios((current) => current[index] === ratio
+                  ? current
+                  : { ...current, [index]: ratio });
+              }}
+            />
+            {caption}
+          </div>
+        ) : (
+          <>
+            <div className="carousel-grid" aria-hidden="true" />
+            {caption}
+          </>
+        )}
+      </figure>
+    );
+  });
 
   return (
     <>
       <div className="project-carousel" aria-label={`${title} image carousel`}>
       <div
         ref={carouselViewportRef}
-        className="carousel-viewport"
+        className={`carousel-viewport${activeHasImage ? " has-active-image" : ""}`}
         role="button"
         tabIndex={0}
         aria-label={`Enlarge ${title} images`}
@@ -857,7 +977,11 @@ function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlid
           </button>
           <div
             ref={lightboxViewportRef}
-            className="lightbox-viewport"
+            className={`lightbox-viewport${activeHasImage ? " has-active-image" : ""}`}
+            style={{
+              aspectRatio: activeRatio,
+              "--lightbox-width-by-height": `${82 * activeRatio}dvh`,
+            } as CSSProperties}
             onPointerDown={beginDrag}
             onPointerMove={updateDrag}
             onPointerUp={finishDrag}

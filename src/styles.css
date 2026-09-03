@@ -443,6 +443,20 @@ a {
   line-height: 0.9;
 }
 
+.project-card h2:has(+ .project-collaboration) {
+  margin-bottom: 0.8rem;
+}
+
+.project-copy > .project-collaboration {
+  max-width: 34rem;
+  margin: 0 0 1.75rem;
+  color: #f8b331;
+  font-family: "DM Mono", monospace;
+  font-size: clamp(0.65rem, 0.85vw, 0.78rem);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+}
+
 .project-copy > p,
 .about-card > p:not(.section-label) {
   max-width: 34rem;
@@ -483,7 +497,8 @@ a {
   overscroll-behavior-x: contain;
   aspect-ratio: 16 / 10;
   border: 1px solid rgba(255, 247, 233, 0.3);
-  background: #3b0c06;
+  background: transparent;
+  container-type: inline-size;
   cursor: zoom-in;
   touch-action: pan-y;
   transform-origin: center;
@@ -493,6 +508,11 @@ a {
 
 .carousel-viewport:hover {
   transform: scale(1.025);
+}
+
+.carousel-viewport.has-active-image,
+.lightbox-viewport.has-active-image {
+  border-color: transparent;
 }
 
 .carousel-track {
@@ -508,6 +528,7 @@ a {
 
 .carousel-slide {
   position: relative;
+  display: grid;
   flex: 0 0 100%;
   height: 100%;
   margin: 0;
@@ -517,6 +538,25 @@ a {
     linear-gradient(135deg, #8c260c, #e26711 55%, #6b160a);
   transition: transform 220ms ease;
   user-select: none;
+  container-type: size;
+  place-items: center;
+}
+
+.carousel-slide.has-image {
+  background: transparent;
+}
+
+.carousel-slide.has-image .carousel-grid {
+  display: none;
+}
+
+.carousel-image-frame {
+  position: relative;
+  width: min(100cqw, var(--image-width-at-full-height));
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: var(--image-ratio);
+  border: 1px solid rgba(255, 247, 233, 0.3);
 }
 
 .carousel-tone-2 {
@@ -554,7 +594,9 @@ a {
   padding: clamp(0.7rem, 1.2vw, 1rem) clamp(0.85rem, 1.5vw, 1.25rem);
   border: 1px solid rgba(255, 247, 233, 0.28);
   background: rgba(43, 7, 4, 0.55);
+  text-align: left;
   text-shadow: 0 2px 18px rgba(42, 4, 2, 0.5);
+  transform: none;
   transition: opacity 220ms ease;
 }
 
@@ -567,14 +609,14 @@ a {
 .carousel-slide figcaption span,
 .carousel-slide figcaption small {
   font-family: "DM Mono", monospace;
-  font-size: 0.406rem;
+  font-size: clamp(0.32rem, 1.1cqw, 0.406rem);
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 
 .carousel-slide figcaption strong {
   font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(1.4rem, 2.8vw, 2.8rem);
+  font-size: clamp(1rem, 5cqw, 2.8rem);
   font-weight: 500;
   line-height: 1;
 }
@@ -674,12 +716,13 @@ a {
 }
 
 .lightbox-viewport {
-  width: min(86vw, 88rem);
-  height: var(--lightbox-height);
+  width: min(86vw, 88rem, var(--lightbox-width-by-height, 86vw));
+  height: auto;
   overflow: hidden;
   overscroll-behavior-x: contain;
   border: 1px solid rgba(255, 247, 233, 0.3);
-  background: #260604;
+  background: transparent;
+  container-type: inline-size;
   cursor: grab;
   touch-action: none;
 }
