@@ -568,10 +568,7 @@ a {
   inset: 0;
   overflow: hidden;
   opacity: 1;
-  background:
-    radial-gradient(circle at 18% 25%, rgba(248, 179, 49, 0.14), transparent 42%),
-    radial-gradient(circle at 78% 72%, rgba(255, 247, 233, 0.09), transparent 46%),
-    rgba(43, 7, 4, 0.42);
+  background: rgba(43, 7, 4, 0.52);
   transition: opacity 260ms ease;
 }
 
@@ -580,15 +577,17 @@ a {
   top: -10%;
   bottom: -10%;
   left: 0;
-  width: 42%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 247, 233, 0.23) 0%,
-    rgba(248, 179, 49, 0.1) 38%,
-    transparent 72%
+  width: 32%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(248, 179, 49, 0.07) 32%,
+    rgba(255, 247, 233, 0.23) 50%,
+    rgba(248, 179, 49, 0.07) 68%,
+    transparent 100%
   );
   content: "";
-  filter: blur(8px);
+  filter: blur(5px);
   transform: translateX(-125%);
   animation: carousel-image-shimmer 1.8s ease-in-out infinite;
 }
