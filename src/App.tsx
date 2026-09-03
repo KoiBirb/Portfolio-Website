@@ -668,13 +668,13 @@ export default function App() {
               <p className="section-label">About</p>
               <h2>Designed from the ground up.</h2>
               <p>
-                A student from Western University who loves PCB design, embedded systems, robotics and CAD. 
+                I am a student from Ontario Canada, currently studying at Western University. I love PCB design, CAD, robotics and Aeronautics. 
                 I enjoy combining electrical, mechanical, and software skills to design and build practical engineering systems.
               </p>
               <div className="skill-line">
                 <span>PCB Design</span>
-                <span>Circuit Design</span>
                 <span>Microcontrollers</span>
+                <span>Circuits</span>
                 <span>CAD</span>
                 <span>Additive Manufacturing</span>
               </div>

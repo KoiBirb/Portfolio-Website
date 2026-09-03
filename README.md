@@ -1,8 +1,11 @@
 # Leo Bogaert — Engineering Portfolio
 
-Live site: https://koibirb.github.io/
+Live site: https://leobogaert.com
 
-A React and Vite portfolio with a synchronized scroll sequence. The pinned artwork pans from top to bottom while the project content travels at a faster rate, with both reaching their endpoints together.
+I am a student from Ontario Canada, currently studying at Western University.
+This is a web based portfolio of the major projects i have taken on over the past few years!
+
+The site uses React and Vite.
 
 ## Local development
 
