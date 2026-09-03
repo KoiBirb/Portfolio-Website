@@ -76,12 +76,12 @@ const projects: Project[] = [
     title: "Class D Amplifier",
     // collaboration: { label: "Built in collaboration with", highlight: "Name", url: "https://example.com" },
     summary:
-      "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
+      "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, oscilloscope-based testing, debugging, and enclosure design using Fusion 360.",
     tags: ["Altium", "PCB Design", "Circuit Design", "Fusion 360", "Oscilloscope"],
     slides: [
       // Add an image by setting its path, for example:
       // { title: "PCB render", image: "./projects/amplifier-pcb.jpg", alt: "Amplifier PCB render" },
-      {title: "Schematic", image: "./projects/Class D Amplifier/Schmatic.png"},
+      {title: "Schematic", image: "./projects/Class D Amplifier/Schematic.png"},
       {title: "PCB Layout", image: "./projects/Class D Amplifier/Routing.png"},
       {title: "3D Model", image: "./projects/Class D Amplifier/3D Model.png"}
     ],
@@ -107,13 +107,13 @@ const projects: Project[] = [
     year: "2025",
     githubUrl: "https://github.com/mynteee/tracking-14-a",
     eyebrow: "IoT Asset Tracking / Software & Hardware",
-    title: "Esp32 Asset Tracking",
+    title: "ESP32 Asset Tracking",
     collaboration: { label: "In collaboration with", highlight: "ES1050", url: "https://www.eng.uwo.ca/media/news/2024/Thompson-Centre-ES1050-professors-making-an-impact.html" },
     summary:
-      "Developed an ESP32-based indoor tracking system designed to monitor BLE-enabled assets across hospital rooms and zones. Multiple ESP32 gateways scan for low-power Bluetooth beacons and use received signal strength to estimate each tag’s location, tracking data transmitted over Wi-Fi to a central MQTT server for monitoring and visualization on a web-based dashboard.",
-    tags: ["Esp32", "BLE", "MQTT", "Wifi", "Onshape"],
+      "Developed an ESP32-based indoor tracking system designed to monitor BLE-enabled assets across hospital rooms and zones. Multiple ESP32 gateways scan for low-power Bluetooth beacons and use received signal strength to estimate each tag’s location, then transmit tracking data over Wi-Fi to a central MQTT server for monitoring and visualization on a web-based dashboard.",
+    tags: ["ESP32", "BLE", "MQTT", "Wi-Fi", "Onshape"],
     slides: [
-      {title: "Esp32 Case", image: "./projects/Tracker System/CaseOpen.jpg"},
+      {title: "ESP32 Case", image: "./projects/Tracker System/CaseOpen.jpg"},
       {title: "Tag", image: "./projects/Tracker System/TagHousing.jpg"},
       {title: "Tag Battery", image: "./projects/Tracker System/TagBattery.jpg"},
       {title: "Dashboard", image: "./projects/Tracker System/WebApp.png"}
@@ -124,7 +124,7 @@ const projects: Project[] = [
     year: "2025",
     eyebrow: "Gearbox Design / Mechanical",
     title: "Harmonic Drive",
-    summary: "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and wave generator to achieve compact, high-ratio 20:1 motion transmission. The project was to be used on a nema 17 stepper motor and focused on mechanical design, gear geometry, material selection, and designing components specifically for additive manufacturing while balancing flexibility, stiffness and durability.",
+    summary: "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and a wave generator to achieve a compact, 20:1 reduction ratio. The project was designed to fit flush with a NEMA 17 stepper motor and focused on mechanical design, gear geometry, material selection, and designing components specifically for additive manufacturing while balancing flexibility, stiffness, and durability.",
     tags: ["Gear Design", "Fusion 360", "Material Selection", "Additive Manufacturing", "Stepper Motor"],
     slides: [
       {title: "Exploded", image: "./projects/Harmonic Drive/Exploded.png"},
@@ -139,7 +139,7 @@ const projects: Project[] = [
     year: "2025",
     eyebrow: "Drone Design / Mechanical & Electrical",
     title: "3D Printed Drone",
-    summary: "Designed and built a custom 3D-printed drone, developing the airframe from scratch, printed with carbon-filled petg with a focus on weight, strength, and component integration. I used betaflight to configure a F405 mini flight controller stack to enable smooth flight. This project combined CAD modelling, additive manufacturing, electronics integration, assembly, and iterative testing to refine the frame and overall flight platform.",
+    summary: "Designed and built a custom 3D-printed drone, developing the airframe from scratch and printing it with carbon-filled PETG with a focus on weight, strength, and component integration. I used Betaflight to configure an F405 Mini flight controller stack to enable smooth flight. This project combined CAD modeling, additive manufacturing, electronics integration, assembly, and iterative testing to refine the frame and overall flight platform.",
     tags: ["Fusion 360", "Bambu Slicer", "Betaflight", "Additive Manufacturing"],
     slides: [
       {title: "Front", image: "./projects/3D Printed Drone/Front.jpg"},
@@ -156,8 +156,8 @@ const projects: Project[] = [
     eyebrow: "Game Design / Software",
     title: "Arcade Machine Game",
     collaboration: { label: "In collaboration with London Central Secondary School", highlight: "", url: "" },
-    summary: "Designed and developed a hack and slash platformer game inspired by hollow knight. I used java swing to display the graphics and developed fundamental skills in organization of an over 20k+ line project. Tiled and json simple was used to create and store the map.",
-    tags: ["Java", "Intelij", "JSON", "Github", "Tiled"],
+    summary: "Designed and developed a hack-and-slash platformer game inspired by Hollow Knight. I used Java Swing to display the graphics and developed fundamental organizational skills while working on a project with over 20,000 lines of code. Tiled and simple JSON files were used to create and store the map.",
+    tags: ["Java", "IntelliJ", "JSON", "GitHub", "Tiled"],
     slides: [
       {title: "Main", image: "./projects/Forsaken Crown/Main.jpg"},
       {title: "Dark Cave", image: "./projects/Forsaken Crown/Start.jpg"},
@@ -176,7 +176,7 @@ const projects: Project[] = [
     title: "Robot Dog",
     collaboration: { label: "In collaboration with", highlight: "Moiz Ahmad", url: "https://moizahmad.com" },
     summary: "Designed and built a custom quadruped robot dog for a Western University competition, integrating an ESP32, custom KiCad PCB, servo driver, and 12 actuated joints. The project combined mechanical design, electronics, and inverse kinematics to coordinate multi-joint leg motion and produce controlled walking movements.",
-    tags: ["C++", "Arduino IDE", "KiCad", "Esp32", "Inverse Kinematics", "Servos"],
+    tags: ["C++", "Arduino IDE", "KiCad", "ESP32", "Inverse Kinematics", "Servos"],
     slides: [
       {title: "Folded", image: "./projects/Robot dog/Folded.jpg"},
       {title: "Side", image: "./projects/Robot dog/Side.jpg"},
@@ -668,7 +668,7 @@ export default function App() {
               <p className="section-label">About</p>
               <h2>Designed from the ground up.</h2>
               <p>
-                I am a student from Ontario Canada, currently studying at Western University. I love PCB design, CAD, robotics and Aeronautics. 
+                I am a student from Ontario, Canada, currently studying at Western University. I love PCB design, CAD, robotics, and aeronautics.
                 I enjoy combining electrical, mechanical, and software skills to design and build practical engineering systems.
               </p>
               <div className="skill-line">

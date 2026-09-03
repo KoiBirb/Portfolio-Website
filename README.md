@@ -2,8 +2,8 @@
 
 Live site: https://leobogaert.com
 
-I am a student from Ontario Canada, currently studying at Western University.
-This is a web based portfolio of the major projects i have taken on over the past few years!
+I am a student from Ontario, Canada, currently studying at Western University.
+This is a web-based portfolio of the major projects I have taken on over the past few years!
 
 The site uses React and Vite.
 
