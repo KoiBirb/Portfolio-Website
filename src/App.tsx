@@ -233,6 +233,10 @@ export default function App() {
   const mobileSocialVisibleRef = useRef(true);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
   const activeProjectIndexRef = useRef<number | null>(null);
+  const [projectImagesEnabledThrough, setProjectImagesEnabledThrough] = useState(-1);
+  const assetSequenceStartedRef = useRef(false);
+  const projectImageQueueStartedRef = useRef(false);
+  const assetTimersRef = useRef<number[]>([]);
   const [musicMuted, setMusicMuted] = useState(() => readAudioSettings().muted);
   const [musicVolume, setMusicVolume] = useState(() => readAudioSettings().volume);
   const [playbackBlocked, setPlaybackBlocked] = useState(true);
@@ -244,6 +248,41 @@ export default function App() {
     // A blocked background track should not suppress sounds from an explicit tap.
     muted: musicMuted,
     volume: musicVolume,
+  };
+
+  const startProjectImageQueue = () => {
+    if (projectImageQueueStartedRef.current) return;
+    projectImageQueueStartedRef.current = true;
+
+    // Start galleries in document order instead of opening every connection at once.
+    projects.forEach((_, index) => {
+      const timer = window.setTimeout(() => {
+        setProjectImagesEnabledThrough(index);
+      }, index * 450);
+      assetTimersRef.current.push(timer);
+    });
+  };
+
+  const startAssetSequence = () => {
+    if (assetSequenceStartedRef.current) return;
+    assetSequenceStartedRef.current = true;
+
+    const audio = audioRef.current;
+    if (!audio) {
+      startProjectImageQueue();
+      return;
+    }
+
+    // Give music the first post-background request, then allow image batches.
+    audio.preload = "auto";
+    if (audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+      startProjectImageQueue();
+      return;
+    }
+
+    audio.addEventListener("canplay", startProjectImageQueue, { once: true });
+    if (audio.networkState === HTMLMediaElement.NETWORK_EMPTY) audio.load();
+    assetTimersRef.current.push(window.setTimeout(startProjectImageQueue, 2000));
   };
 
   useEffect(() => {
@@ -335,6 +374,11 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => () => {
+    assetTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    assetTimersRef.current = [];
+  }, []);
+
   useEffect(() => {
     // Debounce synchronous storage writes while the desktop slider is moving.
     const timer = window.setTimeout(() => {
@@ -415,31 +459,6 @@ export default function App() {
 
     audio.volume = musicVolume;
     audio.muted = musicMuted;
-
-    // Warm the large track only after critical page assets finish loading.
-    let idleCallback = 0;
-    let fallbackTimer = 0;
-    const warmBackgroundAudio = () => {
-      if (!audio.paused || audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) return;
-      audio.preload = "auto";
-      audio.load();
-    };
-    const scheduleWarmup = () => {
-      if ("requestIdleCallback" in window) {
-        idleCallback = window.requestIdleCallback(warmBackgroundAudio, { timeout: 2000 });
-      } else {
-        fallbackTimer = globalThis.setTimeout(warmBackgroundAudio, 500);
-      }
-    };
-
-    if (document.readyState === "complete") scheduleWarmup();
-    else window.addEventListener("load", scheduleWarmup, { once: true });
-
-    return () => {
-      window.removeEventListener("load", scheduleWarmup);
-      if (idleCallback) window.cancelIdleCallback(idleCallback);
-      if (fallbackTimer) window.clearTimeout(fallbackTimer);
-    };
   }, []);
 
   useEffect(() => {
@@ -554,7 +573,7 @@ export default function App() {
         aria-label="Social profiles"
       >
         <div className="audio-control" onPointerDown={prepareMusic}>
-          {/* Starts deferred, then warms after the critical page load or first interaction. */}
+          {/* Starts after the hero artwork, or immediately when explicitly requested. */}
           <audio ref={audioRef} src={backgroundSong.src} preload="none" loop />
           <div className="volume-popover">
             <input
@@ -596,6 +615,8 @@ export default function App() {
             height="1505"
             decoding="async"
             fetchPriority="high"
+            onLoad={startAssetSequence}
+            onError={startAssetSequence}
           />
           <div className="scene-shade" />
           <p className="image-marker marker-top">00° · Above the treeline</p>
@@ -671,7 +692,11 @@ export default function App() {
                 data-project-index={index}
                 key={project.number}
               >
-                <ProjectCard project={project} autoPlay={activeProjectIndex === index} />
+                <ProjectCard
+                  project={project}
+                  autoPlay={activeProjectIndex === index}
+                  imagesEnabled={index <= projectImagesEnabledThrough}
+                />
                 {isLastProject && (
                   <>
                     <p className="end-note">More projects coming soon!</p>
@@ -693,9 +718,11 @@ export default function App() {
 const ProjectCard = memo(function ProjectCard({
   project,
   autoPlay,
+  imagesEnabled,
 }: {
   project: Project;
   autoPlay: boolean;
+  imagesEnabled: boolean;
 }) {
   return (
     <article className="project-card">
@@ -745,7 +772,12 @@ const ProjectCard = memo(function ProjectCard({
           )}
         </div>
       </div>
-      <ProjectCarousel title={project.title} slides={project.slides} autoPlay={autoPlay} />
+      <ProjectCarousel
+        title={project.title}
+        slides={project.slides}
+        autoPlay={autoPlay}
+        imagesEnabled={imagesEnabled}
+      />
     </article>
   );
 });
@@ -754,10 +786,12 @@ function ProjectCarousel({
   title,
   slides,
   autoPlay,
+  imagesEnabled,
 }: {
   title: string;
   slides: ProjectSlide[];
   autoPlay: boolean;
+  imagesEnabled: boolean;
 }) {
   // activeSlide is the real content index; trackIndex also includes edge clones.
   const [activeSlide, setActiveSlide] = useState(0);
@@ -1085,10 +1119,10 @@ function ProjectCarousel({
           />
           <img
             className={`carousel-image${loadedSlides[index] ? " is-loaded" : ""}`}
-            src={slide.image}
+            src={imagesEnabled ? slide.image : undefined}
             alt={clonePosition ? "" : (slide.alt ?? `${title} project — ${slide.title}`)}
             draggable="false"
-            loading="lazy"
+            loading={imagesEnabled ? "eager" : "lazy"}
             decoding="async"
             onLoad={(event) => {
               const ratio = event.currentTarget.naturalWidth / event.currentTarget.naturalHeight;
