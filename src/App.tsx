@@ -76,7 +76,7 @@ const projects: Project[] = [
     title: "Class D Amplifier",
     // collaboration: { label: "Built in collaboration with", highlight: "Name", url: "https://example.com" },
     summary:
-      "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, oscilloscope-based testing, debugging, and enclosure design using Fusion 360.",
+      "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a gate driver controlling the MOSFET output stage, driving a speaker at ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, oscilloscope-based testing, debugging, and enclosure design using Fusion 360.",
     tags: ["Altium", "PCB Design", "Circuit Design", "Fusion 360", "Oscilloscope"],
     slides: [
       // Add an image by setting its path, for example:
@@ -124,7 +124,7 @@ const projects: Project[] = [
     year: "2025",
     eyebrow: "Gearbox Design / Mechanical",
     title: "Harmonic Drive",
-    summary: "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and a wave generator to achieve a compact, 20:1 reduction ratio. The project was designed to fit flush with a NEMA 17 stepper motor and focused on mechanical design, gear geometry, material selection, and designing components specifically for additive manufacturing while balancing flexibility, stiffness, and durability.",
+    summary: "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and a wave generator to achieve a compact form factor and 20:1 reduction ratio. The project was designed to fit flush with a NEMA 17 stepper motor and focused on mechanical design, gear geometry, material selection, and design for additive manufacturing while balancing flexibility, stiffness, and durability.",
     tags: ["Gear Design", "Fusion 360", "Material Selection", "Additive Manufacturing", "Stepper Motor"],
     slides: [
       {title: "Exploded", image: "./projects/Harmonic Drive/Exploded.png"},
@@ -138,8 +138,8 @@ const projects: Project[] = [
     number: "05",
     year: "2025",
     eyebrow: "Drone Design / Mechanical & Electrical",
-    title: "3D Printed Drone",
-    summary: "Designed and built a custom 3D-printed drone, developing the airframe from scratch and printing it with carbon-filled PETG with a focus on weight, strength, and component integration. I used Betaflight to configure an F405 Mini flight controller stack to enable smooth flight. This project combined CAD modeling, additive manufacturing, electronics integration, assembly, and iterative testing to refine the frame and overall flight platform.",
+    title: "3D-Printed Drone",
+    summary: "Designed and built a custom 3D-printed drone, developing the airframe from scratch and printing it in carbon-fiber-filled PETG with a focus on weight, strength, and component integration. I used Betaflight to configure an F405 Mini flight controller stack to enable smooth flight. This project combined CAD modeling, additive manufacturing, electronics integration, assembly, and iterative testing to refine the frame and overall flight platform.",
     tags: ["Fusion 360", "Bambu Slicer", "Betaflight", "Additive Manufacturing"],
     slides: [
       {title: "Front", image: "./projects/3D Printed Drone/Front.jpg"},
@@ -156,7 +156,7 @@ const projects: Project[] = [
     eyebrow: "Game Design / Software",
     title: "Arcade Machine Game",
     collaboration: { label: "In collaboration with London Central Secondary School", highlight: "", url: "" },
-    summary: "Designed and developed a hack-and-slash platformer game inspired by Hollow Knight. I used Java Swing to display the graphics and developed fundamental organizational skills while working on a project with over 20,000 lines of code. Tiled and simple JSON files were used to create and store the map.",
+    summary: "Designed and developed a hack-and-slash platformer game inspired by Hollow Knight. I used Java Swing to display the graphics and developed experience structuring and maintaining a codebase of over 20,000 lines. Used Tiled to create the game maps and JSON files to store map data.",
     tags: ["Java", "IntelliJ", "JSON", "GitHub", "Tiled"],
     slides: [
       {title: "Main", image: "./projects/Forsaken Crown/Main.jpg"},
