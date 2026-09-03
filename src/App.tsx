@@ -55,6 +55,16 @@ type Collaboration = {
   url?: string;
 };
 
+type ProjectDetailSection = {
+  heading: string;
+  text?: string;
+  items?: string[];
+};
+
+type ProjectDetails = {
+  sections: [ProjectDetailSection, ProjectDetailSection, ProjectDetailSection];
+};
+
 type Project = {
   number: string;
   year: string;
@@ -65,6 +75,7 @@ type Project = {
   summary: string;
   tags: string[];
   slides: ProjectSlide[];
+  details?: ProjectDetails;
 };
 
 // Portfolio content is kept separate from rendering logic for quick updates.
@@ -78,6 +89,31 @@ const projects: Project[] = [
     summary:
       "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a gate driver controlling the MOSFET output stage, driving a speaker at ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, oscilloscope-based testing, debugging, and enclosure design using Fusion 360.",
     tags: ["Altium", "PCB Design", "Circuit Design", "Fusion 360", "Oscilloscope"],
+    details: {
+      // Adding this optional object gives a project its More info button.
+      sections: [
+        {
+          heading: "Design challenge",
+          text: "Create a compact amplifier that converts an analog audio signal into a high-frequency PWM waveform while keeping switching losses and audible distortion low.",
+        },
+        {
+          heading: "What I built",
+          items: [
+            "555-timer PWM generation stage",
+            "MOSFET gate driver and output stage",
+            "Custom PCB and low-pass filtering",
+          ],
+        },
+        {
+          heading: "Testing & outcome",
+          items: [
+            "Measured approximately 80% efficiency",
+            "Validated signals with an oscilloscope",
+            "Designed the enclosure in Fusion 360",
+          ],
+        },
+      ],
+    },
     slides: [
       // Add an image by setting its path, for example:
       // { title: "PCB render", image: "./projects/amplifier-pcb.jpg", alt: "Amplifier PCB render" },
@@ -112,6 +148,26 @@ const projects: Project[] = [
     summary:
       "Developed an ESP32-based indoor tracking system designed to monitor BLE-enabled assets across hospital rooms and zones. Multiple ESP32 gateways scan for low-power Bluetooth beacons and use received signal strength to estimate each tag’s location, then transmit tracking data over Wi-Fi to a central MQTT server for monitoring and visualization on a web-based dashboard.",
     tags: ["ESP32", "BLE", "MQTT", "Wi-Fi", "Onshape"],
+    details: {
+      sections: [
+        {
+          heading: "System overview",
+          text: "A distributed indoor tracking system in which room-level gateways listen for BLE tags and forward observations to a central service over Wi-Fi.",
+        },
+        {
+          heading: "Hardware & network",
+          items: [
+            "ESP32 gateways and low-power BLE tags",
+            "RSSI-based room and zone estimation",
+            "MQTT transport to the monitoring server",
+          ],
+        },
+        {
+          heading: "Interface",
+          text: "A web dashboard turns the incoming gateway data into a practical view of each tracked asset's latest known location.",
+        },
+      ],
+    },
     slides: [
       {title: "ESP32 Case", image: "./projects/Tracker System/CaseOpen.jpg"},
       {title: "Tag", image: "./projects/Tracker System/TagHousing.jpg"},
@@ -725,8 +781,78 @@ const ProjectCard = memo(function ProjectCard({
   autoPlay: boolean;
   imagesEnabled: boolean;
 }) {
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsClosing, setDetailsClosing] = useState(false);
+  const moreInfoButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
+  const returnTimerRef = useRef<number | null>(null);
+
+  const startMainUiReturn = () => {
+    if (window.matchMedia(reducedMotionQuery).matches) return;
+    if (returnTimerRef.current !== null) window.clearTimeout(returnTimerRef.current);
+    document.body.classList.remove("project-detail-is-open");
+    document.body.classList.add("project-detail-is-returning");
+    returnTimerRef.current = window.setTimeout(() => {
+      returnTimerRef.current = null;
+      document.body.classList.remove("project-detail-is-returning");
+    }, 420);
+  };
+
+  const openDetails = () => {
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    if (returnTimerRef.current !== null) window.clearTimeout(returnTimerRef.current);
+    document.body.classList.remove("project-detail-is-returning");
+    document.body.classList.add("project-detail-is-open");
+    setDetailsClosing(false);
+    setDetailsOpen(true);
+  };
+
+  const closeDetails = () => {
+    if (detailsClosing) return;
+    if (window.matchMedia(reducedMotionQuery).matches) {
+      setDetailsOpen(false);
+      return;
+    }
+    startMainUiReturn();
+    setDetailsClosing(true);
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null;
+      setDetailsOpen(false);
+      setDetailsClosing(false);
+    }, 260);
+  };
+
+  useEffect(() => () => {
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    if (returnTimerRef.current !== null) window.clearTimeout(returnTimerRef.current);
+    document.body.classList.remove("project-detail-is-returning");
+  }, []);
+
+  useEffect(() => {
+    if (!detailsOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.body.classList.add("project-detail-is-open");
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || document.querySelector(".image-lightbox")) return;
+      closeDetails();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.classList.remove("project-detail-is-open");
+      if (!document.body.classList.contains("project-detail-is-returning")) startMainUiReturn();
+      window.removeEventListener("keydown", handleKeyDown);
+      window.requestAnimationFrame(() => moreInfoButtonRef.current?.focus());
+    };
+  }, [detailsOpen]);
+
   return (
-    <article className="project-card">
+    <article className={`project-card${detailsOpen ? " has-open-detail" : ""}`}>
       <div className="project-copy">
         <div className="project-meta">
           <span>{project.number}</span>
@@ -759,18 +885,32 @@ const ProjectCard = memo(function ProjectCard({
               <li key={tag}>{tag}</li>
             ))}
           </ul>
-          {project.githubUrl && (
-            <a
-              className="project-github"
-              href={project.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`View ${project.title} on GitHub`}
-            >
-              <img src="./github.svg" alt="" loading="lazy" decoding="async" />
-              <span>GitHub</span>
-            </a>
-          )}
+          <div className="project-actions">
+            {project.details && (
+              <button
+                ref={moreInfoButtonRef}
+                className="project-action project-more-info"
+                type="button"
+                onClick={openDetails}
+                aria-haspopup="dialog"
+              >
+                <span>More info</span>
+                <span aria-hidden="true">↗</span>
+              </button>
+            )}
+            {project.githubUrl && (
+              <a
+                className="project-action project-github"
+                href={project.githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`View ${project.title} on GitHub`}
+              >
+                <img src="./github.svg" alt="" loading="lazy" decoding="async" />
+                <span>GitHub</span>
+              </a>
+            )}
+          </div>
         </div>
       </div>
       <ProjectCarousel
@@ -779,9 +919,149 @@ const ProjectCard = memo(function ProjectCard({
         autoPlay={autoPlay}
         imagesEnabled={imagesEnabled}
       />
+      {detailsOpen && project.details && createPortal(
+        <div
+          className={`project-detail-overlay${detailsClosing ? " is-closing" : ""}`}
+          role="presentation"
+          onPointerDown={(event) => {
+            if (event.target === event.currentTarget) closeDetails();
+          }}
+        >
+          <section
+            className="project-detail"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`project-detail-title-${project.number}`}
+          >
+            <button
+              ref={closeButtonRef}
+              className="project-detail-close"
+              type="button"
+              onClick={closeDetails}
+              aria-label={`Close ${project.title} details`}
+            >
+              <span>Close</span>
+              <span aria-hidden="true">×</span>
+            </button>
+            {project.details.sections.map((section, sectionIndex) => (
+              <section className={`project-detail-section detail-section-${sectionIndex + 1}`} key={section.heading}>
+                {sectionIndex === 0 && (
+                  <header className="project-detail-heading">
+                    <div className="project-meta">
+                      <span>{project.number}</span>
+                      <span>{project.eyebrow}</span>
+                    </div>
+                    <h2 id={`project-detail-title-${project.number}`}>{project.title}</h2>
+                    {project.collaboration && <CollaborationCredit collaboration={project.collaboration} />}
+                  </header>
+                )}
+                <h3>{section.heading}</h3>
+                {section.text && <p>{section.text}</p>}
+                {section.items && (
+                  <ul>
+                    {section.items.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                )}
+              </section>
+            ))}
+            <div className="project-detail-gallery">
+              <ProjectCarousel
+                title={project.title}
+                slides={project.slides}
+                autoPlay={false}
+                imagesEnabled
+              />
+            </div>
+          </section>
+        </div>,
+        document.body,
+      )}
     </article>
   );
 });
+
+function CollaborationCredit({ collaboration }: { collaboration: Collaboration }) {
+  return (
+    <p className="project-collaboration">
+      {collaboration.label}{" "}
+      {collaboration.url ? (
+        <a
+          className="project-collaboration-highlight"
+          href={collaboration.url}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {collaboration.highlight}
+        </a>
+      ) : (
+        <strong className="project-collaboration-highlight">{collaboration.highlight}</strong>
+      )}
+    </p>
+  );
+}
+
+function ProjectCaption({
+  hidden,
+  index,
+  total,
+  title,
+  onToggle,
+}: {
+  hidden: boolean;
+  index: number;
+  total: number;
+  title: string;
+  onToggle: () => void;
+}) {
+  const captionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const caption = captionRef.current;
+    const frame = caption?.parentElement;
+    if (!caption || !frame) return;
+
+    let active = true;
+    const updateAlignment = () => {
+      if (!active) return;
+      // Keep the original lower-left placement whenever the whole caption fits.
+      caption.classList.toggle(
+        "is-frame-overflowing",
+        caption.offsetWidth + 32 > frame.clientWidth,
+      );
+    };
+    const resizeObserver = new ResizeObserver(updateAlignment);
+    resizeObserver.observe(frame);
+    resizeObserver.observe(caption);
+    const frameId = window.requestAnimationFrame(updateAlignment);
+    void document.fonts?.ready.then(updateAlignment);
+
+    return () => {
+      active = false;
+      resizeObserver.disconnect();
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [hidden, title]);
+
+  return (
+    <figcaption
+      ref={captionRef}
+      className={hidden ? "is-mobile-hidden" : undefined}
+      onPointerDown={(event) => {
+        if (window.matchMedia(coarsePointerQuery).matches) event.stopPropagation();
+      }}
+      onClick={(event) => {
+        if (!window.matchMedia(coarsePointerQuery).matches) return;
+        event.stopPropagation();
+        onToggle();
+      }}
+    >
+      <span>
+        {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+      </span>
+      <strong>{title}</strong>
+    </figcaption>
+  );
+}
 
 function ProjectCarousel({
   title,
@@ -799,6 +1079,7 @@ function ProjectCarousel({
   const [trackIndex, setTrackIndex] = useState(slides.length > 1 ? 1 : 0);
   const [isResettingTrack, setIsResettingTrack] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxClosing, setLightboxClosing] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -812,6 +1093,7 @@ function ProjectCarousel({
   const dragFrameRef = useRef<number | null>(null);
   const pendingDragOffsetRef = useRef(0);
   const trackResetFrameRef = useRef<number | null>(null);
+  const lightboxCloseTimerRef = useRef<number | null>(null);
   const dragRef = useRef<{ startX: number; pointerId: number; moved: boolean } | null>(null);
   const wheelLockRef = useRef<number | null>(null);
   // These values distinguish a new trackpad impulse from momentum tail events.
@@ -846,9 +1128,28 @@ function ProjectCarousel({
     moveSlide(direction);
   };
 
+  const openLightbox = () => {
+    if (lightboxCloseTimerRef.current !== null) {
+      window.clearTimeout(lightboxCloseTimerRef.current);
+      lightboxCloseTimerRef.current = null;
+    }
+    setLightboxClosing(false);
+    setLightboxOpen(true);
+  };
+
   const closeLightbox = () => {
+    if (lightboxClosing) return;
     postponeAutoPlay();
-    setLightboxOpen(false);
+    if (window.matchMedia(reducedMotionQuery).matches) {
+      setLightboxOpen(false);
+      return;
+    }
+    setLightboxClosing(true);
+    lightboxCloseTimerRef.current = window.setTimeout(() => {
+      lightboxCloseTimerRef.current = null;
+      setLightboxOpen(false);
+      setLightboxClosing(false);
+    }, 260);
   };
 
   const finishTrackTransition = () => {
@@ -882,6 +1183,7 @@ function ProjectCarousel({
   useEffect(() => () => {
     if (dragFrameRef.current !== null) window.cancelAnimationFrame(dragFrameRef.current);
     if (trackResetFrameRef.current !== null) window.cancelAnimationFrame(trackResetFrameRef.current);
+    if (lightboxCloseTimerRef.current !== null) window.clearTimeout(lightboxCloseTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -1080,25 +1382,16 @@ function ProjectCarousel({
   ) => {
     const imageRatio = slideRatios[index] ?? 16 / 10;
     const caption = (
-      <figcaption
-        className={mobileCaptionHidden && index === activeSlide ? "is-mobile-hidden" : undefined}
-        onPointerDown={(event) => {
-          if (window.matchMedia(coarsePointerQuery).matches) {
-            event.stopPropagation();
-          }
-        }}
-        onClick={(event) => {
-          if (!window.matchMedia(coarsePointerQuery).matches) return;
-          event.stopPropagation();
+      <ProjectCaption
+        hidden={mobileCaptionHidden && index === activeSlide}
+        index={index}
+        total={slides.length}
+        title={slide.title}
+        onToggle={() => {
           postponeAutoPlay();
           setMobileCaptionHidden((hidden) => !hidden);
         }}
-      >
-        <span>
-          {String(index + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
-        </span>
-        <strong>{slide.title}</strong>
-      </figcaption>
+      />
     );
 
     return (
@@ -1184,12 +1477,12 @@ function ProjectCarousel({
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
               postponeAutoPlay();
-              setLightboxOpen(true);
+              openLightbox();
             }
           }}
           onPointerDown={beginDrag}
           onPointerMove={updateDrag}
-          onPointerUp={(event) => finishDrag(event, () => setLightboxOpen(true))}
+          onPointerUp={(event) => finishDrag(event, openLightbox)}
           onPointerCancel={cancelDrag}
         >
           <div
@@ -1239,7 +1532,7 @@ function ProjectCarousel({
       </div>
       {lightboxOpen && createPortal(
         <div
-          className="image-lightbox"
+          className={`image-lightbox${lightboxClosing ? " is-closing" : ""}`}
           role="dialog"
           aria-modal="true"
           aria-label={`${title} enlarged images`}
