@@ -128,6 +128,7 @@ const projects: Project[] = [
     tags: ["Gear Design", "Fusion 360", "Material Selection", "Additive Manufacturing", "Stepper Motor"],
     slides: [
       {title: "Exploded", image: "./projects/Harmonic Drive/Exploded.png"},
+      {title: "Exploded", image: "./projects/Harmonic Drive/ExplodedBack.png"},
       {title: "Cross Section", image: "./projects/Harmonic Drive/Cross.png"},
       {title: "Open", image: "./projects/Harmonic Drive/Open.jpg"},
       {title: "Closed", image: "./projects/Harmonic Drive/Closed.jpg"},
