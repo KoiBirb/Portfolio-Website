@@ -925,6 +925,10 @@ a {
     pointer-events: none;
   }
 
+  .volume-popover {
+    width: 92%;
+  }
+
   .project-panel {
     min-height: auto;
     padding-top: 2rem;

@@ -8,6 +8,21 @@ const backgroundSong = {
   volume: 0.35,
 };
 
+const audioSettingsKey = "portfolio-audio-settings";
+
+function readAudioSettings() {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(audioSettingsKey) ?? "null");
+    const volume = Number(saved?.volume);
+    return {
+      muted: saved?.muted === true,
+      volume: Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : backgroundSong.volume,
+    };
+  } catch {
+    return { muted: false, volume: backgroundSong.volume };
+  }
+}
+
 type ProjectSlide =
   | string
   | {
@@ -153,13 +168,15 @@ export default function App() {
   const activeYearRef = useRef("2026");
   const [yearPulse, setYearPulse] = useState(false);
   const [mobileSocialVisible, setMobileSocialVisible] = useState(true);
-  const [musicMuted, setMusicMuted] = useState(false);
-  const [musicVolume, setMusicVolume] = useState(backgroundSong.volume);
+  const [musicMuted, setMusicMuted] = useState(() => readAudioSettings().muted);
+  const [musicVolume, setMusicVolume] = useState(() => readAudioSettings().volume);
+  const [playbackBlocked, setPlaybackBlocked] = useState(false);
   const [mobileVolumeOpen, setMobileVolumeOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const lastVolumeRef = useRef(backgroundSong.volume);
+  const lastVolumeRef = useRef(musicVolume);
   const mobileAudioTapRef = useRef<number | null>(null);
   const autoplayBlockedRef = useRef(false);
+  const resumeAfterFocusRef = useRef(false);
   const timelineYears = Array.from(
     new Set(["2026", ...projects.map((project) => project.year)]),
   );
@@ -224,37 +241,80 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    window.localStorage.setItem(
+      audioSettingsKey,
+      JSON.stringify({ muted: musicMuted, volume: musicVolume }),
+    );
+  }, [musicMuted, musicVolume]);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !backgroundSong.src) return;
 
-    audio.volume = backgroundSong.volume;
-    audio.muted = false;
+    audio.volume = musicVolume;
+    audio.muted = musicMuted;
 
-    const unlockPlayback = (event: Event) => {
-      if (!autoplayBlockedRef.current) {
-        removeUnlockListeners();
-        return;
-      }
-      if (event.target instanceof Element && event.target.closest(".audio-toggle")) return;
-      audio.muted = false;
-      setMusicMuted(false);
-      autoplayBlockedRef.current = false;
-      void audio.play().then(removeUnlockListeners).catch(() => undefined);
-    };
-    const removeUnlockListeners = () => {
-      window.removeEventListener("pointerdown", unlockPlayback);
-      window.removeEventListener("keydown", unlockPlayback);
+    const removeScrollListeners = () => {
+      window.removeEventListener("scroll", startOnFirstScroll);
+      window.removeEventListener("wheel", startOnFirstScroll);
+      window.removeEventListener("touchmove", startOnFirstScroll);
     };
 
-    void audio.play().catch(() => {
-      autoplayBlockedRef.current = true;
-      audio.muted = true;
-      setMusicMuted(true);
-      window.addEventListener("pointerdown", unlockPlayback, { passive: true });
-      window.addEventListener("keydown", unlockPlayback);
-    });
+    const startOnFirstScroll = () => {
+      removeScrollListeners();
+      if (document.visibilityState !== "visible" || !document.hasFocus()) return;
 
-    return removeUnlockListeners;
+      void audio.play().then(() => {
+        autoplayBlockedRef.current = false;
+        setPlaybackBlocked(false);
+      }).catch(() => {
+        autoplayBlockedRef.current = true;
+        setPlaybackBlocked(true);
+      });
+    };
+
+    window.addEventListener("scroll", startOnFirstScroll, { passive: true });
+    window.addEventListener("wheel", startOnFirstScroll, { passive: true });
+    window.addEventListener("touchmove", startOnFirstScroll, { passive: true });
+
+    return removeScrollListeners;
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !backgroundSong.src) return;
+
+    const pauseWhenInactive = () => {
+      if (!audio.paused) resumeAfterFocusRef.current = true;
+      audio.pause();
+    };
+
+    const resumeWhenActive = () => {
+      if (
+        !resumeAfterFocusRef.current ||
+        document.visibilityState !== "visible" ||
+        !document.hasFocus()
+      ) return;
+
+      void audio.play().then(() => {
+        resumeAfterFocusRef.current = false;
+      }).catch(() => undefined);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") pauseWhenInactive();
+      else resumeWhenActive();
+    };
+
+    window.addEventListener("blur", pauseWhenInactive);
+    window.addEventListener("focus", resumeWhenActive);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("blur", pauseWhenInactive);
+      window.removeEventListener("focus", resumeWhenActive);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   const toggleMusicMute = async () => {
@@ -267,8 +327,10 @@ export default function App() {
       autoplayBlockedRef.current = false;
       try {
         await audio.play();
+        setPlaybackBlocked(false);
       } catch {
         autoplayBlockedRef.current = true;
+        setPlaybackBlocked(true);
       }
       return;
     }
@@ -282,9 +344,11 @@ export default function App() {
       setMusicMuted(false);
       try {
         await audio.play();
+        setPlaybackBlocked(false);
       } catch {
         audio.muted = true;
         setMusicMuted(true);
+        setPlaybackBlocked(true);
       }
     } else {
       if (audio.volume > 0) lastVolumeRef.current = audio.volume;
@@ -325,12 +389,16 @@ export default function App() {
       lastVolumeRef.current = value;
       try {
         await audio.play();
+        setPlaybackBlocked(false);
       } catch {
         audio.muted = true;
         setMusicMuted(true);
+        setPlaybackBlocked(true);
       }
     }
   };
+
+  const audioAppearsMuted = musicMuted || playbackBlocked;
 
   return (
     <main>
@@ -340,14 +408,14 @@ export default function App() {
       >
         {backgroundSong.src && (
           <div className={`audio-control${mobileVolumeOpen ? " is-open" : ""}`}>
-            <audio ref={audioRef} src={backgroundSong.src} preload="auto" autoPlay loop />
+            <audio ref={audioRef} src={backgroundSong.src} preload="auto" loop />
             <div className="volume-popover">
               <input
                 type="range"
                 min="0"
                 max="1"
                 step="0.01"
-                value={musicMuted ? 0 : musicVolume}
+                value={musicVolume}
                 onChange={(event) => handleVolumeChange(Number(event.target.value))}
                 aria-label="Background music volume"
               />
@@ -356,10 +424,10 @@ export default function App() {
               className="audio-toggle"
               type="button"
               onClick={handleAudioButton}
-              aria-label={musicMuted ? `Unmute ${backgroundSong.title}` : `Mute ${backgroundSong.title}`}
-              aria-pressed={!musicMuted}
+              aria-label={audioAppearsMuted ? `Play or unmute ${backgroundSong.title}` : `Mute ${backgroundSong.title}`}
+              aria-pressed={!audioAppearsMuted}
             >
-              <AudioIcon muted={musicMuted} />
+              <AudioIcon muted={audioAppearsMuted} />
             </button>
           </div>
         )}
