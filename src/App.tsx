@@ -1,6 +1,34 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
-const projects = [
+const backgroundSong = {
+  // Add a file to public/music, then set its path here, for example:
+  // src: "./music/background-song.mp3",
+  src: "./music/Background.mp3",
+  title: "Background music",
+  volume: 0.35,
+};
+
+type ProjectSlide =
+  | string
+  | {
+      title: string;
+      image: string;
+      alt?: string;
+    };
+
+type Project = {
+  number: string;
+  year: string;
+  showGithub: boolean;
+  githubUrl: string;
+  eyebrow: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  slides: ProjectSlide[];
+};
+
+const projects: Project[] = [
   {
     number: "01",
     year: "2026",
@@ -11,7 +39,13 @@ const projects = [
     summary:
       "A custom Class D audio amplifier designed from the ground up, using a 555 timer and analog audio input to generate PWM signals. The design includes a MOSFET gate driver to run a MOSFET output stage, driving a speaker with ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, and oscilloscope-based testing, debugging and enclosure design using fusion 360.",
     tags: ["Altium", "PCB Design", "Circuit Design", "Fusion 360", "Oscilloscope"],
-    slides: ["PCB render", "Layer stack", "Bench testing"],
+    slides: [
+      // Add an image by setting its path, for example:
+      // { title: "PCB render", image: "./projects/amplifier-pcb.jpg", alt: "Amplifier PCB render" },
+      "PCB render",
+      "Layer stack",
+      "Bench testing",
+    ],
   },
   {
     number: "02",
@@ -99,6 +133,19 @@ function PageIcon() {
   );
 }
 
+function AudioIcon({ muted }: { muted: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 10v4h3l4 3V7l-4 3z" />
+      {muted ? (
+        <path d="m15 10 4 4m0-4-4 4" />
+      ) : (
+        <path d="M15 9.5a4 4 0 0 1 0 5M17.5 7a7.5 7.5 0 0 1 0 10" />
+      )}
+    </svg>
+  );
+}
+
 export default function App() {
   const storyRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -106,6 +153,13 @@ export default function App() {
   const activeYearRef = useRef("2026");
   const [yearPulse, setYearPulse] = useState(false);
   const [mobileSocialVisible, setMobileSocialVisible] = useState(true);
+  const [musicMuted, setMusicMuted] = useState(false);
+  const [musicVolume, setMusicVolume] = useState(backgroundSong.volume);
+  const [mobileVolumeOpen, setMobileVolumeOpen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const lastVolumeRef = useRef(backgroundSong.volume);
+  const mobileAudioTapRef = useRef<number | null>(null);
+  const autoplayBlockedRef = useRef(false);
   const timelineYears = Array.from(
     new Set(["2026", ...projects.map((project) => project.year)]),
   );
@@ -165,8 +219,118 @@ export default function App() {
       window.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", requestUpdate);
       if (frame) window.cancelAnimationFrame(frame);
+      if (mobileAudioTapRef.current !== null) window.clearTimeout(mobileAudioTapRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !backgroundSong.src) return;
+
+    audio.volume = backgroundSong.volume;
+    audio.muted = false;
+
+    const unlockPlayback = (event: Event) => {
+      if (!autoplayBlockedRef.current) {
+        removeUnlockListeners();
+        return;
+      }
+      if (event.target instanceof Element && event.target.closest(".audio-toggle")) return;
+      audio.muted = false;
+      setMusicMuted(false);
+      autoplayBlockedRef.current = false;
+      void audio.play().then(removeUnlockListeners).catch(() => undefined);
+    };
+    const removeUnlockListeners = () => {
+      window.removeEventListener("pointerdown", unlockPlayback);
+      window.removeEventListener("keydown", unlockPlayback);
+    };
+
+    void audio.play().catch(() => {
+      autoplayBlockedRef.current = true;
+      audio.muted = true;
+      setMusicMuted(true);
+      window.addEventListener("pointerdown", unlockPlayback, { passive: true });
+      window.addEventListener("keydown", unlockPlayback);
+    });
+
+    return removeUnlockListeners;
+  }, []);
+
+  const toggleMusicMute = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused) {
+      audio.muted = false;
+      setMusicMuted(false);
+      autoplayBlockedRef.current = false;
+      try {
+        await audio.play();
+      } catch {
+        autoplayBlockedRef.current = true;
+      }
+      return;
+    }
+
+    if (audio.muted) {
+      const restoredVolume = lastVolumeRef.current || backgroundSong.volume;
+      audio.volume = restoredVolume;
+      audio.muted = false;
+      autoplayBlockedRef.current = false;
+      setMusicVolume(restoredVolume);
+      setMusicMuted(false);
+      try {
+        await audio.play();
+      } catch {
+        audio.muted = true;
+        setMusicMuted(true);
+      }
+    } else {
+      if (audio.volume > 0) lastVolumeRef.current = audio.volume;
+      audio.muted = true;
+      setMusicMuted(true);
+    }
+  };
+
+  const handleAudioButton = async () => {
+    const isTouchDevice = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+    if (!isTouchDevice) {
+      await toggleMusicMute();
+      return;
+    }
+
+    setMobileVolumeOpen(true);
+    if (mobileAudioTapRef.current !== null) {
+      window.clearTimeout(mobileAudioTapRef.current);
+      mobileAudioTapRef.current = null;
+      await toggleMusicMute();
+      setMobileVolumeOpen(false);
+    } else {
+      mobileAudioTapRef.current = window.setTimeout(() => {
+        mobileAudioTapRef.current = null;
+      }, 350);
+    }
+  };
+
+  const handleVolumeChange = async (value: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    setMusicVolume(value);
+    audio.volume = value;
+    audio.muted = value === 0;
+    setMusicMuted(value === 0);
+    if (value > 0) {
+      lastVolumeRef.current = value;
+      try {
+        await audio.play();
+      } catch {
+        audio.muted = true;
+        setMusicMuted(true);
+      }
+    }
+  };
 
   return (
     <main>
@@ -174,6 +338,31 @@ export default function App() {
         className={`social-links${mobileSocialVisible ? "" : " is-mobile-hidden"}`}
         aria-label="Social profiles"
       >
+        {backgroundSong.src && (
+          <div className={`audio-control${mobileVolumeOpen ? " is-open" : ""}`}>
+            <audio ref={audioRef} src={backgroundSong.src} preload="auto" autoPlay loop />
+            <div className="volume-popover">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={musicMuted ? 0 : musicVolume}
+                onChange={(event) => handleVolumeChange(Number(event.target.value))}
+                aria-label="Background music volume"
+              />
+            </div>
+            <button
+              className="audio-toggle"
+              type="button"
+              onClick={handleAudioButton}
+              aria-label={musicMuted ? `Unmute ${backgroundSong.title}` : `Mute ${backgroundSong.title}`}
+              aria-pressed={!musicMuted}
+            >
+              <AudioIcon muted={musicMuted} />
+            </button>
+          </div>
+        )}
         <a href="https://www.linkedin.com/in/leo-bogaert/" target="_blank" rel="noreferrer">
           <img src="./linkedin.png" alt="LinkedIn" />
         </a>
@@ -284,8 +473,6 @@ export default function App() {
   );
 }
 
-type Project = (typeof projects)[number];
-
 function ProjectCard({ project }: { project: Project }) {
   return (
     <article className="project-card">
@@ -321,8 +508,10 @@ function ProjectCard({ project }: { project: Project }) {
   );
 }
 
-function ProjectCarousel({ title, slides }: { title: string; slides: string[] }) {
+function ProjectCarousel({ title, slides }: { title: string; slides: ProjectSlide[] }) {
   const [activeSlide, setActiveSlide] = useState(0);
+  const slideTitle = (slide: ProjectSlide) =>
+    typeof slide === "string" ? slide : slide.title;
 
   const previousSlide = () => {
     setActiveSlide((current) => (current - 1 + slides.length) % slides.length);
@@ -340,14 +529,24 @@ function ProjectCarousel({ title, slides }: { title: string; slides: string[] })
           style={{ transform: `translateX(-${activeSlide * 100}%)` }}
         >
           {slides.map((slide, index) => (
-            <figure className={`carousel-slide carousel-tone-${index + 1}`} key={slide}>
+            <figure
+              className={`carousel-slide carousel-tone-${index + 1}`}
+              key={`${slideTitle(slide)}-${index}`}
+            >
+              {typeof slide !== "string" && slide.image && (
+                <img
+                  className="carousel-image"
+                  src={slide.image}
+                  alt={slide.alt ?? slide.title}
+                />
+              )}
               <div className="carousel-grid" aria-hidden="true" />
               <figcaption>
                 <span>
                   {String(index + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
                 </span>
-                <strong>{slide}</strong>
-                <small>Project image slot</small>
+                <strong>{slideTitle(slide)}</strong>
+                <small>{typeof slide !== "string" && slide.image ? "Project image" : "Project image slot"}</small>
               </figcaption>
             </figure>
           ))}
@@ -364,9 +563,9 @@ function ProjectCarousel({ title, slides }: { title: string; slides: string[] })
               type="button"
               className={index === activeSlide ? "is-active" : ""}
               onClick={() => setActiveSlide(index)}
-              aria-label={`Show ${slide}`}
+              aria-label={`Show ${slideTitle(slide)}`}
               aria-current={index === activeSlide ? "true" : undefined}
-              key={slide}
+              key={`${slideTitle(slide)}-${index}`}
             />
           ))}
         </div>
