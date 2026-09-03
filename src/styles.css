@@ -568,21 +568,28 @@ a {
   inset: 0;
   overflow: hidden;
   opacity: 1;
-  background: linear-gradient(110deg, rgba(255, 247, 233, 0.07), rgba(248, 179, 49, 0.13));
+  background:
+    radial-gradient(circle at 18% 25%, rgba(248, 179, 49, 0.14), transparent 42%),
+    radial-gradient(circle at 78% 72%, rgba(255, 247, 233, 0.09), transparent 46%),
+    rgba(43, 7, 4, 0.42);
   transition: opacity 260ms ease;
 }
 
 .carousel-image-skeleton::after {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    100deg,
-    transparent 25%,
-    rgba(255, 247, 233, 0.2) 50%,
-    transparent 75%
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 42%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 247, 233, 0.23) 0%,
+    rgba(248, 179, 49, 0.1) 38%,
+    transparent 72%
   );
   content: "";
-  transform: translateX(-100%);
+  filter: blur(8px);
+  transform: translateX(-125%);
   animation: carousel-image-shimmer 1.8s ease-in-out infinite;
 }
 
@@ -593,7 +600,7 @@ a {
 
 @keyframes carousel-image-shimmer {
   to {
-    transform: translateX(100%);
+    transform: translateX(345%);
   }
 }
 
