@@ -241,7 +241,8 @@ export default function App() {
   const resumeAfterFocusRef = useRef(false);
   const interfaceVolumeRef = useRef({ muted: musicMuted, volume: musicVolume });
   interfaceVolumeRef.current = {
-    muted: musicMuted || playbackBlocked,
+    // A blocked background track should not suppress sounds from an explicit tap.
+    muted: musicMuted,
     volume: musicVolume,
   };
 
@@ -348,9 +349,15 @@ export default function App() {
   useEffect(() => {
     // Event delegation provides UI sounds without attaching listeners to every control.
     const hoverSound = new Audio(interfaceSounds.hover);
-    const clickSound = new Audio(interfaceSounds.click);
+    const clickSounds = Array.from({ length: 3 }, () => new Audio(interfaceSounds.click));
+    let nextClickSound = 0;
+    let lastDirectPointerSound = 0;
     hoverSound.preload = "auto";
-    clickSound.preload = "auto";
+    hoverSound.load();
+    clickSounds.forEach((sound) => {
+      sound.preload = "auto";
+      sound.load();
+    });
 
     const playSound = (sound: HTMLAudioElement, volumeMultiplier = 1) => {
       const settings = interfaceVolumeRef.current;
@@ -363,6 +370,14 @@ export default function App() {
       target instanceof Element
         ? target.closest("button, a, .project-collaboration-highlight, .carousel-slide figcaption, .carousel-viewport, .lightbox-viewport")
         : null;
+    const playClickForTarget = (target: EventTarget | null) => {
+      const control = findControl(target);
+      if (!control || control.matches(".project-collaboration-highlight:not(a)")) return false;
+      const clickSound = clickSounds[nextClickSound];
+      nextClickSound = (nextClickSound + 1) % clickSounds.length;
+      playSound(clickSound, 1.5);
+      return true;
+    };
     const handlePointerOver = (event: PointerEvent) => {
       if (
         event.pointerType !== "mouse" ||
@@ -372,20 +387,25 @@ export default function App() {
       if (!control || (event.relatedTarget instanceof Node && control.contains(event.relatedTarget))) return;
       playSound(hoverSound);
     };
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse" || !playClickForTarget(event.target)) return;
+      lastDirectPointerSound = performance.now();
+    };
     const handleClick = (event: MouseEvent) => {
-      const control = findControl(event.target);
-      if (control && !control.matches(".project-collaboration-highlight:not(a)")) {
-        playSound(clickSound, 1.5);
-      }
+      // Touch browsers synthesize a click after pointer-down; avoid playing twice.
+      if (performance.now() - lastDirectPointerSound < 750) return;
+      playClickForTarget(event.target);
     };
 
     document.addEventListener("pointerover", handlePointerOver);
+    document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("click", handleClick);
     return () => {
       document.removeEventListener("pointerover", handlePointerOver);
+      document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("click", handleClick);
       hoverSound.pause();
-      clickSound.pause();
+      clickSounds.forEach((sound) => sound.pause());
     };
   }, []);
 
@@ -395,6 +415,31 @@ export default function App() {
 
     audio.volume = musicVolume;
     audio.muted = musicMuted;
+
+    // Warm the large track only after critical page assets finish loading.
+    let idleCallback = 0;
+    let fallbackTimer = 0;
+    const warmBackgroundAudio = () => {
+      if (!audio.paused || audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) return;
+      audio.preload = "auto";
+      audio.load();
+    };
+    const scheduleWarmup = () => {
+      if ("requestIdleCallback" in window) {
+        idleCallback = window.requestIdleCallback(warmBackgroundAudio, { timeout: 2000 });
+      } else {
+        fallbackTimer = globalThis.setTimeout(warmBackgroundAudio, 500);
+      }
+    };
+
+    if (document.readyState === "complete") scheduleWarmup();
+    else window.addEventListener("load", scheduleWarmup, { once: true });
+
+    return () => {
+      window.removeEventListener("load", scheduleWarmup);
+      if (idleCallback) window.cancelIdleCallback(idleCallback);
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
+    };
   }, []);
 
   useEffect(() => {
@@ -472,6 +517,13 @@ export default function App() {
     }
   };
 
+  const prepareMusic = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.paused || audio.preload === "auto") return;
+    audio.preload = "auto";
+    audio.load();
+  };
+
   const handleVolumeChange = async (value: number) => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -501,8 +553,8 @@ export default function App() {
         className={`social-links${mobileSocialVisible ? "" : " is-mobile-hidden"}`}
         aria-label="Social profiles"
       >
-        <div className="audio-control">
-          {/* The large music file is fetched only after the visitor presses play. */}
+        <div className="audio-control" onPointerDown={prepareMusic}>
+          {/* Starts deferred, then warms after the critical page load or first interaction. */}
           <audio ref={audioRef} src={backgroundSong.src} preload="none" loop />
           <div className="volume-popover">
             <input
