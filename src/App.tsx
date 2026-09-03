@@ -174,7 +174,6 @@ export default function App() {
   const [mobileVolumeOpen, setMobileVolumeOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const lastVolumeRef = useRef(musicVolume);
-  const mobileAudioTapRef = useRef<number | null>(null);
   const autoplayBlockedRef = useRef(false);
   const resumeAfterFocusRef = useRef(false);
   const timelineYears = Array.from(
@@ -236,7 +235,6 @@ export default function App() {
       window.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", requestUpdate);
       if (frame) window.cancelAnimationFrame(frame);
-      if (mobileAudioTapRef.current !== null) window.clearTimeout(mobileAudioTapRef.current);
     };
   }, []);
 
@@ -253,31 +251,6 @@ export default function App() {
 
     audio.volume = musicVolume;
     audio.muted = musicMuted;
-
-    const removeScrollListeners = () => {
-      window.removeEventListener("scroll", startOnFirstScroll);
-      window.removeEventListener("wheel", startOnFirstScroll);
-      window.removeEventListener("touchmove", startOnFirstScroll);
-    };
-
-    const startOnFirstScroll = () => {
-      removeScrollListeners();
-      if (document.visibilityState !== "visible" || !document.hasFocus()) return;
-
-      void audio.play().then(() => {
-        autoplayBlockedRef.current = false;
-        setPlaybackBlocked(false);
-      }).catch(() => {
-        autoplayBlockedRef.current = true;
-        setPlaybackBlocked(true);
-      });
-    };
-
-    window.addEventListener("scroll", startOnFirstScroll, { passive: true });
-    window.addEventListener("wheel", startOnFirstScroll, { passive: true });
-    window.addEventListener("touchmove", startOnFirstScroll, { passive: true });
-
-    return removeScrollListeners;
   }, []);
 
   useEffect(() => {
@@ -364,17 +337,12 @@ export default function App() {
       return;
     }
 
-    setMobileVolumeOpen(true);
-    if (mobileAudioTapRef.current !== null) {
-      window.clearTimeout(mobileAudioTapRef.current);
-      mobileAudioTapRef.current = null;
-      await toggleMusicMute();
-      setMobileVolumeOpen(false);
-    } else {
-      mobileAudioTapRef.current = window.setTimeout(() => {
-        mobileAudioTapRef.current = null;
-      }, 350);
+    if (!mobileVolumeOpen) {
+      setMobileVolumeOpen(true);
+      return;
     }
+
+    await toggleMusicMute();
   };
 
   const handleVolumeChange = async (value: number) => {
