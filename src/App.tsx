@@ -5,6 +5,7 @@ import {
   useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
   type TransitionEvent as ReactTransitionEvent,
 } from "react";
 import { createPortal } from "react-dom";
@@ -59,10 +60,12 @@ type ProjectDetailSection = {
   heading: string;
   text?: string;
   items?: string[];
+  // Zero-based gallery image index. Use -1 to keep the currently displayed image.
+  imageIndex?: number;
 };
 
 type ProjectDetails = {
-  sections: [ProjectDetailSection, ProjectDetailSection, ProjectDetailSection];
+  sections: ProjectDetailSection[];
 };
 
 type Project = {
@@ -95,6 +98,7 @@ const projects: Project[] = [
         {
           heading: "Design challenge",
           text: "Create a compact amplifier that converts an analog audio signal into a high-frequency PWM waveform while keeping switching losses and audible distortion low.",
+          imageIndex: 0,
         },
         {
           heading: "What I built",
@@ -103,6 +107,7 @@ const projects: Project[] = [
             "MOSFET gate driver and output stage",
             "Custom PCB and low-pass filtering",
           ],
+          imageIndex: 1,
         },
         {
           heading: "Testing & outcome",
@@ -111,6 +116,43 @@ const projects: Project[] = [
             "Validated signals with an oscilloscope",
             "Designed the enclosure in Fusion 360",
           ],
+          imageIndex: 2,
+        },
+        {
+          heading: "Testing & outcome",
+          items: [
+            "Measured approximately 80% efficiency",
+            "Validated signals with an oscilloscope",
+            "Designed the enclosure in Fusion 360",
+          ],
+          imageIndex: 2,
+        },
+        {
+          heading: "Testing & outcome",
+          items: [
+            "Measured approximately 80% efficiency",
+            "Validated signals with an oscilloscope",
+            "Designed the enclosure in Fusion 360",
+          ],
+          imageIndex: 2,
+        },
+        {
+          heading: "Testing & outcome",
+          items: [
+            "Measured approximately 80% efficiency",
+            "Validated signals with an oscilloscope",
+            "Designed the enclosure in Fusion 360",
+          ],
+          imageIndex: 2,
+        },
+        {
+          heading: "Testing & outcome",
+          items: [
+            "Measured approximately 80% efficiency",
+            "Validated signals with an oscilloscope",
+            "Designed the enclosure in Fusion 360",
+          ],
+          imageIndex: 2,
         },
       ],
     },
@@ -763,8 +805,15 @@ const ProjectCard = memo(function ProjectCard({
 }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsClosing, setDetailsClosing] = useState(false);
+  const [visibleDetailSection, setVisibleDetailSection] = useState(0);
+  const [hoveredDetailSection, setHoveredDetailSection] = useState<number | null>(null);
+  const [detailAtEnd, setDetailAtEnd] = useState(false);
+  const [detailCanScroll, setDetailCanScroll] = useState(false);
+  const [mobileDetailCloseVisible, setMobileDetailCloseVisible] = useState(true);
   const moreInfoButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const detailCopyRef = useRef<HTMLDivElement>(null);
+  const detailGalleryRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const returnTimerRef = useRef<number | null>(null);
 
@@ -784,6 +833,10 @@ const ProjectCard = memo(function ProjectCard({
     if (returnTimerRef.current !== null) window.clearTimeout(returnTimerRef.current);
     document.body.classList.remove("project-detail-is-returning");
     document.body.classList.add("project-detail-is-open");
+    setVisibleDetailSection(0);
+    setHoveredDetailSection(null);
+    setDetailAtEnd(false);
+    setMobileDetailCloseVisible(true);
     setDetailsClosing(false);
     setDetailsOpen(true);
   };
@@ -830,6 +883,147 @@ const ProjectCard = memo(function ProjectCard({
       window.requestAnimationFrame(() => moreInfoButtonRef.current?.focus());
     };
   }, [detailsOpen]);
+
+  useEffect(() => {
+    if (!detailsOpen) return;
+    const scroller = detailCopyRef.current;
+    if (!scroller) return;
+    const overlay = scroller.closest<HTMLElement>(".project-detail-overlay");
+
+    const sections = Array.from(
+      scroller.querySelectorAll<HTMLElement>("[data-detail-section]"),
+    );
+    if (!sections.length) return;
+
+    let frame = 0;
+    const updateActiveSection = () => {
+      frame = 0;
+      const scrollRoot = scroller.scrollHeight > scroller.clientHeight + 1
+        ? scroller
+        : (overlay ?? scroller);
+      const rootBounds = scrollRoot.getBoundingClientRect();
+      const rootTop = Math.max(0, rootBounds.top);
+      const rootBottom = Math.min(window.innerHeight, rootBounds.bottom);
+      const rootHeight = Math.max(1, rootBottom - rootTop);
+      const maxScroll = Math.max(0, scrollRoot.scrollHeight - scrollRoot.clientHeight);
+      setDetailCanScroll(maxScroll > 1);
+      setDetailAtEnd(maxScroll > 1 && scrollRoot.scrollTop >= maxScroll - 4);
+      let nextIndex = 0;
+      let bestScore = -Infinity;
+
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        const visibleHeight = Math.max(
+          0,
+          Math.min(rect.bottom, rootBottom) - Math.max(rect.top, rootTop),
+        );
+        // Compare the visible fraction so long and short sections compete fairly.
+        // A tiny top-position tiebreaker favors the higher section when equal.
+        const visibleRatio = visibleHeight / Math.max(1, rect.height);
+        const topTiebreaker = Math.max(0, rootBottom - rect.top) / rootHeight * 0.0001;
+        const score = visibleRatio + topTiebreaker;
+        if (score > bestScore) {
+          bestScore = score;
+          nextIndex = index;
+        }
+      });
+
+      setVisibleDetailSection((current) => current === nextIndex ? current : nextIndex);
+    };
+    const scheduleUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateActiveSection);
+    };
+
+    scroller.addEventListener("scroll", scheduleUpdate, { passive: true });
+    overlay?.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    updateActiveSection();
+    return () => {
+      scroller.removeEventListener("scroll", scheduleUpdate);
+      overlay?.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [detailsOpen, project.details]);
+
+  useEffect(() => {
+    if (!detailsOpen) return;
+    const overlay = detailCopyRef.current?.closest<HTMLElement>(".project-detail-overlay");
+    if (!overlay) return;
+
+    let lastScrollTop = overlay.scrollTop;
+    const updateMobileClose = () => {
+      if (!window.matchMedia("(max-width: 900px)").matches) {
+        setMobileDetailCloseVisible(true);
+        return;
+      }
+
+      const nextScrollTop = overlay.scrollTop;
+      if (nextScrollTop <= 8) setMobileDetailCloseVisible(true);
+      else if (nextScrollTop > lastScrollTop + 3) setMobileDetailCloseVisible(false);
+      else if (nextScrollTop < lastScrollTop - 3) setMobileDetailCloseVisible(true);
+      lastScrollTop = nextScrollTop;
+    };
+
+    overlay.addEventListener("scroll", updateMobileClose, { passive: true });
+    window.addEventListener("resize", updateMobileClose);
+    return () => {
+      overlay.removeEventListener("scroll", updateMobileClose);
+      window.removeEventListener("resize", updateMobileClose);
+    };
+  }, [detailsOpen]);
+
+  useEffect(() => {
+    if (!detailsOpen) return;
+    const gallery = detailGalleryRef.current;
+    const controls = gallery?.querySelector<HTMLElement>(".carousel-controls");
+    if (!gallery || !controls) return;
+
+    let frame = 0;
+    const updateTimelinePosition = () => {
+      frame = 0;
+      const galleryRect = gallery.getBoundingClientRect();
+      const controlsRect = controls.getBoundingClientRect();
+      const controlsCenter = controlsRect.top + controlsRect.height / 2;
+      const midpoint = controlsCenter - galleryRect.top
+        + (galleryRect.bottom - controlsCenter) / 2;
+      gallery.style.setProperty("--detail-progress-top", `${midpoint.toFixed(2)}px`);
+    };
+    const scheduleUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateTimelinePosition);
+    };
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    resizeObserver.observe(gallery);
+    resizeObserver.observe(controls);
+    window.addEventListener("resize", scheduleUpdate);
+    updateTimelinePosition();
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", scheduleUpdate);
+      if (frame) window.cancelAnimationFrame(frame);
+      gallery.style.removeProperty("--detail-progress-top");
+    };
+  }, [detailsOpen]);
+
+  const detailSections = project.details?.sections ?? [];
+  const activeDetailSection = hoveredDetailSection ?? visibleDetailSection;
+  const configuredImageIndex = detailSections[activeDetailSection]?.imageIndex;
+  const linkedImageIndex = configuredImageIndex === -1
+    ? undefined
+    : (configuredImageIndex ?? activeDetailSection);
+  const moveDetailScroll = () => {
+    const scroller = detailCopyRef.current;
+    if (!scroller) return;
+    const overlay = scroller.closest<HTMLElement>(".project-detail-overlay");
+    const scrollRoot = scroller.scrollHeight > scroller.clientHeight + 1
+      ? scroller
+      : (overlay ?? scroller);
+    scrollRoot.scrollTo({
+      top: detailAtEnd ? 0 : scrollRoot.scrollTop + scrollRoot.clientHeight * 0.72,
+      behavior: window.matchMedia(reducedMotionQuery).matches ? "auto" : "smooth",
+    });
+  };
 
   return (
     <article className={`project-card${detailsOpen ? " has-open-detail" : ""}`}>
@@ -913,45 +1107,89 @@ const ProjectCard = memo(function ProjectCard({
             aria-modal="true"
             aria-labelledby={`project-detail-title-${project.number}`}
           >
-            <button
-              ref={closeButtonRef}
-              className="project-detail-close"
-              type="button"
-              onClick={closeDetails}
-              aria-label={`Close ${project.title} details`}
-            >
-              <span>Close</span>
-              <span aria-hidden="true">×</span>
-            </button>
-            {project.details.sections.map((section, sectionIndex) => (
-              <section className={`project-detail-section detail-section-${sectionIndex + 1}`} key={section.heading}>
-                {sectionIndex === 0 && (
-                  <header className="project-detail-heading">
-                    <div className="project-meta">
-                      <span>{project.number}</span>
-                      <span>{project.eyebrow}</span>
+            <div className="project-detail-copy" ref={detailCopyRef}>
+              <header className="project-detail-heading">
+                <div className="project-meta">
+                  <span>{project.number}</span>
+                  <span>{project.eyebrow}</span>
+                </div>
+                <h2 id={`project-detail-title-${project.number}`}>{project.title}</h2>
+                {project.collaboration && <CollaborationCredit collaboration={project.collaboration} />}
+              </header>
+              <div className="project-detail-sections">
+                {project.details.sections.map((section, sectionIndex) => (
+                  <section
+                    className={`project-detail-section${sectionIndex === activeDetailSection ? " is-active" : ""}`}
+                    data-detail-section
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === "mouse") setHoveredDetailSection(sectionIndex);
+                    }}
+                    onPointerLeave={(event) => {
+                      if (event.pointerType === "mouse") setHoveredDetailSection(null);
+                    }}
+                    key={`${section.heading}-${sectionIndex}`}
+                  >
+                    <div className="project-detail-section-heading">
+                      <span className="project-detail-section-number" aria-hidden="true">
+                        {String(sectionIndex + 1).padStart(2, "0")}
+                      </span>
+                      <h3>{section.heading}</h3>
+                      <span className="project-detail-section-dot" aria-hidden="true" />
                     </div>
-                    <h2 id={`project-detail-title-${project.number}`}>{project.title}</h2>
-                    {project.collaboration && <CollaborationCredit collaboration={project.collaboration} />}
-                  </header>
-                )}
-                <h3>{section.heading}</h3>
-                {section.text && <p>{section.text}</p>}
-                {section.items && (
-                  <ul>
-                    {section.items.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                )}
-              </section>
-            ))}
-            <div className="project-detail-gallery">
+                    {section.text && <p>{section.text}</p>}
+                    {section.items && (
+                      <ul>
+                        {section.items.map((item) => <li key={item}>{item}</li>)}
+                      </ul>
+                    )}
+                  </section>
+                ))}
+              </div>
+            </div>
+            <div className="project-detail-gallery" ref={detailGalleryRef}>
+              <button
+                ref={closeButtonRef}
+                className={`project-detail-close${mobileDetailCloseVisible ? "" : " is-mobile-hidden"}`}
+                type="button"
+                onClick={closeDetails}
+                aria-label={`Close ${project.title} details`}
+              >
+                <span>Close</span>
+                <span aria-hidden="true">×</span>
+              </button>
               <ProjectCarousel
                 title={project.title}
                 slides={project.slides}
                 autoPlay={false}
                 imagesEnabled
+                selectedSlide={linkedImageIndex}
+                selectedSlideKey={activeDetailSection}
+                readingIndicator={(
+                  <div
+                    className="project-detail-progress"
+                    aria-label={`Reading section ${activeDetailSection + 1} of ${detailSections.length}`}
+                  >
+                    <span
+                      className="project-detail-progress-current"
+                      style={{
+                        "--detail-progress": `${activeDetailSection / Math.max(1, detailSections.length - 1) * 100}%`,
+                      } as CSSProperties}
+                      aria-hidden="true"
+                    />
+                  </div>
+                )}
               />
             </div>
+            {detailCanScroll && (
+              <button
+                className={`project-detail-scroll-cue ${detailAtEnd ? "is-at-top" : "is-at-bottom"}`}
+                type="button"
+                onClick={moveDetailScroll}
+                aria-label={detailAtEnd ? "Scroll project details to the top" : "Scroll for more project details"}
+              >
+                <ArrowDown />
+              </button>
+            )}
           </section>
         </div>,
         document.body,
@@ -1048,11 +1286,17 @@ function ProjectCarousel({
   slides,
   autoPlay,
   imagesEnabled,
+  selectedSlide,
+  selectedSlideKey,
+  readingIndicator,
 }: {
   title: string;
   slides: ProjectSlide[];
   autoPlay: boolean;
   imagesEnabled: boolean;
+  selectedSlide?: number;
+  selectedSlideKey?: number;
+  readingIndicator?: ReactNode;
 }) {
   // activeSlide is the real content index; trackIndex also includes edge clones.
   const [activeSlide, setActiveSlide] = useState(0);
@@ -1165,6 +1409,16 @@ function ProjectCarousel({
     if (trackResetFrameRef.current !== null) window.cancelAnimationFrame(trackResetFrameRef.current);
     if (lightboxCloseTimerRef.current !== null) window.clearTimeout(lightboxCloseTimerRef.current);
   }, []);
+
+  useEffect(() => {
+    if (selectedSlide === undefined || slides.length === 0) return;
+    const nextSlide = Math.min(slides.length - 1, Math.max(0, selectedSlide));
+    setMobileCaptionHidden(false);
+    setActiveSlide((current) => current === nextSlide ? current : nextSlide);
+    const nextTrackIndex = slides.length > 1 ? nextSlide + 1 : nextSlide;
+    trackIndexRef.current = nextTrackIndex;
+    setTrackIndex((current) => current === nextTrackIndex ? current : nextTrackIndex);
+  }, [selectedSlide, selectedSlideKey, slides.length]);
 
   useEffect(() => {
     if (
@@ -1431,7 +1685,7 @@ function ProjectCarousel({
   return (
     <>
       <div
-        className={`project-carousel${autoPlay ? " is-active" : ""}`}
+        className={`project-carousel${autoPlay ? " is-active" : ""}${readingIndicator ? " has-reading-indicator" : ""}`}
         aria-label={`${title} image carousel`}
         onPointerEnter={(event) => {
           if (event.pointerType !== "mouse") return;
@@ -1509,6 +1763,7 @@ function ProjectCarousel({
             →
           </button>
         </div>
+        {readingIndicator}
       </div>
       {lightboxOpen && createPortal(
         <div
