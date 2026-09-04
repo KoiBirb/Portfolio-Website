@@ -5,7 +5,6 @@ import {
   useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
-  type ReactNode,
   type TransitionEvent as ReactTransitionEvent,
 } from "react";
 import { createPortal } from "react-dom";
@@ -491,7 +490,7 @@ export default function App() {
     };
     const findControl = (target: EventTarget | null) =>
       target instanceof Element
-        ? target.closest("button, a, .project-collaboration-highlight, .carousel-slide figcaption, .carousel-viewport, .lightbox-viewport")
+        ? target.closest("button, a, .project-card.has-details, .project-collaboration-highlight, .carousel-slide figcaption, .carousel-viewport, .lightbox-viewport")
         : null;
     const playClickForTarget = (target: EventTarget | null) => {
       const control = findControl(target);
@@ -807,13 +806,10 @@ const ProjectCard = memo(function ProjectCard({
   const [detailsClosing, setDetailsClosing] = useState(false);
   const [visibleDetailSection, setVisibleDetailSection] = useState(0);
   const [hoveredDetailSection, setHoveredDetailSection] = useState<number | null>(null);
-  const [detailAtEnd, setDetailAtEnd] = useState(false);
-  const [detailCanScroll, setDetailCanScroll] = useState(false);
   const [mobileDetailCloseVisible, setMobileDetailCloseVisible] = useState(true);
   const moreInfoButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const detailCopyRef = useRef<HTMLDivElement>(null);
-  const detailGalleryRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const returnTimerRef = useRef<number | null>(null);
 
@@ -835,7 +831,6 @@ const ProjectCard = memo(function ProjectCard({
     document.body.classList.add("project-detail-is-open");
     setVisibleDetailSection(0);
     setHoveredDetailSection(null);
-    setDetailAtEnd(false);
     setMobileDetailCloseVisible(true);
     setDetailsClosing(false);
     setDetailsOpen(true);
@@ -905,9 +900,6 @@ const ProjectCard = memo(function ProjectCard({
       const rootTop = Math.max(0, rootBounds.top);
       const rootBottom = Math.min(window.innerHeight, rootBounds.bottom);
       const rootHeight = Math.max(1, rootBottom - rootTop);
-      const maxScroll = Math.max(0, scrollRoot.scrollHeight - scrollRoot.clientHeight);
-      setDetailCanScroll(maxScroll > 1);
-      setDetailAtEnd(maxScroll > 1 && scrollRoot.scrollTop >= maxScroll - 4);
       let nextIndex = 0;
       let bestScore = -Infinity;
 
@@ -973,60 +965,36 @@ const ProjectCard = memo(function ProjectCard({
     };
   }, [detailsOpen]);
 
-  useEffect(() => {
-    if (!detailsOpen) return;
-    const gallery = detailGalleryRef.current;
-    const controls = gallery?.querySelector<HTMLElement>(".carousel-controls");
-    if (!gallery || !controls) return;
-
-    let frame = 0;
-    const updateTimelinePosition = () => {
-      frame = 0;
-      const galleryRect = gallery.getBoundingClientRect();
-      const controlsRect = controls.getBoundingClientRect();
-      const controlsCenter = controlsRect.top + controlsRect.height / 2;
-      const midpoint = controlsCenter - galleryRect.top
-        + (galleryRect.bottom - controlsCenter) / 2;
-      gallery.style.setProperty("--detail-progress-top", `${midpoint.toFixed(2)}px`);
-    };
-    const scheduleUpdate = () => {
-      if (!frame) frame = window.requestAnimationFrame(updateTimelinePosition);
-    };
-    const resizeObserver = new ResizeObserver(scheduleUpdate);
-    resizeObserver.observe(gallery);
-    resizeObserver.observe(controls);
-    window.addEventListener("resize", scheduleUpdate);
-    updateTimelinePosition();
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", scheduleUpdate);
-      if (frame) window.cancelAnimationFrame(frame);
-      gallery.style.removeProperty("--detail-progress-top");
-    };
-  }, [detailsOpen]);
-
   const detailSections = project.details?.sections ?? [];
   const activeDetailSection = hoveredDetailSection ?? visibleDetailSection;
   const configuredImageIndex = detailSections[activeDetailSection]?.imageIndex;
   const linkedImageIndex = configuredImageIndex === -1
     ? undefined
     : (configuredImageIndex ?? activeDetailSection);
-  const moveDetailScroll = () => {
-    const scroller = detailCopyRef.current;
-    if (!scroller) return;
-    const overlay = scroller.closest<HTMLElement>(".project-detail-overlay");
-    const scrollRoot = scroller.scrollHeight > scroller.clientHeight + 1
-      ? scroller
-      : (overlay ?? scroller);
-    scrollRoot.scrollTo({
-      top: detailAtEnd ? 0 : scrollRoot.scrollTop + scrollRoot.clientHeight * 0.72,
-      behavior: window.matchMedia(reducedMotionQuery).matches ? "auto" : "smooth",
-    });
-  };
+  const cardClickCameFromControl = (target: EventTarget | null) =>
+    target instanceof Element
+    && target.closest("button, a, .carousel-viewport, .carousel-slide figcaption") !== null;
 
   return (
-    <article className={`project-card${detailsOpen ? " has-open-detail" : ""}`}>
+    <article
+      className={`project-card${project.details ? " has-details" : ""}${detailsOpen ? " has-open-detail" : ""}`}
+      role={project.details ? "button" : undefined}
+      tabIndex={project.details ? 0 : undefined}
+      aria-label={project.details ? `Open more information about ${project.title}` : undefined}
+      onClick={(event) => {
+        if (!project.details || cardClickCameFromControl(event.target)) return;
+        openDetails();
+      }}
+      onKeyDown={(event) => {
+        if (
+          !project.details
+          || event.target !== event.currentTarget
+          || (event.key !== "Enter" && event.key !== " ")
+        ) return;
+        event.preventDefault();
+        openDetails();
+      }}
+    >
       <div className="project-copy">
         <div className="project-meta">
           <span>{project.number}</span>
@@ -1146,7 +1114,7 @@ const ProjectCard = memo(function ProjectCard({
                 ))}
               </div>
             </div>
-            <div className="project-detail-gallery" ref={detailGalleryRef}>
+            <div className="project-detail-gallery">
               <button
                 ref={closeButtonRef}
                 className={`project-detail-close${mobileDetailCloseVisible ? "" : " is-mobile-hidden"}`}
@@ -1164,32 +1132,20 @@ const ProjectCard = memo(function ProjectCard({
                 imagesEnabled
                 selectedSlide={linkedImageIndex}
                 selectedSlideKey={activeDetailSection}
-                readingIndicator={(
-                  <div
-                    className="project-detail-progress"
-                    aria-label={`Reading section ${activeDetailSection + 1} of ${detailSections.length}`}
-                  >
-                    <span
-                      className="project-detail-progress-current"
-                      style={{
-                        "--detail-progress": `${activeDetailSection / Math.max(1, detailSections.length - 1) * 100}%`,
-                      } as CSSProperties}
-                      aria-hidden="true"
-                    />
-                  </div>
-                )}
               />
             </div>
-            {detailCanScroll && (
-              <button
-                className={`project-detail-scroll-cue ${detailAtEnd ? "is-at-top" : "is-at-bottom"}`}
-                type="button"
-                onClick={moveDetailScroll}
-                aria-label={detailAtEnd ? "Scroll project details to the top" : "Scroll for more project details"}
-              >
-                <ArrowDown />
-              </button>
-            )}
+            <div
+              className="project-detail-divider-progress"
+              aria-label={`Reading section ${activeDetailSection + 1} of ${detailSections.length}`}
+            >
+              <span
+                className="project-detail-divider-current"
+                style={{
+                  "--detail-progress": `${activeDetailSection / Math.max(1, detailSections.length - 1) * 100}%`,
+                } as CSSProperties}
+                aria-hidden="true"
+              />
+            </div>
           </section>
         </div>,
         document.body,
@@ -1288,7 +1244,6 @@ function ProjectCarousel({
   imagesEnabled,
   selectedSlide,
   selectedSlideKey,
-  readingIndicator,
 }: {
   title: string;
   slides: ProjectSlide[];
@@ -1296,7 +1251,6 @@ function ProjectCarousel({
   imagesEnabled: boolean;
   selectedSlide?: number;
   selectedSlideKey?: number;
-  readingIndicator?: ReactNode;
 }) {
   // activeSlide is the real content index; trackIndex also includes edge clones.
   const [activeSlide, setActiveSlide] = useState(0);
@@ -1685,7 +1639,7 @@ function ProjectCarousel({
   return (
     <>
       <div
-        className={`project-carousel${autoPlay ? " is-active" : ""}${readingIndicator ? " has-reading-indicator" : ""}`}
+        className={`project-carousel${autoPlay ? " is-active" : ""}`}
         aria-label={`${title} image carousel`}
         onPointerEnter={(event) => {
           if (event.pointerType !== "mouse") return;
@@ -1763,7 +1717,6 @@ function ProjectCarousel({
             →
           </button>
         </div>
-        {readingIndicator}
       </div>
       {lightboxOpen && createPortal(
         <div

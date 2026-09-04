@@ -357,6 +357,17 @@ a {
   font-family: "DM Mono", monospace;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.scroll-cue:focus-visible {
+  transform: translate(-50%, -0.3rem);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .scroll-cue:hover {
+    transform: translate(-50%, -0.3rem);
+  }
 }
 
 .scroll-cue svg {
@@ -389,6 +400,21 @@ a {
   box-shadow: 0 1.5rem 5rem rgba(33, 2, 1, 0.26);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
+  transform-origin: center;
+  transition: border-color 240ms ease, box-shadow 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-card.has-details {
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-card.has-details:hover,
+  .project-card.has-details:focus-visible {
+    border-color: rgba(248, 179, 49, 0.52);
+    box-shadow: 0 1.9rem 6rem rgba(33, 2, 1, 0.34);
+    transform: scale(1.018);
+  }
 }
 
 .project-copy {
@@ -1018,8 +1044,6 @@ body.project-detail-is-returning .year-timeline {
 
 .project-detail {
   --detail-divider-inset: clamp(4rem, 9vh, 6rem);
-  --detail-divider-third: clamp(1.333rem, 3vh, 2rem);
-  --detail-cue-travel: clamp(0.22rem, 0.55vh, 0.38rem);
   position: relative;
   display: grid;
   isolation: isolate;
@@ -1045,16 +1069,49 @@ body.project-detail-is-returning .year-timeline {
   pointer-events: none;
 }
 
-.project-detail::after {
+.project-detail-divider-progress {
   position: absolute;
-  z-index: 2;
+  z-index: 4;
   top: var(--detail-divider-inset);
   bottom: var(--detail-divider-inset);
   left: 50%;
   width: 1px;
+  color: rgba(255, 248, 234, 0.82);
+  background: linear-gradient(
+    to bottom,
+    transparent 0 0.5px,
+    rgba(255, 247, 233, 0.22) 0.5px calc(100% - 0.5px),
+    transparent calc(100% - 0.5px) 100%
+  );
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.project-detail-divider-progress::before,
+.project-detail-divider-progress::after {
+  position: absolute;
+  left: 50%;
+  width: 0.4rem;
+  height: 0.5px;
   background: rgba(255, 247, 233, 0.22);
   content: "";
-  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.project-detail-divider-progress::before { top: 0; }
+.project-detail-divider-progress::after { bottom: 0; }
+
+.project-detail-divider-current {
+  position: absolute;
+  top: var(--detail-progress);
+  left: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #fff7e9;
+  box-shadow: 0 0 0 0.2rem rgba(255, 247, 233, 0.18);
+  transform: translate(-50%, -50%);
+  transition: top 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .project-detail-copy,
@@ -1232,104 +1289,6 @@ body.project-detail-is-returning .year-timeline {
 .project-detail-gallery .carousel-controls {
   flex: 0 0 auto;
   width: 100%;
-}
-
-.project-detail-progress {
-  position: absolute;
-  top: var(--detail-progress-top, 86%);
-  left: 50%;
-  width: min(72%, 32rem);
-  height: 2.25rem;
-  margin: 0;
-  color: rgba(255, 248, 234, 0.82);
-  border-top: 1px solid rgba(255, 248, 234, 0.32);
-  font-family: "DM Mono", monospace;
-  font-size: clamp(0.65rem, 0.8vw, 0.8rem);
-  letter-spacing: 0.12em;
-  transform: translateX(-50%);
-}
-
-.project-detail-progress::before,
-.project-detail-progress::after {
-  position: absolute;
-  top: -0.2rem;
-  width: 1px;
-  height: 0.4rem;
-  background: currentColor;
-  content: "";
-}
-
-.project-detail-progress::before { left: 0; }
-.project-detail-progress::after { right: 0; }
-
-.project-detail-progress-current {
-  position: absolute;
-  top: 0;
-  left: var(--detail-progress);
-  display: inline-block;
-  transform: translateX(-50%);
-  transition: left 700ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.project-detail-progress-current::before {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: #fff7e9;
-  box-shadow: 0 0 0 0.2rem rgba(255, 247, 233, 0.18);
-  content: "";
-  transform: translate(-50%, -50%);
-}
-
-.project-detail-scroll-cue {
-  position: absolute;
-  z-index: 4;
-  left: calc(50% + 1px);
-  display: grid;
-  width: 2rem;
-  height: var(--detail-divider-third);
-  padding: 0.15rem 0.42rem;
-  border: 0;
-  color: rgba(255, 247, 233, 0.82);
-  background: transparent;
-  place-items: center;
-  cursor: pointer;
-}
-
-.project-detail-scroll-cue.is-at-bottom {
-  bottom: calc(var(--detail-divider-third) + var(--detail-cue-travel));
-  animation: detail-scroll-cue-down 1.8s ease-in-out infinite;
-}
-
-.project-detail-scroll-cue.is-at-top {
-  top: calc(var(--detail-divider-third) - var(--detail-cue-travel));
-  animation: detail-scroll-cue-up 1.8s ease-in-out infinite;
-}
-
-.project-detail-scroll-cue svg {
-  width: 100%;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.5;
-}
-
-.project-detail-scroll-cue.is-at-top svg {
-  transform: rotate(180deg);
-}
-
-@keyframes detail-scroll-cue-down {
-  0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, var(--detail-cue-travel)); }
-}
-
-@keyframes detail-scroll-cue-up {
-  0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, var(--detail-cue-travel)); }
 }
 
 .project-detail-close {
@@ -1553,8 +1512,7 @@ body.project-detail-is-returning .year-timeline {
     display: none;
   }
 
-  .project-detail::after,
-  .project-detail-scroll-cue {
+  .project-detail-divider-progress {
     display: none;
   }
 }
@@ -1641,10 +1599,6 @@ body.project-detail-is-returning .year-timeline {
     overflow: visible;
   }
 
-  .project-detail::after {
-    display: none;
-  }
-
   .project-detail-copy,
   .project-detail-gallery {
     min-height: 0;
@@ -1661,10 +1615,6 @@ body.project-detail-is-returning .year-timeline {
 
   .project-detail-section {
     min-height: 0;
-  }
-
-  .project-detail-scroll-cue {
-    display: none;
   }
 
   .project-detail-gallery {
@@ -1689,10 +1639,6 @@ body.project-detail-is-returning .year-timeline {
     width: 100%;
     height: auto;
     aspect-ratio: 4 / 3;
-  }
-
-  .project-detail-progress {
-    display: none;
   }
 
   .hero-panel h1 {
