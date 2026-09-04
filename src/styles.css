@@ -421,7 +421,6 @@ a {
 .project-copy {
   display: flex;
   flex-direction: column;
-  align-self: stretch;
 }
 
 .about-card {
@@ -1120,10 +1119,9 @@ body.project-detail-is-returning .year-timeline {
 .project-detail-gallery {
   position: relative;
   z-index: 1;
-  animation: project-detail-content-in 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-
-.project-detail-close {
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(1.25rem, 2vw, 2.25rem);
   animation: project-detail-content-in 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
@@ -1134,13 +1132,6 @@ body.project-detail-is-returning .year-timeline {
 
 .project-detail-overlay.is-closing .project-detail {
   animation: project-detail-collapse 260ms cubic-bezier(0.55, 0, 0.78, 0) both;
-}
-
-.project-detail-copy,
-.project-detail-gallery {
-  min-width: 0;
-  min-height: 0;
-  padding: clamp(1.25rem, 2vw, 2.25rem);
 }
 
 .project-detail-copy {
@@ -1276,19 +1267,11 @@ body.project-detail-is-returning .year-timeline {
   padding-top: clamp(4.5rem, 7vh, 6rem);
 }
 
-.project-detail-gallery .project-carousel {
-  align-self: center;
-}
-
 .project-detail-gallery .carousel-viewport {
   width: 100%;
   height: auto;
   max-height: calc(92dvh - 12rem);
   aspect-ratio: 16 / 10;
-}
-
-.project-detail-gallery .carousel-controls {
-  width: 100%;
 }
 
 .project-detail-close {
@@ -1309,6 +1292,7 @@ body.project-detail-is-returning .year-timeline {
   text-transform: uppercase;
   cursor: pointer;
   transition: color 180ms ease, background 180ms ease, opacity 220ms ease, transform 220ms ease, visibility 220ms;
+  animation: project-detail-content-in 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 .project-detail-close span:last-child {
@@ -1565,7 +1549,6 @@ body.project-detail-is-returning .year-timeline {
   }
 
   .back-to-top {
-    right: auto;
     bottom: 2rem;
   }
 

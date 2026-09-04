@@ -486,10 +486,10 @@ export default function App() {
       return true;
     };
     const handlePointerOver = (event: PointerEvent) => {
-      if (
-        event.pointerType !== "mouse" ||
-        !window.matchMedia("(hover: hover) and (pointer: fine)").matches
-      ) return;
+      // Trust the event's active pointer instead of the device's primary-pointer
+      // media query, which reports `coarse` on many touchscreen laptops even
+      // while a real mouse is producing the hover.
+      if (event.pointerType !== "mouse") return;
       const control = findControl(event.target);
       if (!control || (event.relatedTarget instanceof Node && control.contains(event.relatedTarget))) return;
       playSound(hoverSound);
