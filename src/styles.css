@@ -408,6 +408,7 @@ a {
   cursor: pointer;
 }
 
+/* Only precise pointers receive full-card hover scaling, avoiding sticky touch hover. */
 @media (hover: hover) and (pointer: fine) {
   .project-card.has-details:hover,
   .project-card.has-details:focus-visible {
@@ -633,7 +634,7 @@ a.project-collaboration-highlight {
   transition: opacity 260ms ease, visibility 0s 260ms;
 }
 
-/* Offscreen placeholders stay static to avoid dozens of unnecessary animations. */
+/* Offscreen placeholders stay static; active detail and lightbox galleries shimmer. */
 .project-carousel.is-active .carousel-image-skeleton:not(.is-hidden)::after,
 .project-detail-gallery .carousel-image-skeleton:not(.is-hidden)::after,
 .image-lightbox .carousel-image-skeleton:not(.is-hidden)::after {
@@ -1070,6 +1071,7 @@ body.project-detail-is-returning .year-timeline {
   pointer-events: none;
 }
 
+/* The divider doubles as the desktop reading-progress track. */
 .project-detail-divider-progress {
   position: absolute;
   z-index: 4;
@@ -1077,7 +1079,6 @@ body.project-detail-is-returning .year-timeline {
   bottom: var(--detail-divider-inset);
   left: 50%;
   width: 1px;
-  color: rgba(255, 248, 234, 0.82);
   background: linear-gradient(
     to bottom,
     transparent 0 0.5px,
@@ -1270,8 +1271,7 @@ body.project-detail-is-returning .year-timeline {
 }
 
 .project-detail-gallery {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   padding-top: clamp(4.5rem, 7vh, 6rem);
 }
@@ -1288,7 +1288,6 @@ body.project-detail-is-returning .year-timeline {
 }
 
 .project-detail-gallery .carousel-controls {
-  flex: 0 0 auto;
   width: 100%;
 }
 
@@ -1615,7 +1614,6 @@ body.project-detail-is-returning .year-timeline {
   }
 
   .project-detail-section {
-    min-height: 0;
     cursor: pointer;
   }
 

@@ -28,6 +28,8 @@ const autoPlayInterval = 4000;
 const interactionCooldown = 6000;
 
 const coarsePointerQuery = "(hover: none), (pointer: coarse)";
+// Keep JavaScript interaction behavior aligned with the CSS mobile breakpoint.
+const mobileDetailQuery = "(max-width: 900px)";
 const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
 
 function readAudioSettings() {
@@ -867,7 +869,9 @@ const ProjectCard = memo(function ProjectCard({
     const scroller = detailCopyRef.current;
     if (!scroller) return;
     const overlay = scroller.closest<HTMLElement>(".project-detail-overlay");
+    const mobileLayout = window.matchMedia(mobileDetailQuery);
 
+    // Desktop scroll-spy selects the section with the greatest visible fraction.
     const sections = Array.from(
       scroller.querySelectorAll<HTMLElement>("[data-detail-section]"),
     );
@@ -877,7 +881,7 @@ const ProjectCard = memo(function ProjectCard({
     const updateActiveSection = () => {
       frame = 0;
       // Mobile selection is tap-driven; scrolling does not change the active section.
-      if (window.matchMedia("(max-width: 900px)").matches) return;
+      if (mobileLayout.matches) return;
       const scrollRoot = scroller.scrollHeight > scroller.clientHeight + 1
         ? scroller
         : (overlay ?? scroller);
@@ -928,9 +932,14 @@ const ProjectCard = memo(function ProjectCard({
     const overlay = detailCopyRef.current?.closest<HTMLElement>(".project-detail-overlay");
     if (!overlay) return;
 
+    // On mobile, hide the fixed close control while scrolling down and reveal it
+    // on upward movement. requestAnimationFrame limits updates to one per frame.
+    const mobileLayout = window.matchMedia(mobileDetailQuery);
     let lastScrollTop = overlay.scrollTop;
+    let frame = 0;
     const updateMobileClose = () => {
-      if (!window.matchMedia("(max-width: 900px)").matches) {
+      frame = 0;
+      if (!mobileLayout.matches) {
         setMobileDetailCloseVisible(true);
         return;
       }
@@ -941,28 +950,34 @@ const ProjectCard = memo(function ProjectCard({
       else if (nextScrollTop < lastScrollTop - 3) setMobileDetailCloseVisible(true);
       lastScrollTop = nextScrollTop;
     };
+    const scheduleMobileCloseUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateMobileClose);
+    };
 
-    overlay.addEventListener("scroll", updateMobileClose, { passive: true });
-    window.addEventListener("resize", updateMobileClose);
+    overlay.addEventListener("scroll", scheduleMobileCloseUpdate, { passive: true });
+    window.addEventListener("resize", scheduleMobileCloseUpdate);
     return () => {
-      overlay.removeEventListener("scroll", updateMobileClose);
-      window.removeEventListener("resize", updateMobileClose);
+      overlay.removeEventListener("scroll", scheduleMobileCloseUpdate);
+      window.removeEventListener("resize", scheduleMobileCloseUpdate);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, [detailsOpen]);
 
   const detailSections = project.details?.sections ?? [];
   const activeDetailSection = hoveredDetailSection ?? visibleDetailSection;
   const configuredImageIndex = detailSections[activeDetailSection]?.imageIndex;
+  // -1 deliberately sends no selection request, preserving the current slide.
   const linkedImageIndex = configuredImageIndex === -1
     ? undefined
     : (configuredImageIndex ?? activeDetailSection);
+  // Nested controls keep their own behavior instead of opening project details.
   const cardClickCameFromControl = (target: EventTarget | null) =>
     target instanceof Element
     && target.closest("button, a, .carousel-viewport, .carousel-slide figcaption") !== null;
 
   return (
     <article
-      className={`project-card${project.details ? " has-details" : ""}${detailsOpen ? " has-open-detail" : ""}`}
+      className={`project-card${project.details ? " has-details" : ""}`}
       role={project.details ? "button" : undefined}
       tabIndex={project.details ? 0 : undefined}
       aria-label={project.details ? `Open more information about ${project.title}` : undefined}
@@ -1081,7 +1096,8 @@ const ProjectCard = memo(function ProjectCard({
                       if (event.pointerType === "mouse") setHoveredDetailSection(null);
                     }}
                     onClick={(event) => {
-                      if (!window.matchMedia("(max-width: 900px)").matches) return;
+                      // Mobile selection is explicit and remains fixed while scrolling.
+                      if (!window.matchMedia(mobileDetailQuery).matches) return;
                       event.stopPropagation();
                       setHoveredDetailSection(sectionIndex);
                     }}
@@ -1124,6 +1140,7 @@ const ProjectCard = memo(function ProjectCard({
                 selectedSlideKey={activeDetailSection}
               />
             </div>
+            {/* Desktop-only scroll progress is integrated into the center divider. */}
             <div
               className="project-detail-divider-progress"
               aria-label={`Reading section ${activeDetailSection + 1} of ${detailSections.length}`}
@@ -1356,6 +1373,7 @@ function ProjectCarousel({
 
   useEffect(() => {
     if (selectedSlide === undefined || slides.length === 0) return;
+    // Detail sections can request a slide without enabling timed carousel autoplay.
     const nextSlide = Math.min(slides.length - 1, Math.max(0, selectedSlide));
     setMobileCaptionHidden(false);
     setActiveSlide((current) => current === nextSlide ? current : nextSlide);
