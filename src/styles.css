@@ -635,6 +635,7 @@ a.project-collaboration-highlight {
 
 /* Offscreen placeholders stay static to avoid dozens of unnecessary animations. */
 .project-carousel.is-active .carousel-image-skeleton:not(.is-hidden)::after,
+.project-detail-gallery .carousel-image-skeleton:not(.is-hidden)::after,
 .image-lightbox .carousel-image-skeleton:not(.is-hidden)::after {
   animation-play-state: running;
 }
