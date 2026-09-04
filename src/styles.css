@@ -1457,6 +1457,7 @@ body.project-detail-is-returning .year-timeline {
   .project-detail-overlay {
     padding: 0.75rem;
     overflow: auto;
+    place-items: start center;
   }
 
   .project-detail {
@@ -1464,8 +1465,8 @@ body.project-detail-is-returning .year-timeline {
     grid-template-rows: none;
     width: 100%;
     height: auto;
-    max-height: calc(100dvh - 1.5rem);
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
   }
 
   .project-detail-section,
@@ -1475,6 +1476,10 @@ body.project-detail-is-returning .year-timeline {
 
   .project-detail-gallery {
     min-height: min(28rem, 70dvh);
+  }
+
+  .project-detail .detail-section-1 {
+    padding-top: 4.75rem;
   }
 
   .project-detail-gallery .carousel-viewport {

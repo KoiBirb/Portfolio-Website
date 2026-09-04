@@ -148,26 +148,6 @@ const projects: Project[] = [
     summary:
       "Developed an ESP32-based indoor tracking system designed to monitor BLE-enabled assets across hospital rooms and zones. Multiple ESP32 gateways scan for low-power Bluetooth beacons and use received signal strength to estimate each tag’s location, then transmit tracking data over Wi-Fi to a central MQTT server for monitoring and visualization on a web-based dashboard.",
     tags: ["ESP32", "BLE", "MQTT", "Wi-Fi", "Onshape"],
-    details: {
-      sections: [
-        {
-          heading: "System overview",
-          text: "A distributed indoor tracking system in which room-level gateways listen for BLE tags and forward observations to a central service over Wi-Fi.",
-        },
-        {
-          heading: "Hardware & network",
-          items: [
-            "ESP32 gateways and low-power BLE tags",
-            "RSSI-based room and zone estimation",
-            "MQTT transport to the monitoring server",
-          ],
-        },
-        {
-          heading: "Interface",
-          text: "A web dashboard turns the incoming gateway data into a practical view of each tracked asset's latest known location.",
-        },
-      ],
-    },
     slides: [
       {title: "ESP32 Case", image: "./projects/Tracker System/CaseOpen.jpg"},
       {title: "Tag", image: "./projects/Tracker System/TagHousing.jpg"},
