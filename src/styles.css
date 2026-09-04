@@ -1615,6 +1615,7 @@ body.project-detail-is-returning .year-timeline {
 
   .project-detail-section {
     min-height: 0;
+    cursor: pointer;
   }
 
   .project-detail-gallery {

@@ -95,63 +95,46 @@ const projects: Project[] = [
       // Adding this optional object gives a project its More info button.
       sections: [
         {
-          heading: "Design challenge",
+          heading: "Project Goal",
           text: "Create a compact amplifier that converts an analog audio signal into a high-frequency PWM waveform while keeping switching losses and audible distortion low.",
-          imageIndex: 0,
+          imageIndex: -1,
         },
         {
-          heading: "What I built",
+          heading: "Reasearch",
           items: [
             "555-timer PWM generation stage",
             "MOSFET gate driver and output stage",
             "Custom PCB and low-pass filtering",
           ],
+          imageIndex: -1,
+        },
+        {
+          heading: "Circuit Design",
+          items: [
+            "Measured approximately 80% efficiency",
+            "Validated signals with an oscilloscope",
+            "Designed the enclosure in Fusion 360",
+          ],
+          imageIndex: 0,
+        },
+        {
+          heading: "PCB Design",
+          items: [
+            "Measured approximately 80% efficiency",
+            "Validated signals with an oscilloscope",
+            "Designed the enclosure in Fusion 360",
+          ],
           imageIndex: 1,
         },
         {
-          heading: "Testing & outcome",
-          items: [
-            "Measured approximately 80% efficiency",
-            "Validated signals with an oscilloscope",
-            "Designed the enclosure in Fusion 360",
-          ],
-          imageIndex: 2,
+          heading: "Enclosure",
+
+          imageIndex: -1,
         },
         {
-          heading: "Testing & outcome",
-          items: [
-            "Measured approximately 80% efficiency",
-            "Validated signals with an oscilloscope",
-            "Designed the enclosure in Fusion 360",
-          ],
-          imageIndex: 2,
-        },
-        {
-          heading: "Testing & outcome",
-          items: [
-            "Measured approximately 80% efficiency",
-            "Validated signals with an oscilloscope",
-            "Designed the enclosure in Fusion 360",
-          ],
-          imageIndex: 2,
-        },
-        {
-          heading: "Testing & outcome",
-          items: [
-            "Measured approximately 80% efficiency",
-            "Validated signals with an oscilloscope",
-            "Designed the enclosure in Fusion 360",
-          ],
-          imageIndex: 2,
-        },
-        {
-          heading: "Testing & outcome",
-          items: [
-            "Measured approximately 80% efficiency",
-            "Validated signals with an oscilloscope",
-            "Designed the enclosure in Fusion 360",
-          ],
-          imageIndex: 2,
+          heading: "Testing & Outcome",
+
+          imageIndex: -1,
         },
       ],
     },
@@ -893,6 +876,8 @@ const ProjectCard = memo(function ProjectCard({
     let frame = 0;
     const updateActiveSection = () => {
       frame = 0;
+      // Mobile selection is tap-driven; scrolling does not change the active section.
+      if (window.matchMedia("(max-width: 900px)").matches) return;
       const scrollRoot = scroller.scrollHeight > scroller.clientHeight + 1
         ? scroller
         : (overlay ?? scroller);
@@ -982,7 +967,7 @@ const ProjectCard = memo(function ProjectCard({
       tabIndex={project.details ? 0 : undefined}
       aria-label={project.details ? `Open more information about ${project.title}` : undefined}
       onClick={(event) => {
-        if (!project.details || cardClickCameFromControl(event.target)) return;
+        if (detailsOpen || !project.details || cardClickCameFromControl(event.target)) return;
         openDetails();
       }}
       onKeyDown={(event) => {
@@ -1094,6 +1079,11 @@ const ProjectCard = memo(function ProjectCard({
                     }}
                     onPointerLeave={(event) => {
                       if (event.pointerType === "mouse") setHoveredDetailSection(null);
+                    }}
+                    onClick={(event) => {
+                      if (!window.matchMedia("(max-width: 900px)").matches) return;
+                      event.stopPropagation();
+                      setHoveredDetailSection(sectionIndex);
                     }}
                     key={`${section.heading}-${sectionIndex}`}
                   >
