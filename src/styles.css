@@ -1,6 +1,14 @@
 :root {
-  color: #fff7e9;
-  background: #2a0905;
+  --font-mono: "DM Mono", monospace;
+  --font-display: "Playfair Display", Georgia, serif;
+  --color-text: #fff7e9;
+  --color-background: #2a0905;
+  --color-accent: #f8b331;
+  --color-heading: #f7ae36;
+  --icon-filter: invert(96%) sepia(12%) saturate(530%) hue-rotate(326deg) brightness(106%);
+
+  color: var(--color-text);
+  background: var(--color-background);
   font-family: "Manrope", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,8 +21,7 @@
 
 html {
   scroll-behavior: smooth;
-  scrollbar-width: none;
-  background: #2a0905;
+  background: var(--color-background);
 }
 
 *::-webkit-scrollbar {
@@ -26,7 +33,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background: #2a0905;
+  background: var(--color-background);
   overscroll-behavior-y: none;
 }
 
@@ -51,8 +58,7 @@ a {
   margin-bottom: -100svh;
   margin-bottom: -100dvh;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, #df5c0c 0%, #f5a821 50%, #df5c0c 100%);
+  background: linear-gradient(90deg, #df5c0c 0%, #f5a821 50%, #df5c0c 100%);
 }
 
 .scene-image {
@@ -73,7 +79,13 @@ a {
   z-index: 1;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(95, 20, 7, 0.22), transparent 30%, transparent 70%, rgba(95, 20, 7, 0.22));
+  background: linear-gradient(
+    90deg,
+    rgba(95, 20, 7, 0.22),
+    transparent 30%,
+    transparent 70%,
+    rgba(95, 20, 7, 0.22)
+  );
 }
 
 .scene-shade {
@@ -91,7 +103,7 @@ a {
   z-index: 4;
   margin: 0;
   color: rgba(255, 248, 234, 0.72);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   writing-mode: vertical-rl;
@@ -117,7 +129,7 @@ a {
   width: 1px;
   color: rgba(255, 248, 234, 0.82);
   background: rgba(255, 248, 234, 0.32);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.12em;
 }
 
@@ -131,8 +143,12 @@ a {
   content: "";
 }
 
-.year-timeline::before { top: 0; }
-.year-timeline::after { bottom: 0; }
+.year-timeline::before {
+  top: 0;
+}
+.year-timeline::after {
+  bottom: 0;
+}
 
 .timeline-current {
   position: absolute;
@@ -162,20 +178,30 @@ a {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
-  background: #fff7e9;
+  background: var(--color-text);
   box-shadow: 0 0 0 0.2rem rgba(255, 247, 233, 0.18);
   content: "";
   transform: translateY(-50%);
 }
 
 @keyframes year-pulse-a {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.18); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
 }
 
 @keyframes year-pulse-b {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.18); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
 }
 
 .social-links {
@@ -191,13 +217,16 @@ a {
 .social-links a {
   display: grid;
   border: 1px solid rgba(255, 247, 233, 0.35);
-  color: #fff7e9;
+  color: var(--color-text);
   background: rgba(43, 7, 4, 0.55);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   place-items: center;
   transform-origin: center;
-  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 .social-links img {
@@ -205,13 +234,13 @@ a {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: invert(96%) sepia(12%) saturate(530%) hue-rotate(326deg) brightness(106%);
+  filter: var(--icon-filter);
 }
 
 .social-links a:hover,
 .social-links a:focus-visible {
-  color: #2a0905;
-  background: #f8b331;
+  color: var(--color-background);
+  background: var(--color-accent);
   transform: scale(1.1);
 }
 
@@ -232,14 +261,17 @@ a {
   display: grid;
   margin: 0;
   border: 1px solid rgba(255, 247, 233, 0.35);
-  color: #fff7e9;
+  color: var(--color-text);
   background: rgba(43, 7, 4, 0.55);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   place-items: center;
   cursor: pointer;
   transform-origin: center;
-  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 .audio-toggle svg {
@@ -253,8 +285,8 @@ a {
 
 .audio-toggle:hover,
 .audio-toggle:focus-visible {
-  color: #2a0905;
-  background: #f8b331;
+  color: var(--color-background);
+  background: var(--color-accent);
   transform: scale(1.1);
 }
 
@@ -274,7 +306,10 @@ a {
   place-items: center;
   transform: translateX(-50%) scaleY(0.75);
   transform-origin: bottom;
-  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 180ms;
 }
 
 .audio-control:hover .volume-popover,
@@ -287,7 +322,7 @@ a {
 .volume-popover input {
   width: 1rem;
   height: 7.2rem;
-  accent-color: #f8b331;
+  accent-color: var(--color-accent);
   cursor: pointer;
   direction: rtl;
   writing-mode: vertical-lr;
@@ -317,7 +352,7 @@ a {
 
 .section-label {
   margin: 0 0 1.25rem;
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: clamp(0.62rem, 0.8vw, 0.75rem);
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -325,7 +360,7 @@ a {
 
 .hero-panel h1 {
   margin: 0;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(5rem, min(12vw, 18svh), 11rem);
   font-weight: 500;
   letter-spacing: -0.075em;
@@ -340,7 +375,7 @@ a {
 
 .hero-intro {
   margin: 3rem auto 0;
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: clamp(1.05rem, 1.7vw, 1.35rem);
   line-height: 1.65;
   text-shadow: 0 2px 14px rgba(52, 5, 2, 0.5);
@@ -354,10 +389,12 @@ a {
   flex-direction: column;
   align-items: center;
   transform: translateX(-50%);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  transition: color 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
 }
 
 .scroll-cue:focus-visible {
@@ -401,7 +438,10 @@ a {
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
   transform-origin: center;
-  transition: border-color 240ms ease, box-shadow 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    border-color 240ms ease,
+    box-shadow 240ms ease,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .project-card.has-details {
@@ -437,8 +477,8 @@ a {
   display: flex;
   justify-content: space-between;
   gap: 2rem;
-  color: #f7ae36;
-  font-family: "DM Mono", monospace;
+  color: var(--color-heading);
+  font-family: var(--font-mono);
   line-height: 1.5;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -451,7 +491,7 @@ a {
 .project-card h2 {
   max-width: 9ch;
   margin: clamp(2rem, 4vw, 3.5rem) 0 1.75rem;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(3rem, 5vw, 5.5rem);
   font-weight: 500;
   letter-spacing: -0.055em;
@@ -465,8 +505,8 @@ a {
 .project-copy > .project-collaboration {
   max-width: 34rem;
   margin: 0 0 1rem;
-  color: #f7ae36;
-  font-family: "DM Mono", monospace;
+  color: var(--color-heading);
+  font-family: var(--font-mono);
   font-size: clamp(0.65rem, 0.85vw, 0.78rem);
   line-height: 1.5;
   letter-spacing: 0.08em;
@@ -480,7 +520,9 @@ a {
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
   transform-origin: left center;
-  transition: color 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
 }
 
 a.project-collaboration-highlight {
@@ -488,7 +530,7 @@ a.project-collaboration-highlight {
 }
 
 .project-collaboration-highlight:focus-visible {
-  color: #f8b331;
+  color: var(--color-accent);
   outline: 1px solid currentColor;
   outline-offset: 0.2rem;
   transform: scale(1.045);
@@ -496,7 +538,7 @@ a.project-collaboration-highlight {
 
 @media (hover: hover) and (pointer: fine) {
   .project-collaboration-highlight:hover {
-    color: #f8b331;
+    color: var(--color-accent);
     transform: scale(1.045);
   }
 }
@@ -527,7 +569,7 @@ a.project-collaboration-highlight {
 .project-card li,
 .skill-line span {
   border: 1px solid rgba(255, 247, 233, 0.25);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -630,7 +672,9 @@ a.project-collaboration-highlight {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 260ms ease, visibility 0s 260ms;
+  transition:
+    opacity 260ms ease,
+    visibility 0s 260ms;
 }
 
 /* Offscreen placeholders stay static; active detail and lightbox galleries shimmer. */
@@ -661,7 +705,10 @@ a.project-collaboration-highlight {
   background: rgba(43, 7, 4, 0.55);
   text-align: left;
   text-shadow: 0 2px 18px rgba(42, 4, 2, 0.5);
-  transition: opacity 220ms ease, left 220ms ease, transform 220ms ease;
+  transition:
+    opacity 220ms ease,
+    left 220ms ease,
+    transform 220ms ease;
 }
 
 .carousel-slide figcaption.is-frame-overflowing {
@@ -677,14 +724,14 @@ a.project-collaboration-highlight {
 }
 
 .carousel-slide figcaption span {
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: clamp(0.32rem, 1.1cqw, 0.406rem);
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 
 .carousel-slide figcaption strong {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(1rem, 5cqw, 2.8rem);
   font-weight: 500;
   line-height: 1;
@@ -705,13 +752,15 @@ a.project-collaboration-highlight {
   background: rgba(43, 7, 4, 0.71);
   place-items: center;
   cursor: pointer;
-  transition: color 180ms ease, background 180ms ease;
+  transition:
+    color 180ms ease,
+    background 180ms ease;
 }
 
 .carousel-controls > button:hover,
 .carousel-controls > button:focus-visible {
-  color: #2a0905;
-  background: #f8b331;
+  color: var(--color-background);
+  background: var(--color-accent);
 }
 
 .carousel-dots {
@@ -733,11 +782,13 @@ a.project-collaboration-highlight {
   width: 100%;
   height: 1px;
   background: rgba(255, 247, 233, 0.35);
-  transition: background 180ms ease, transform 180ms ease;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 .carousel-dots button.is-active::after {
-  background: #f8b331;
+  background: var(--color-accent);
   transform: scaleY(3);
 }
 
@@ -806,7 +857,9 @@ a.project-collaboration-highlight {
 }
 
 @keyframes image-lightbox-in {
-  from { opacity: 0; }
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes image-lightbox-content-in {
@@ -817,7 +870,9 @@ a.project-collaboration-highlight {
 }
 
 @keyframes image-lightbox-out {
-  to { opacity: 0; }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes image-lightbox-content-out {
@@ -837,13 +892,16 @@ a.project-collaboration-highlight {
   z-index: 2;
   display: grid;
   border: 1px solid rgba(255, 247, 233, 0.35);
-  color: #fff7e9;
+  color: var(--color-text);
   background: rgba(43, 7, 4, 0.55);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   place-items: center;
   cursor: pointer;
-  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 .lightbox-close {
@@ -862,20 +920,24 @@ a.project-collaboration-highlight {
   transform: translateY(-50%);
 }
 
-.lightbox-previous { left: clamp(0.5rem, 2vw, 2rem); }
-.lightbox-next { right: clamp(0.5rem, 2vw, 2rem); }
+.lightbox-previous {
+  left: clamp(0.5rem, 2vw, 2rem);
+}
+.lightbox-next {
+  right: clamp(0.5rem, 2vw, 2rem);
+}
 
 .lightbox-close:hover,
 .lightbox-close:focus-visible {
-  color: #2a0905;
-  background: #f8b331;
+  color: var(--color-background);
+  background: var(--color-accent);
   transform: scale(1.1);
 }
 
 .lightbox-arrow:hover,
 .lightbox-arrow:focus-visible {
-  color: #2a0905;
-  background: #f8b331;
+  color: var(--color-background);
+  background: var(--color-accent);
   transform: translateY(-50%) scale(1.1);
 }
 
@@ -887,7 +949,7 @@ a.project-collaboration-highlight {
   );
   left: 50%;
   margin: 0;
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.16em;
   transform: translateX(-50%);
@@ -895,7 +957,7 @@ a.project-collaboration-highlight {
 
 .hero-specialties {
   margin: 1.25rem 0 0;
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: clamp(0.9rem, 1.5vw, 1.15rem);
   line-height: 1.65;
   text-shadow: 0 2px 14px rgba(52, 5, 2, 0.5);
@@ -903,7 +965,7 @@ a.project-collaboration-highlight {
 
 .hero-specialties span {
   margin: 0 0.35em;
-  color: #f8b331;
+  color: var(--color-accent);
 }
 
 .resume-link {
@@ -916,12 +978,15 @@ a.project-collaboration-highlight {
   background: rgba(43, 7, 4, 0.55);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   transform: translate(-50%, -50%);
   transform-origin: center;
-  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 .resume-link svg {
@@ -938,8 +1003,8 @@ a.project-collaboration-highlight {
 
 .resume-link:hover,
 .resume-link:focus-visible {
-  color: #2a0905;
-  background: #f8b331;
+  color: var(--color-background);
+  background: var(--color-accent);
   transform: translate(-50%, -50%) scale(1.1);
 }
 
@@ -970,12 +1035,15 @@ a.project-collaboration-highlight {
   border: 1px solid rgba(255, 247, 233, 0.25);
   color: inherit;
   background: rgba(43, 7, 4, 0.25);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   line-height: normal;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transform-origin: center;
-  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 button.project-action {
@@ -985,13 +1053,13 @@ button.project-action {
 .project-github img {
   width: 0.7rem;
   height: 0.7rem;
-  filter: invert(96%) sepia(12%) saturate(530%) hue-rotate(326deg) brightness(106%);
+  filter: var(--icon-filter);
 }
 
 .project-action:hover,
 .project-action:focus-visible {
-  color: #2a0905;
-  background: #f8b331;
+  color: var(--color-background);
+  background: var(--color-accent);
   transform: scale(1.1);
 }
 
@@ -1099,8 +1167,12 @@ body.project-detail-is-returning .year-timeline {
   transform: translateX(-50%);
 }
 
-.project-detail-divider-progress::before { top: 0; }
-.project-detail-divider-progress::after { bottom: 0; }
+.project-detail-divider-progress::before {
+  top: 0;
+}
+.project-detail-divider-progress::after {
+  bottom: 0;
+}
 
 .project-detail-divider-current {
   position: absolute;
@@ -1109,7 +1181,7 @@ body.project-detail-is-returning .year-timeline {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
-  background: #fff7e9;
+  background: var(--color-text);
   box-shadow: 0 0 0 0.2rem rgba(255, 247, 233, 0.18);
   transform: translate(-50%, -50%);
   transition: top 700ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1167,14 +1239,14 @@ body.project-detail-is-returning .year-timeline {
 
 .project-detail-section-number {
   color: rgba(255, 247, 233, 0.42);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.64rem;
   letter-spacing: 0.14em;
   transition: color 240ms ease;
 }
 
 .project-detail-section.is-active .project-detail-section-number {
-  color: #f8b331;
+  color: var(--color-accent);
 }
 
 .project-detail-section-dot {
@@ -1184,10 +1256,12 @@ body.project-detail-is-returning .year-timeline {
   margin-left: 0.15rem;
   border-radius: 50%;
   opacity: 0;
-  background: #f8b331;
+  background: var(--color-accent);
   box-shadow: 0 0 0 0.18rem rgba(248, 179, 49, 0.12);
   transform: scale(0.65);
-  transition: opacity 260ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 260ms ease,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .project-detail-section.is-active .project-detail-section-dot {
@@ -1206,7 +1280,7 @@ body.project-detail-is-returning .year-timeline {
 .project-detail h2 {
   max-width: 11ch;
   margin: clamp(1rem, 2vh, 1.75rem) 0 0.75rem;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(2.25rem, 4.2vw, 4.75rem);
   font-weight: 500;
   letter-spacing: -0.055em;
@@ -1215,8 +1289,8 @@ body.project-detail-is-returning .year-timeline {
 
 .project-detail .project-collaboration {
   margin: 0;
-  color: #f7ae36;
-  font-family: "DM Mono", monospace;
+  color: var(--color-heading);
+  font-family: var(--font-mono);
   font-size: clamp(0.6rem, 0.72vw, 0.72rem);
   line-height: 1.5;
   letter-spacing: 0.08em;
@@ -1224,8 +1298,8 @@ body.project-detail-is-returning .year-timeline {
 
 .project-detail h3 {
   margin: 0;
-  color: #f7ae36;
-  font-family: "DM Mono", monospace;
+  color: var(--color-heading);
+  font-family: var(--font-mono);
   font-size: clamp(0.68rem, 0.85vw, 0.82rem);
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -1257,7 +1331,7 @@ body.project-detail-is-returning .year-timeline {
   position: absolute;
   top: 0;
   left: 0;
-  color: #f7ae36;
+  color: var(--color-heading);
   content: "→";
 }
 
@@ -1286,12 +1360,17 @@ body.project-detail-is-returning .year-timeline {
   border: 1px solid rgba(255, 247, 233, 0.3);
   color: inherit;
   background: rgba(43, 7, 4, 0.75);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 180ms ease, background 180ms ease, opacity 220ms ease, transform 220ms ease, visibility 220ms;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    opacity 220ms ease,
+    transform 220ms ease,
+    visibility 220ms;
   animation: project-detail-content-in 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
@@ -1302,17 +1381,21 @@ body.project-detail-is-returning .year-timeline {
 
 .project-detail-close:hover,
 .project-detail-close:focus-visible {
-  color: #2a0905;
-  background: #f8b331;
+  color: var(--color-background);
+  background: var(--color-accent);
   transform: scale(1.08);
 }
 
 @keyframes project-detail-backdrop-out {
-  to { opacity: 0; }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes project-detail-content-in {
-  from { opacity: 0; }
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes project-detail-collapse {
@@ -1323,11 +1406,15 @@ body.project-detail-is-returning .year-timeline {
 }
 
 @keyframes main-ui-content-return {
-  from { opacity: 0; }
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes persistent-ui-return {
-  from { opacity: 0; }
+  from {
+    opacity: 0;
+  }
 }
 
 .hero-copy .section-label {
@@ -1352,8 +1439,6 @@ body.project-detail-is-returning .year-timeline {
 }
 
 .about-card > p:not(.section-label) {
-  margin-right: auto;
-  margin-left: auto;
   text-align: center;
 }
 
@@ -1365,7 +1450,7 @@ body.project-detail-is-returning .year-timeline {
 .about-card h2 {
   max-width: 11ch;
   margin: clamp(2rem, 5vw, 4.5rem) auto 1.2rem;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(3rem, 6vw, 6rem);
   font-weight: 500;
   letter-spacing: -0.055em;
@@ -1378,7 +1463,7 @@ body.project-detail-is-returning .year-timeline {
   left: 50%;
   margin: 0;
   transform: translateX(-50%);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.18em;
   text-align: center;
   text-transform: uppercase;
@@ -1391,27 +1476,33 @@ body.project-detail-is-returning .year-timeline {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   transform: translateX(-50%);
-  transition: color 180ms ease, transform 180ms ease;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
 }
 
 .back-to-top:hover,
 .back-to-top:focus-visible {
-  color: #f8b331;
+  color: var(--color-accent);
   transform: translate(-50%, -0.3rem);
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(0.5rem); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(0.5rem);
+  }
 }
 
 /* Fluid controls keep the same proportions from phones through large displays. */
-.image-marker,
-.year-timeline {
+.image-marker {
   font-size: clamp(0.5rem, 0.6vw, 0.62rem);
 }
 
@@ -1491,6 +1582,20 @@ body.project-detail-is-returning .year-timeline {
   font-size: clamp(0.52rem, 0.6vw, 0.62rem);
 }
 
+/* Keep About and project cards evenly spaced on wide desktop displays. */
+@media (min-width: 1440px) {
+  .about-panel {
+    min-height: auto;
+    padding-bottom: 2rem;
+  }
+
+  .project-panel {
+    min-height: auto;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
 @media (max-width: 900px), (hover: none), (pointer: coarse) {
   .volume-popover {
     display: none;
@@ -1519,16 +1624,16 @@ body.project-detail-is-returning .year-timeline {
     padding-left: 1rem;
   }
 
-  .image-marker {
-    display: none;
-  }
-
+  .image-marker,
   .year-timeline {
     display: none;
   }
 
   .social-links {
-    transition: opacity 220ms ease, transform 220ms ease, visibility 220ms;
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease,
+      visibility 220ms;
   }
 
   .social-links.is-mobile-hidden {
@@ -1546,10 +1651,6 @@ body.project-detail-is-returning .year-timeline {
 
   .project-panel:last-child {
     padding-bottom: 8.25rem;
-  }
-
-  .back-to-top {
-    bottom: 2rem;
   }
 
   .project-card {
@@ -1627,7 +1728,6 @@ body.project-detail-is-returning .year-timeline {
   .hero-panel h1 {
     font-size: clamp(3.5rem, min(20vw, 14svh), 6rem);
   }
-
 }
 
 /* Browser zoom and OS display scaling reduce the effective CSS viewport.
@@ -1666,14 +1766,14 @@ body.project-detail-is-returning .year-timeline {
 
   .social-links a:hover,
   .audio-toggle:hover {
-    color: #fff7e9;
+    color: var(--color-text);
     background: rgba(43, 7, 4, 0.55);
     transform: none;
   }
 
   .social-links a:hover img,
   .project-github:hover img {
-    filter: invert(96%) sepia(12%) saturate(530%) hue-rotate(326deg) brightness(106%);
+    filter: var(--icon-filter);
   }
 
   .carousel-viewport:hover,
@@ -1722,7 +1822,10 @@ body.project-detail-is-returning .year-timeline {
     scroll-behavior: auto;
   }
 
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
