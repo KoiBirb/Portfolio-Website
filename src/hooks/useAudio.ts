@@ -38,6 +38,11 @@ export function useAudio() {
     const clickSounds = Array.from({ length: 3 }, () => new Audio(interfaceSounds.click));
     let nextClickSound = 0;
     let lastDirectPointerSound = -Infinity;
+    const surfacePointers = new Map<
+      number,
+      { surface: Element; startX: number; startY: number; isGesture: boolean }
+    >();
+    let suppressedSurfaceClick: { surface: Element; until: number } | null = null;
     hoverSound.preload = "auto";
     hoverSound.load();
     clickSounds.forEach((sound) => {
@@ -57,6 +62,10 @@ export function useAudio() {
         ? target.closest(
             "button, a, .project-card.has-details, .project-collaboration-highlight, .carousel-slide figcaption, .carousel-viewport, .lightbox-viewport",
           )
+        : null;
+    const findGestureSurface = (target: EventTarget | null) =>
+      target instanceof Element
+        ? target.closest(".carousel-viewport, .lightbox-viewport")
         : null;
     const playClickForTarget = (target: EventTarget | null) => {
       const control = findControl(target);
@@ -80,19 +89,76 @@ export function useAudio() {
       playSound(hoverSound);
     };
     const handlePointerDown = (event: PointerEvent) => {
-      if (event.pointerType === "mouse" || !playClickForTarget(event.target)) return;
+      if (event.pointerType === "mouse" || findGestureSurface(event.target)) return;
+      if (!playClickForTarget(event.target)) return;
       lastDirectPointerSound = performance.now();
     };
     const handleClick = (event: MouseEvent) => {
       // Touch browsers synthesize a click after pointer-down; avoid playing twice.
       if (performance.now() - lastDirectPointerSound < 750) return;
+      const gestureSurface = findGestureSurface(event.target);
+      if (
+        gestureSurface &&
+        suppressedSurfaceClick?.surface === gestureSurface &&
+        performance.now() < suppressedSurfaceClick.until
+      ) {
+        suppressedSurfaceClick = null;
+        return;
+      }
       playClickForTarget(event.target);
     };
+    const trackSurfacePointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse") return;
+      const surface = findGestureSurface(event.target);
+      if (!surface) return;
+      const pointer = {
+        surface,
+        startX: event.clientX,
+        startY: event.clientY,
+        isGesture: false,
+      };
+      surfacePointers.set(event.pointerId, pointer);
+      const pointersOnSurface = [...surfacePointers.values()].filter(
+        (candidate) => candidate.surface === surface,
+      );
+      if (pointersOnSurface.length > 1) {
+        pointersOnSurface.forEach((candidate) => {
+          candidate.isGesture = true;
+        });
+      }
+    };
+    const trackSurfacePointerMove = (event: PointerEvent) => {
+      const pointer = surfacePointers.get(event.pointerId);
+      if (!pointer || pointer.isGesture) return;
+      if (Math.hypot(event.clientX - pointer.startX, event.clientY - pointer.startY) > 8) {
+        pointer.isGesture = true;
+      }
+    };
+    const finishSurfacePointer = (event: PointerEvent) => {
+      const pointer = surfacePointers.get(event.pointerId);
+      if (!pointer) return;
+      surfacePointers.delete(event.pointerId);
+      if (pointer.isGesture || event.type === "pointercancel") {
+        // Some mobile browsers synthesize a click after a completed swipe.
+        suppressedSurfaceClick = {
+          surface: pointer.surface,
+          until: performance.now() + 500,
+        };
+      }
+    };
 
+    document.addEventListener("pointerdown", trackSurfacePointerDown, true);
+    document.addEventListener("pointermove", trackSurfacePointerMove, true);
+    document.addEventListener("pointerup", finishSurfacePointer, true);
+    document.addEventListener("pointercancel", finishSurfacePointer, true);
     document.addEventListener("pointerover", handlePointerOver);
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("click", handleClick);
     return () => {
+      document.removeEventListener("pointerdown", trackSurfacePointerDown, true);
+      document.removeEventListener("pointermove", trackSurfacePointerMove, true);
+      document.removeEventListener("pointerup", finishSurfacePointer, true);
+      document.removeEventListener("pointercancel", finishSurfacePointer, true);
       document.removeEventListener("pointerover", handlePointerOver);
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("click", handleClick);

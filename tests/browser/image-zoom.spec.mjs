@@ -82,7 +82,21 @@ test("two-finger touch zoom supports panning without changing slides or opening 
   context,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Requires touchscreen");
+  await page.addInitScript(() => {
+    window.__playedMedia = [];
+    HTMLMediaElement.prototype.play = function () {
+      window.__playedMedia.push(this.getAttribute("src") ?? this.src);
+      return Promise.resolve();
+    };
+  });
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  const clickSoundCount = () =>
+    page.evaluate(
+      () => window.__playedMedia.filter((source) => /\/Click\.mp3(?:$|\?)/i.test(source)).length,
+    );
+  await page.evaluate(() => {
+    window.__playedMedia = [];
+  });
   const card = page.locator(".project-card").first();
   const normalViewport = card.locator(".carousel-viewport");
   await normalViewport.scrollIntoViewIfNeeded();
@@ -96,6 +110,14 @@ test("two-finger touch zoom supports panning without changing slides or opening 
       type,
       touchPoints: points.map(([id, px, py]) => ({ id, x: px, y: py })),
     });
+  await touch("touchStart", [[1, normalX + 40, normalY]]);
+  await touch("touchMove", [[1, normalX - 40, normalY]]);
+  await touch("touchEnd", []);
+  await expect(card.locator(".carousel-dots button").nth(1)).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
+  expect(await clickSoundCount()).toBe(0);
   await touch("touchStart", [
     [1, normalX - 30, normalY],
     [2, normalX + 30, normalY],
@@ -106,6 +128,7 @@ test("two-finger touch zoom supports panning without changing slides or opening 
   ]);
   await touch("touchEnd", []);
   await expect.poll(() => transform(normalViewport)).toEqual({ scale: 1, x: 0, y: 0 });
+  expect(await clickSoundCount()).toBe(0);
 
   await card.getByRole("button", { name: "More info", exact: true }).click();
   const viewport = page.locator(".project-detail .carousel-viewport");
@@ -114,6 +137,9 @@ test("two-finger touch zoom supports panning without changing slides or opening 
   const box = await viewport.boundingBox();
   const x = box.x + box.width / 2,
     y = box.y + box.height / 2;
+  await page.evaluate(() => {
+    window.__playedMedia = [];
+  });
   await touch("touchStart", [
     [1, x - 30, y],
     [2, x + 30, y],
@@ -124,14 +150,16 @@ test("two-finger touch zoom supports panning without changing slides or opening 
   ]);
   await expect.poll(async () => (await transform(viewport)).scale).toBeGreaterThan(1.5);
   await touch("touchEnd", []);
+  expect(await clickSoundCount()).toBe(0);
   const before = await transform(viewport);
   await touch("touchStart", [[1, x, y]]);
   await touch("touchMove", [[1, x + 25, y + 15]]);
   await touch("touchEnd", []);
   await expect.poll(async () => (await transform(viewport)).x).toBeGreaterThan(before.x + 10);
+  expect(await clickSoundCount()).toBe(0);
   await expect(page.locator(".image-lightbox")).toHaveCount(0);
   await expect(
-    page.locator(".project-card").first().locator(".carousel-dots button").first(),
+    page.locator(".project-card").first().locator(".carousel-dots button").nth(1),
   ).toHaveAttribute("aria-current", "true");
   await touch("touchStart", [
     [1, x - 70, y],
@@ -143,6 +171,7 @@ test("two-finger touch zoom supports panning without changing slides or opening 
   ]);
   await touch("touchEnd", []);
   await expect.poll(() => transform(viewport)).toEqual({ scale: 1, x: 0, y: 0 });
+  expect(await clickSoundCount()).toBe(0);
 });
 
 test("empty image margins open project details without zooming or enlarging the image", async ({
