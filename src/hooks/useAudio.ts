@@ -108,7 +108,6 @@ export function useAudio() {
       playClickForTarget(event.target);
     };
     const trackSurfacePointerDown = (event: PointerEvent) => {
-      if (event.pointerType === "mouse") return;
       const surface = findGestureSurface(event.target);
       if (!surface) return;
       const pointer = {

@@ -278,9 +278,20 @@ test("large desktop spacing stays compact between About and projects", async ({
 });
 
 test("horizontal gestures change slides without opening a lightbox", async ({ page, isMobile }) => {
+  await page.addInitScript(() => {
+    window.__playedMedia = [];
+    HTMLMediaElement.prototype.play = function () {
+      window.__playedMedia.push(this.getAttribute("src") ?? this.src);
+      return Promise.resolve();
+    };
+  });
+  await page.reload({ waitUntil: "domcontentloaded" });
   const card = firstCard(page);
   const viewport = card.locator(".carousel-viewport");
   await viewport.scrollIntoViewIfNeeded();
+  await page.evaluate(() => {
+    window.__playedMedia = [];
+  });
   const bounds = await viewport.boundingBox();
   const x = bounds.x + bounds.width * 0.7;
   const y = bounds.y + bounds.height * 0.3;
@@ -307,6 +318,13 @@ test("horizontal gestures change slides without opening a lightbox", async ({ pa
   await expectSlide(card.locator(".project-carousel"), 1);
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.locator(".project-detail")).toHaveCount(0);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__playedMedia.filter((source) => /\/Click\.mp3(?:$|\?)/i.test(source)).length,
+      ),
+    )
+    .toBe(0);
 
   if (isMobile) {
     const caption = card.locator(".carousel-slide").nth(2).locator("figcaption");
