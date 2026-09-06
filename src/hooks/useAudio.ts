@@ -153,7 +153,8 @@ export function useAudio() {
     document.addEventListener("pointercancel", finishSurfacePointer, true);
     document.addEventListener("pointerover", handlePointerOver);
     document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("click", handleClick);
+    // Capture clicks before modal portals stop propagation at their boundary.
+    document.addEventListener("click", handleClick, true);
     return () => {
       document.removeEventListener("pointerdown", trackSurfacePointerDown, true);
       document.removeEventListener("pointermove", trackSurfacePointerMove, true);
@@ -161,7 +162,7 @@ export function useAudio() {
       document.removeEventListener("pointercancel", finishSurfacePointer, true);
       document.removeEventListener("pointerover", handlePointerOver);
       document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("click", handleClick);
+      document.removeEventListener("click", handleClick, true);
       hoverSound.pause();
       clickSounds.forEach((sound) => sound.pause());
     };

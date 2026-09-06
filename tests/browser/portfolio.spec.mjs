@@ -85,6 +85,48 @@ test("carousel buttons, edge wrapping and keyboard lightbox navigation work", as
   await expect(page.locator("#root")).not.toHaveAttribute("inert", "");
 });
 
+test("backdrop closes return to an interactive page without opening project details", async ({
+  page,
+}) => {
+  const card = firstCard(page);
+  await card.scrollIntoViewIfNeeded();
+  const activeImage = card.locator(
+    '.carousel-slide:not([aria-hidden]) [data-zoom-active="true"] .carousel-image-clip',
+  );
+  await expect(activeImage.locator("img")).toHaveClass(/is-loaded/);
+  await activeImage.click({ position: { x: 30, y: 30 } });
+
+  const lightbox = page.getByRole("dialog", {
+    name: "Class D Amplifier enlarged images",
+  });
+  await expect(lightbox).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.elementFromPoint(2, 2)?.classList.contains("image-lightbox")),
+    )
+    .toBe(true);
+  await page.mouse.click(2, 2);
+  await expect(lightbox).toHaveCount(0);
+  await expect(page.locator(".project-detail")).toHaveCount(0);
+  await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
+  await expect(page.locator("#root")).not.toHaveAttribute("inert", "");
+
+  const moreInfo = card.getByRole("button", { name: "More info", exact: true });
+  await moreInfo.click();
+  const details = page.getByRole("dialog", { name: "Class D Amplifier", exact: true });
+  await expect(details).toBeVisible();
+  await page.mouse.click(2, 2);
+  await expect(details).toHaveCount(0);
+  await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
+  await expect(page.locator("#root")).not.toHaveAttribute("inert", "");
+
+  // A second open proves pointer and focus interaction returned to the page.
+  await moreInfo.click();
+  await expect(details).toBeVisible();
+  await details.getByRole("button", { name: "Close Class D Amplifier details" }).click();
+  await expect(details).toHaveCount(0);
+});
+
 test("nested dialogs trap focus and restore scrolling and the original control", async ({
   page,
 }) => {
@@ -159,6 +201,51 @@ test("audio controls survive unavailable storage and restore zero volume", async
   await expect.poll(() => page.locator("audio").evaluate((audio) => audio.muted)).toBe(true);
 });
 
+test("regular and full-screen image arrows retain click sounds", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__playedMedia = [];
+    HTMLMediaElement.prototype.play = function () {
+      window.__playedMedia.push(this.getAttribute("src") ?? this.src);
+      return Promise.resolve();
+    };
+  });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const clickSoundCount = () =>
+    page.evaluate(
+      () => window.__playedMedia.filter((source) => /\/Click\.mp3(?:$|\?)/i.test(source)).length,
+    );
+  const clearPlayedMedia = () =>
+    page.evaluate(() => {
+      window.__playedMedia = [];
+    });
+
+  const card = firstCard(page);
+  await card.scrollIntoViewIfNeeded();
+  await clearPlayedMedia();
+  await card.getByRole("button", { name: "Next Class D Amplifier image", exact: true }).click();
+  await expect.poll(clickSoundCount).toBe(1);
+  await card
+    .getByRole("button", { name: "Previous Class D Amplifier image", exact: true })
+    .click();
+  await expect.poll(clickSoundCount).toBe(2);
+
+  const viewport = card.getByRole("button", {
+    name: "Enlarge Class D Amplifier images",
+    exact: true,
+  });
+  await viewport.focus();
+  await page.keyboard.press("Enter");
+  const lightbox = page.getByRole("dialog", {
+    name: "Class D Amplifier enlarged images",
+  });
+  await expect(lightbox).toBeVisible();
+  await clearPlayedMedia();
+  await lightbox.getByRole("button", { name: "Next image", exact: true }).click();
+  await expect.poll(clickSoundCount).toBe(1);
+  await lightbox.getByRole("button", { name: "Previous image", exact: true }).click();
+  await expect.poll(clickSoundCount).toBe(2);
+});
+
 test("large desktop spacing stays compact between About and projects", async ({
   page,
 }, testInfo) => {
@@ -219,6 +306,7 @@ test("horizontal gestures change slides without opening a lightbox", async ({ pa
   }
   await expectSlide(card.locator(".project-carousel"), 1);
   await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator(".project-detail")).toHaveCount(0);
 
   if (isMobile) {
     const caption = card.locator(".carousel-slide").nth(2).locator("figcaption");
