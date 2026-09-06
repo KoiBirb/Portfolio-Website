@@ -274,7 +274,7 @@ export const projects: Project[] = [
             "The nodes use received signal strength to estimate proximity to each tag. Those readings provide the input for room assignment in the dashboard.",
             "Battery life was projected at roughly two years; given the 220 mAh battery capacity and projected 10-microamp average-current, approximately 2.5 years could be achivable.",
           ],
-          imageIndex: 2,
+          imageIndex: 5,
         },
         {
           heading: "Communication & Room Assignment",
@@ -282,7 +282,7 @@ export const projects: Project[] = [
             "Receiver nodes publish their observations over Wi-Fi to an Eclipse Mosquitto MQTT broker. A Paho client brings updates into the web application, which retains observation data locally and compares readings from the nodes to select a room for each asset.",
             "The setup uses MQTT on port 1883 for nodes and WebSockets on port 9001 for the browser. Room assignment uses the nearest node's distance estimate alongside recent observations.",
           ],
-          imageIndex: -1,
+          imageIndex: 7,
         },
         {
           heading: "Distance Estimation & Calibration",
@@ -291,7 +291,7 @@ export const projects: Project[] = [
             "Our initial test placed a tag one metre from a node, but the reported distance was only 0.1 m. The measured RSSI at that position was -47 dBm. Updating the calibration changed the one-metre reading to 0.78 m.",
             "Further checks at known distances helped us evaluate the estimates used by the room-selection logic. The dashboard's useful output is the likely room containing an asset, while the distance readings remain estimates rather than precise coordinates.",
           ],
-          imageIndex: 2,
+          imageIndex: -1,
         },
         {
           heading: "Room-Assignment Iteration",
@@ -300,7 +300,7 @@ export const projects: Project[] = [
             "A second issue appeared when two trackers occupied the same room. The original logic started with a room and looked for its closest tracker, which did not handle multiple assets in one room correctly. Changing the assignment to consider each tracker and its nearest node allowed multiple assets to share a room.",
             "After those fixes, the final test correctly displayed two tags in the same room and followed them as they moved to a second room. This iteration connected the incoming radio observations to the behavior users actually needed to see on the floor plan.",
           ],
-          imageIndex: 3,
+          imageIndex: 8,
         },
         {
           heading: "Node Setup & Asset Registration",
@@ -309,7 +309,7 @@ export const projects: Project[] = [
             "To identify a new tag, we installed its battery and placed it close to a configured node, then sorted the detected devices by distance in ESPresense. Moving the tag away provided a check that the selected device was the right one. Its identifier could then be recorded and given a recognizable asset name in the dashboard.",
             "This process made individual assets configurable, but it still took about five minutes per asset. Reducing that manual setup would be a useful next step before extending the prototype to a much larger equipment inventory.",
           ],
-          imageIndex: 0,
+          imageIndex: -1,
         },
         {
           heading: "Dashboard",
@@ -321,7 +321,7 @@ export const projects: Project[] = [
             "Filter the list by asset type to narrow down available equipment.",
             "Rename assets and assign organizational tags through the interface.",
           ],
-          imageIndex: 3,
+          imageIndex: 8,
         },
         {
           heading: "Enclosure & Maintenance",
@@ -329,7 +329,7 @@ export const projects: Project[] = [
             "Separate 3D-printed housings protect the ESP32 nodes and BLE tags. The tracker housing attaches to equipment with a zip tie, and its removable lid provides access to the coin-cell battery. The modular setup allows an individual tracker or node to be replaced independently.",
             "Enclosure design drawings and exploded assemblies for both housings, along with printing guidance for bed adhesion and lid-fit adjustments were created so anyone can replicate the enclosures. Battery replacement and node-configuration instructions explain how to maintain the system and set up replacement hardware.",
           ],
-          imageIndex: 0,
+          imageIndex: 4,
         },
         {
           heading: "Testing & Outcome",
@@ -338,7 +338,7 @@ export const projects: Project[] = [
             "The final room-assignment test correctly tracked two tags moving around rooms in various scenarios reliably.",
             "Final costs were approximately $15 per tracker and $10 per receiver node. Manual asset configuration took about five minutes, leaving ease of setup as an area for improvement.",
           ],
-          imageIndex: 3,
+          imageIndex: -1,
         },
         {
           heading: "Technical Summary",
