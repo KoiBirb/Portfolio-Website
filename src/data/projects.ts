@@ -55,7 +55,7 @@ export const projects: Project[] = [
           paragraphs: [
             "My goal was to create a compact amplifier that converts an analog audio signal into a high-frequency PWM waveform, in other words a class D amplifier. I wanted to only use through-hole componets that were easy to get and hand solder, while keeping switching losses and audible distortion low.",
           ],
-          imageIndex: -1,
+          imageIndex: 0,
         },
         {
           heading: "Research",
@@ -161,7 +161,7 @@ export const projects: Project[] = [
             "Our goal was to design a flight controller around the STM32F446RET6 for a 3D-printed fixed-wing aircraft me and my team are building. We wanted the electronics to match our aircraft's design specifications, including the required control-surface and landing-gear outputs, sensor connections, power distribution, and programming access.",
             "Designing a custom board let us choose the interfaces and connector layout around the aircraft it would go into. We could bring the processor, sensors, and actuator connections onto one compact PCB and plan the wiring and integration alongside the airframe design.",
           ],
-          imageIndex: -1,
+          imageIndex: 0,
         },
         {
           heading: "Research",
@@ -266,7 +266,7 @@ export const projects: Project[] = [
           paragraphs: [
             "The teams goal was to help hospital staff locate equipment by showing the room associated with each tagged asset. Our ES1050 team developed a low-cost prototype IOT asset tracking system with replaceable tags and receiver nodes, we aimed for room-level tracking, straightforward maintenance, and positions updates well within the five-minute requirement.",
           ],
-          imageIndex: -1,
+          imageIndex: 4,
         },
         {
           heading: "Hardware & BLE Tracking",
