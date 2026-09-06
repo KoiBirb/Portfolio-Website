@@ -145,7 +145,9 @@ test("two-finger touch zoom supports panning without changing slides or opening 
   await expect.poll(() => transform(viewport)).toEqual({ scale: 1, x: 0, y: 0 });
 });
 
-test("empty image margins neither zoom nor enlarge the image", async ({ page }) => {
+test("empty image margins open project details without zooming or enlarging the image", async ({
+  page,
+}) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const card = page.locator(".project-card").first();
   await card.scrollIntoViewIfNeeded();
@@ -192,9 +194,5 @@ test("empty image margins neither zoom nor enlarge the image", async ({ page }) 
   await expect.poll(() => transform(viewport)).toEqual({ scale: 1, x: 0, y: 0 });
   await page.mouse.click(point.x, point.y);
   await expect(page.locator(".image-lightbox")).toHaveCount(0);
-  await expect(page.locator(".project-detail")).toHaveCount(0);
-  await activeImage(viewport)
-    .locator("..")
-    .click({ position: { x: 30, y: 30 } });
-  await expect(page.locator(".image-lightbox")).toBeVisible();
+  await expect(page.locator(".project-detail")).toBeVisible();
 });

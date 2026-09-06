@@ -201,7 +201,7 @@ export const ProjectCard = memo(function ProjectCard({
   // Nested controls keep their own behavior instead of opening project details.
   const cardClickCameFromControl = (target: EventTarget | null) =>
     target instanceof Element &&
-    target.closest("button, a, .carousel-viewport, .carousel-slide figcaption") !== null;
+    target.closest("button, a, .carousel-image-frame, .carousel-slide figcaption") !== null;
 
   return (
     <article
