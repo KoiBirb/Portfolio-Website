@@ -105,7 +105,7 @@ export function useAudio() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.volume = musicVolume;
+    audio.volume = musicVolume * backgroundSong.volumeMultiplier;
     audio.muted = musicMuted;
   }, [musicMuted, musicVolume]);
 
@@ -158,7 +158,7 @@ export function useAudio() {
     if (audio.paused) {
       if (audio.volume === 0) {
         const restoredVolume = lastVolumeRef.current || backgroundSong.volume;
-        audio.volume = restoredVolume;
+        audio.volume = restoredVolume * backgroundSong.volumeMultiplier;
         setMusicVolume(restoredVolume);
       }
       audio.muted = false;
@@ -174,7 +174,7 @@ export function useAudio() {
 
     if (audio.muted) {
       const restoredVolume = lastVolumeRef.current || backgroundSong.volume;
-      audio.volume = restoredVolume;
+      audio.volume = restoredVolume * backgroundSong.volumeMultiplier;
       audio.muted = false;
       setMusicVolume(restoredVolume);
       setMusicMuted(false);
@@ -187,7 +187,7 @@ export function useAudio() {
         setPlaybackBlocked(true);
       }
     } else {
-      if (audio.volume > 0) lastVolumeRef.current = audio.volume;
+      if (musicVolume > 0) lastVolumeRef.current = musicVolume;
       audio.muted = true;
       setMusicMuted(true);
     }
@@ -205,7 +205,7 @@ export function useAudio() {
     if (!audio) return;
 
     setMusicVolume(value);
-    audio.volume = value;
+    audio.volume = value * backgroundSong.volumeMultiplier;
     audio.muted = value === 0;
     setMusicMuted(value === 0);
     if (value > 0) {

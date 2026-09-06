@@ -587,14 +587,14 @@ a.project-collaboration-highlight {
   border: 1px solid transparent;
   background: transparent;
   container-type: inline-size;
-  cursor: zoom-in;
+  cursor: auto;
   touch-action: pan-y;
   transform-origin: center;
   transition: transform 220ms ease;
   margin-inline: auto;
 }
 
-.carousel-viewport:hover {
+.carousel-viewport:has(.carousel-image-clip:hover) {
   transform: scale(1.025);
 }
 
@@ -645,6 +645,24 @@ a.project-collaboration-highlight {
   opacity: 1;
   background: rgba(43, 7, 4, 0.52);
   transition: opacity 260ms ease;
+}
+
+.carousel-image-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+  touch-action: none;
+}
+
+.carousel-viewport.is-zoomed .carousel-image-clip,
+.lightbox-viewport.is-zoomed .carousel-image-clip {
+  cursor: grab;
+}
+
+.carousel-viewport.is-zoomed .carousel-image-clip:active,
+.lightbox-viewport.is-zoomed .carousel-image-clip:active {
+  cursor: grabbing;
 }
 
 .carousel-image-skeleton::after {
@@ -1439,6 +1457,7 @@ body.project-detail-is-returning .year-timeline {
 }
 
 .about-card > p:not(.section-label) {
+  margin-inline: auto;
   text-align: center;
 }
 
@@ -1776,7 +1795,7 @@ body.project-detail-is-returning .year-timeline {
     filter: var(--icon-filter);
   }
 
-  .carousel-viewport:hover,
+  .carousel-viewport:has(.carousel-image-clip:hover),
   .project-action:hover {
     transform: none;
   }

@@ -5,6 +5,8 @@ export const backgroundSong = {
   src: "./music/Background.mp3",
   title: "Background music",
   volume: 0.3,
+  // Scale background playback independently of the speaker slider and UI sounds.
+  volumeMultiplier: 0.5,
 };
 
 export const interfaceSounds = {

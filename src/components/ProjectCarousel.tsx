@@ -11,6 +11,7 @@ import { autoPlayInterval, interactionCooldown, reducedMotionQuery } from "../co
 import type { ProjectSlide } from "../data/projects";
 import { ProjectCaption } from "./ProjectCaption";
 import { useModalFocus } from "../hooks/useModalFocus";
+import { isOverProjectImage, useImageZoom } from "../hooks/useImageZoom";
 
 export function ProjectCarousel({
   title,
@@ -65,6 +66,30 @@ export function ProjectCarousel({
     // A ref avoids re-rendering for every event in a trackpad momentum stream.
     autoPlayResumeAtRef.current = Date.now() + interactionCooldown;
   };
+
+  const clearDrag = () => {
+    dragRef.current = null;
+    if (dragFrameRef.current !== null) {
+      window.cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
+    setDragOffset(0);
+    setIsDragging(false);
+  };
+  const galleryZoom = useImageZoom(
+    carouselViewportRef,
+    activeSlide,
+    lightboxOpen,
+    postponeAutoPlay,
+    clearDrag,
+  );
+  const lightboxZoom = useImageZoom(
+    lightboxViewportRef,
+    activeSlide,
+    lightboxOpen,
+    postponeAutoPlay,
+    clearDrag,
+  );
 
   const moveSlide = (direction: -1 | 1) => {
     if (slides.length < 2) return;
@@ -167,6 +192,7 @@ export function ProjectCarousel({
       lightboxOpen ||
       isDragging ||
       isHovered ||
+      galleryZoom.isZoomed ||
       slides.length < 2 ||
       window.matchMedia(reducedMotionQuery).matches
     )
@@ -190,9 +216,18 @@ export function ProjectCarousel({
     timer = window.setTimeout(advanceAndReschedule, Math.max(autoPlayInterval, cooldownRemaining));
 
     return () => window.clearTimeout(timer);
-  }, [autoPlay, imagesEnabled, isDragging, isHovered, lightboxOpen, slides.length]);
+  }, [
+    autoPlay,
+    imagesEnabled,
+    isDragging,
+    isHovered,
+    lightboxOpen,
+    slides.length,
+    galleryZoom.isZoomed,
+  ]);
 
   const beginDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!isOverProjectImage(event.currentTarget, event)) return;
     if (!event.isPrimary || dragRef.current) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
     postponeAutoPlay();
@@ -226,7 +261,7 @@ export function ProjectCarousel({
 
     if (distance <= -50) nextSlide();
     else if (distance >= 50) previousSlide();
-    else if (!drag.moved) onTap?.();
+    else if (!drag.moved && isOverProjectImage(event.currentTarget, event)) onTap?.();
 
     dragRef.current = null;
     if (dragFrameRef.current !== null) {
@@ -348,6 +383,7 @@ export function ProjectCarousel({
   const renderSlide = (
     slide: ProjectSlide,
     index: number,
+    zoom: typeof galleryZoom,
     clonePosition?: "leading" | "trailing",
   ) => {
     const imageRatio = slideRatios[index] ?? 16 / 10;
@@ -372,6 +408,7 @@ export function ProjectCarousel({
       >
         <div
           className="carousel-image-frame"
+          data-zoom-active={index === activeSlide ? "true" : undefined}
           style={
             {
               "--image-ratio": imageRatio,
@@ -383,40 +420,43 @@ export function ProjectCarousel({
             className={`carousel-image-skeleton${loadedSlides[index] ? " is-hidden" : ""}`}
             aria-hidden="true"
           />
-          <img
-            className={`carousel-image${loadedSlides[index] ? " is-loaded" : ""}`}
-            src={imagesEnabled || lightboxOpen ? slide.image : undefined}
-            alt={clonePosition ? "" : (slide.alt ?? `${title} project — ${slide.title}`)}
-            draggable="false"
-            loading={imagesEnabled ? "eager" : "lazy"}
-            decoding="async"
-            onLoad={(event) => {
-              const ratio = event.currentTarget.naturalWidth / event.currentTarget.naturalHeight;
-              if (!Number.isFinite(ratio) || ratio <= 0) return;
-              setSlideRatios((current) =>
-                current[index] === ratio ? current : { ...current, [index]: ratio },
-              );
-              setLoadedSlides((current) =>
-                current[index] ? current : { ...current, [index]: true },
-              );
-            }}
-          />
+          <div className="carousel-image-clip">
+            <img
+              className={`carousel-image${loadedSlides[index] ? " is-loaded" : ""}`}
+              style={index === activeSlide ? zoom.imageStyle : undefined}
+              src={imagesEnabled || lightboxOpen ? slide.image : undefined}
+              alt={clonePosition ? "" : (slide.alt ?? `${title} project — ${slide.title}`)}
+              draggable="false"
+              loading={imagesEnabled ? "eager" : "lazy"}
+              decoding="async"
+              onLoad={(event) => {
+                const ratio = event.currentTarget.naturalWidth / event.currentTarget.naturalHeight;
+                if (!Number.isFinite(ratio) || ratio <= 0) return;
+                setSlideRatios((current) =>
+                  current[index] === ratio ? current : { ...current, [index]: ratio },
+                );
+                setLoadedSlides((current) =>
+                  current[index] ? current : { ...current, [index]: true },
+                );
+              }}
+            />
+          </div>
           {caption}
         </div>
       </figure>
     );
   };
 
-  const renderSlides = () => {
+  const renderSlides = (zoom: typeof galleryZoom) => {
     if (slides.length < 2) {
-      return slides.map((slide, index) => renderSlide(slide, index));
+      return slides.map((slide, index) => renderSlide(slide, index, zoom));
     }
 
     // One clone on each edge lets the carousel wrap in the requested direction.
     return [
-      renderSlide(slides[slides.length - 1], slides.length - 1, "leading"),
-      ...slides.map((slide, index) => renderSlide(slide, index)),
-      renderSlide(slides[0], 0, "trailing"),
+      renderSlide(slides[slides.length - 1], slides.length - 1, zoom, "leading"),
+      ...slides.map((slide, index) => renderSlide(slide, index, zoom)),
+      renderSlide(slides[0], 0, zoom, "trailing"),
     ];
   };
 
@@ -441,7 +481,7 @@ export function ProjectCarousel({
       >
         <div
           ref={carouselViewportRef}
-          className="carousel-viewport"
+          className={`carousel-viewport${galleryZoom.isZoomed ? " is-zoomed" : ""}`}
           role="button"
           tabIndex={0}
           aria-label={`Enlarge ${title} images`}
@@ -463,7 +503,7 @@ export function ProjectCarousel({
             onTransitionEnd={handleTrackTransition}
             onTransitionCancel={handleTrackTransition}
           >
-            {renderSlides()}
+            {renderSlides(galleryZoom)}
           </div>
         </div>
 
@@ -535,7 +575,7 @@ export function ProjectCarousel({
             </button>
             <div
               ref={lightboxViewportRef}
-              className="lightbox-viewport"
+              className={`lightbox-viewport${lightboxZoom.isZoomed ? " is-zoomed" : ""}`}
               style={
                 {
                   aspectRatio: activeRatio,
@@ -553,7 +593,7 @@ export function ProjectCarousel({
                 onTransitionEnd={handleTrackTransition}
                 onTransitionCancel={handleTrackTransition}
               >
-                {renderSlides()}
+                {renderSlides(lightboxZoom)}
               </div>
             </div>
             <button

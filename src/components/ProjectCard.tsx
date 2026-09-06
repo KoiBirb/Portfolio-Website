@@ -327,7 +327,9 @@ export const ProjectCard = memo(function ProjectCard({
                         <h3>{section.heading}</h3>
                         <span className="project-detail-section-dot" aria-hidden="true" />
                       </div>
-                      {section.text && <p>{section.text}</p>}
+                      {section.paragraphs?.map((paragraph, paragraphIndex) => (
+                        <p key={paragraphIndex}>{paragraph}</p>
+                      ))}
                       {section.items && (
                         <ul>
                           {section.items.map((item) => (
