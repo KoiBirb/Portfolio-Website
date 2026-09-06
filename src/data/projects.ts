@@ -109,12 +109,12 @@ export const projects: Project[] = [
         },
         {
           heading: "Enclosure",
-          paragraphs: [ "WIP", ],
+          paragraphs: ["WIP"],
           imageIndex: -1,
         },
         {
           heading: "Testing & Outcome",
-          paragraphs: [ "WIP", ],
+          paragraphs: ["WIP"],
           imageIndex: -1,
         },
         {
