@@ -772,13 +772,15 @@ a.project-collaboration-highlight {
   cursor: pointer;
   transition:
     color 180ms ease,
-    background 180ms ease;
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 .carousel-controls > button:hover,
 .carousel-controls > button:focus-visible {
   color: var(--color-background);
   background: var(--color-accent);
+  transform: scale(1.1);
 }
 
 .carousel-dots {
@@ -1806,6 +1808,10 @@ body.project-detail-is-returning .year-timeline {
   .project-action:hover {
     color: inherit;
     background: rgba(43, 7, 4, 0.71);
+  }
+
+  .carousel-controls > button:hover {
+    transform: none;
   }
 
   .project-detail-close:hover {
