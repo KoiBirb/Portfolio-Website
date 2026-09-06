@@ -259,7 +259,6 @@ export const projects: Project[] = [
       "Developed a hospital asset-tracking prototype with an ES1050 team of 5 people, combining battery-powered BLE tags, ESP32 receiver nodes, and a React dashboard. Nodes estimate proximity from signal strength and send readings over Wi-Fi to an MQTT broker. The dashboard uses those observations to assign equipment to rooms and display it on a floor plan, with search, filters, and editable asset names.",
     tags: ["ESP32", "BLE", "MQTT", "Wi-Fi", "Onshape"],
     details: {
-      // Source: public/2026 Team Final Design Docs.pdf, pages 2 and 9–17.
       sections: [
         {
           heading: "Project Goal",
