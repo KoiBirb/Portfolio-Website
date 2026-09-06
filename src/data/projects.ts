@@ -376,17 +376,20 @@ export const projects: Project[] = [
     summary:
       "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and a wave generator to achieve a compact form factor and 20:1 reduction ratio. The project was designed to fit flush with a NEMA 17 stepper motor and focused on mechanical design, gear geometry, material selection, and design for additive manufacturing while balancing flexibility, stiffness, and durability.",
     tags: [
-      "Gear Design",
+      "Gearbox Design",
+      "Gears",
       "Fusion 360",
       "Material Selection",
       "Additive Manufacturing",
-      "Stepper Motor",
+      "Stepper Motors",
     ],
     slides: [
+      { title: "Front", image: "./projects/Harmonic Drive/Full.jpg" },
       { title: "Exploded", image: "./projects/Harmonic Drive/Exploded.png" },
       { title: "Exploded", image: "./projects/Harmonic Drive/ExplodedBack.png" },
       { title: "Cross Section", image: "./projects/Harmonic Drive/Cross.png" },
       { title: "Open", image: "./projects/Harmonic Drive/Open.jpg" },
+      { title: "Partial Open", image: "./projects/Harmonic Drive/PartialOpen.jpg" },
       { title: "Closed", image: "./projects/Harmonic Drive/Closed.jpg" },
       { title: "Bread board", image: "./projects/Harmonic Drive/BreadBoard.jpg" },
     ],
