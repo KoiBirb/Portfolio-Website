@@ -19,6 +19,7 @@ export function ProjectCarousel({
   autoPlay,
   imagesEnabled,
   zoomEnabled = false,
+  onEmptySpaceClick,
   selectedSlide,
   selectedSlideKey,
 }: {
@@ -27,6 +28,7 @@ export function ProjectCarousel({
   autoPlay: boolean;
   imagesEnabled: boolean;
   zoomEnabled?: boolean;
+  onEmptySpaceClick?: () => void;
   selectedSlide?: number;
   selectedSlideKey?: number;
 }) {
@@ -54,6 +56,7 @@ export function ProjectCarousel({
   const trackResetFrameRef = useRef<number | null>(null);
   const lightboxCloseTimerRef = useRef<number | null>(null);
   const dragRef = useRef<{ startX: number; pointerId: number; moved: boolean } | null>(null);
+  const suppressViewportClickRef = useRef(false);
   const wheelLockRef = useRef<number | null>(null);
   // These values distinguish a new trackpad impulse from momentum tail events.
   const wheelGestureRef = useRef({
@@ -70,6 +73,7 @@ export function ProjectCarousel({
   };
 
   const clearDrag = () => {
+    suppressViewportClickRef.current = true;
     dragRef.current = null;
     if (dragFrameRef.current !== null) {
       window.cancelAnimationFrame(dragFrameRef.current);
@@ -231,6 +235,7 @@ export function ProjectCarousel({
   ]);
 
   const beginDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    suppressViewportClickRef.current = false;
     if (!isOverProjectImage(event.currentTarget, event)) return;
     if (!event.isPrimary || dragRef.current) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -259,6 +264,7 @@ export function ProjectCarousel({
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     const distance = event.clientX - drag.startX;
+    suppressViewportClickRef.current = drag.moved || Math.abs(distance) > 6;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -278,6 +284,7 @@ export function ProjectCarousel({
 
   const cancelDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (dragRef.current?.pointerId !== event.pointerId) return;
+    suppressViewportClickRef.current = dragRef.current.moved;
     dragRef.current = null;
     if (dragFrameRef.current !== null) {
       window.cancelAnimationFrame(dragFrameRef.current);
@@ -500,6 +507,19 @@ export function ProjectCarousel({
           onPointerMove={updateDrag}
           onPointerUp={(event) => finishDrag(event, openLightbox)}
           onPointerCancel={cancelDrag}
+          onClick={(event) => {
+            if (suppressViewportClickRef.current) {
+              suppressViewportClickRef.current = false;
+              event.stopPropagation();
+              return;
+            }
+            if (
+              event.target instanceof Element &&
+              event.target.closest(".carousel-slide figcaption")
+            )
+              return;
+            if (!isOverProjectImage(event.currentTarget, event)) onEmptySpaceClick?.();
+          }}
         >
           <div
             className={`carousel-track${isDragging ? " is-dragging" : ""}${isResettingTrack ? " is-resetting" : ""}`}
@@ -555,7 +575,8 @@ export function ProjectCarousel({
             role="dialog"
             aria-modal="true"
             aria-label={`${title} enlarged images`}
-            onPointerDown={(event) => {
+            onClick={(event) => {
+              event.stopPropagation();
               if (event.target === event.currentTarget) {
                 closeLightbox();
               }

@@ -201,7 +201,9 @@ export const ProjectCard = memo(function ProjectCard({
   // Nested controls keep their own behavior instead of opening project details.
   const cardClickCameFromControl = (target: EventTarget | null) =>
     target instanceof Element &&
-    target.closest("button, a, .carousel-image-frame, .carousel-slide figcaption") !== null;
+    target.closest(
+      "button, a, .carousel-viewport, .carousel-slide figcaption, .image-lightbox, .project-detail-overlay",
+    ) !== null;
 
   return (
     <article
@@ -271,6 +273,7 @@ export const ProjectCard = memo(function ProjectCard({
         slides={project.slides}
         autoPlay={autoPlay && !detailsOpen}
         imagesEnabled={galleryImagesEnabled}
+        onEmptySpaceClick={project.details ? openDetails : undefined}
       />
       {detailsOpen &&
         project.details &&
@@ -278,7 +281,8 @@ export const ProjectCard = memo(function ProjectCard({
           <div
             className={`project-detail-overlay${detailsClosing ? " is-closing" : ""}`}
             role="presentation"
-            onPointerDown={(event) => {
+            onClick={(event) => {
+              event.stopPropagation();
               if (event.target === event.currentTarget) closeDetails();
             }}
           >

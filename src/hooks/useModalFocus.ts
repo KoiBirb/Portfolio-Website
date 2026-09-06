@@ -1,6 +1,11 @@
 import { useEffect, type RefObject } from "react";
 
 const dialogs: HTMLElement[] = [];
+let originalPageState: {
+  overflow: string;
+  rootInert: boolean;
+  focus: HTMLElement | null;
+} | null = null;
 const focusableSelector =
   'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
@@ -11,9 +16,14 @@ export function useModalFocus(open: boolean, ref: RefObject<HTMLElement | null>)
     if (!open || !dialog) return;
     const previousFocus =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const previousOverflow = document.body.style.overflow;
     const root = document.getElementById("root");
-    const previouslyInert = root?.inert ?? false;
+    if (dialogs.length === 0) {
+      originalPageState = {
+        overflow: document.body.style.overflow,
+        rootInert: root?.inert ?? false,
+        focus: previousFocus,
+      };
+    }
     dialogs.push(dialog);
     document.body.style.overflow = "hidden";
     if (root) root.inert = true;
@@ -54,12 +64,29 @@ export function useModalFocus(open: boolean, ref: RefObject<HTMLElement | null>)
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("focusin", handleFocus);
     return () => {
-      dialogs.splice(dialogs.indexOf(dialog), 1);
+      const dialogIndex = dialogs.indexOf(dialog);
+      if (dialogIndex !== -1) dialogs.splice(dialogIndex, 1);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", handleFocus);
-      document.body.style.overflow = previousOverflow;
-      if (root) root.inert = previouslyInert;
-      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+      const remainingDialog = dialogs.at(-1);
+      if (remainingDialog) {
+        // A close animation can unmount an older dialog after a newer one opens.
+        // Keep the page locked until the final modal has actually closed.
+        document.body.style.overflow = "hidden";
+        if (root) root.inert = true;
+        if (previousFocus?.isConnected && remainingDialog.contains(previousFocus)) {
+          previousFocus.focus({ preventScroll: true });
+        } else {
+          remainingDialog.focus({ preventScroll: true });
+        }
+        return;
+      }
+
+      const pageState = originalPageState;
+      originalPageState = null;
+      document.body.style.overflow = pageState?.overflow ?? "";
+      if (root) root.inert = pageState?.rootInert ?? false;
+      if (pageState?.focus?.isConnected) pageState.focus.focus({ preventScroll: true });
     };
   }, [open, ref]);
 }
