@@ -18,6 +18,7 @@ export function ProjectCarousel({
   slides,
   autoPlay,
   imagesEnabled,
+  zoomEnabled = false,
   selectedSlide,
   selectedSlideKey,
 }: {
@@ -25,6 +26,7 @@ export function ProjectCarousel({
   slides: ProjectSlide[];
   autoPlay: boolean;
   imagesEnabled: boolean;
+  zoomEnabled?: boolean;
   selectedSlide?: number;
   selectedSlideKey?: number;
 }) {
@@ -80,12 +82,14 @@ export function ProjectCarousel({
     carouselViewportRef,
     activeSlide,
     lightboxOpen,
+    zoomEnabled,
     postponeAutoPlay,
     clearDrag,
   );
   const lightboxZoom = useImageZoom(
     lightboxViewportRef,
     activeSlide,
+    lightboxOpen,
     lightboxOpen,
     postponeAutoPlay,
     clearDrag,

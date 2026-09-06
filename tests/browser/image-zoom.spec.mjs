@@ -29,7 +29,7 @@ async function wheel(viewport, deltaY, ctrlKey = false) {
   );
 }
 
-test("image zoom anchors to the cursor, clamps to original size, and resets across viewers", async ({
+test("image zoom is limited to details and full-screen viewers", async ({
   page,
 }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -37,20 +37,22 @@ test("image zoom anchors to the cursor, clamps to original size, and resets acro
   await card.scrollIntoViewIfNeeded();
   const viewport = card.locator(".carousel-viewport");
   await expect(activeImage(viewport)).toHaveClass(/is-loaded/);
-  const dimensions = await activeImage(viewport).evaluate((image) => ({
-    width: image.clientWidth,
-    height: image.clientHeight,
-  }));
-  await wheel(viewport, -200);
-  await expect.poll(async () => (await transform(viewport)).scale).toBeGreaterThan(1);
-  const zoomed = await transform(viewport);
-  expect(zoomed.x).toBeCloseTo(dimensions.width * 0.2 * (1 - zoomed.scale), 0);
-  expect(zoomed.y).toBeCloseTo(-dimensions.height * 0.1 * (1 - zoomed.scale), 0);
-  await wheel(viewport, 10000);
-  await expect.poll(() => transform(viewport)).toEqual({ scale: 1, x: 0, y: 0 });
-  await wheel(viewport, -80, true);
-  await expect.poll(async () => (await transform(viewport)).scale).toBeGreaterThan(1);
-  await card.getByRole("button", { name: "Next Class D Amplifier image", exact: true }).click();
+  const normalPageWheelPrevented = await viewport.evaluate((element) => {
+    const frame = element.querySelector(
+      '.carousel-slide:not([aria-hidden]) [data-zoom-active="true"]',
+    );
+    const rect = frame.getBoundingClientRect();
+    const event = new WheelEvent("wheel", {
+      bubbles: true,
+      cancelable: true,
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height / 2,
+      deltaY: -200,
+    });
+    frame.dispatchEvent(event);
+    return event.defaultPrevented;
+  });
+  expect(normalPageWheelPrevented).toBe(false);
   await expect.poll(() => transform(viewport)).toEqual({ scale: 1, x: 0, y: 0 });
   await viewport.focus();
   await page.keyboard.press("Enter");
@@ -63,8 +65,16 @@ test("image zoom anchors to the cursor, clamps to original size, and resets acro
   await expect(enlarged).toHaveCount(0);
   await card.getByRole("button", { name: "More info", exact: true }).click();
   const detailViewport = page.locator(".project-detail .carousel-viewport");
+  await expect(activeImage(detailViewport)).toHaveClass(/is-loaded/);
+  const dimensions = await activeImage(detailViewport).evaluate((image) => ({
+    width: image.clientWidth,
+    height: image.clientHeight,
+  }));
   await wheel(detailViewport, -200);
   await expect.poll(async () => (await transform(detailViewport)).scale).toBeGreaterThan(1);
+  const zoomed = await transform(detailViewport);
+  expect(zoomed.x).toBeCloseTo(dimensions.width * 0.2 * (1 - zoomed.scale), 0);
+  expect(zoomed.y).toBeCloseTo(-dimensions.height * 0.1 * (1 - zoomed.scale), 0);
 });
 
 test("two-finger touch zoom supports panning without changing slides or opening the viewer", async ({
@@ -73,18 +83,37 @@ test("two-finger touch zoom supports panning without changing slides or opening 
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Requires touchscreen");
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  const viewport = page.locator(".project-card").first().locator(".carousel-viewport");
-  await viewport.scrollIntoViewIfNeeded();
-  await expect(activeImage(viewport)).toHaveClass(/is-loaded/);
-  const box = await viewport.boundingBox();
-  const x = box.x + box.width / 2,
-    y = box.y + box.height / 2;
+  const card = page.locator(".project-card").first();
+  const normalViewport = card.locator(".carousel-viewport");
+  await normalViewport.scrollIntoViewIfNeeded();
+  await expect(activeImage(normalViewport)).toHaveClass(/is-loaded/);
+  const normalBox = await normalViewport.boundingBox();
+  const normalX = normalBox.x + normalBox.width / 2;
+  const normalY = normalBox.y + normalBox.height / 2;
   const client = await context.newCDPSession(page);
   const touch = (type, points) =>
     client.send("Input.dispatchTouchEvent", {
       type,
       touchPoints: points.map(([id, px, py]) => ({ id, x: px, y: py })),
     });
+  await touch("touchStart", [
+    [1, normalX - 30, normalY],
+    [2, normalX + 30, normalY],
+  ]);
+  await touch("touchMove", [
+    [1, normalX - 70, normalY],
+    [2, normalX + 70, normalY],
+  ]);
+  await touch("touchEnd", []);
+  await expect.poll(() => transform(normalViewport)).toEqual({ scale: 1, x: 0, y: 0 });
+
+  await card.getByRole("button", { name: "More info", exact: true }).click();
+  const viewport = page.locator(".project-detail .carousel-viewport");
+  await viewport.scrollIntoViewIfNeeded();
+  await expect(activeImage(viewport)).toHaveClass(/is-loaded/);
+  const box = await viewport.boundingBox();
+  const x = box.x + box.width / 2,
+    y = box.y + box.height / 2;
   await touch("touchStart", [
     [1, x - 30, y],
     [2, x + 30, y],

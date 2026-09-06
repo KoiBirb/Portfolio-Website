@@ -356,6 +356,7 @@ export const ProjectCard = memo(function ProjectCard({
                   slides={project.slides}
                   autoPlay={false}
                   imagesEnabled
+                  zoomEnabled
                   selectedSlide={linkedImageIndex}
                   selectedSlideKey={activeDetailSection}
                 />

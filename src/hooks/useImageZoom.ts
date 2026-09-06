@@ -26,6 +26,7 @@ export function useImageZoom(
   viewportRef: RefObject<HTMLDivElement | null>,
   slide: number,
   open: boolean,
+  enabled: boolean,
   onInteract: () => void,
   onTakeGesture: () => void,
 ) {
@@ -36,7 +37,7 @@ export function useImageZoom(
   useEffect(() => {
     setZoom(original);
     const viewport = viewportRef.current;
-    if (!viewport) return;
+    if (!viewport || !enabled) return;
     let current = original;
     let ownedGesture = false;
     const pointers = new Map<number, Point>();
@@ -170,7 +171,7 @@ export function useImageZoom(
       viewport.removeEventListener("pointercancel", up, true);
       viewport.removeEventListener("lostpointercapture", up, true);
     };
-  }, [viewportRef, slide, open]);
+  }, [viewportRef, slide, open, enabled]);
 
   return {
     isZoomed: zoom.scale > 1,
