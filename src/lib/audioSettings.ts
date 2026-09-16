@@ -5,13 +5,14 @@ export function readAudioSettings() {
     const saved = JSON.parse(window.localStorage.getItem(audioSettingsKey) ?? "null");
     const volume = saved?.volume;
     return {
-      muted: saved?.muted === true,
+      // Every visit starts quietly; only restore the level used after sound is enabled.
+      muted: true,
       volume:
         typeof volume === "number" && Number.isFinite(volume)
           ? Math.min(1, Math.max(0, volume))
           : backgroundSong.volume,
     };
   } catch {
-    return { muted: false, volume: backgroundSong.volume };
+    return { muted: true, volume: backgroundSong.volume };
   }
 }

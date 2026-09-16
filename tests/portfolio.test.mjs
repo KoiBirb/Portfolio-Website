@@ -32,13 +32,15 @@ test("audio settings tolerate corrupt and inaccessible storage", (t) => {
     if (previousWindow) Object.defineProperty(globalThis, "window", previousWindow);
     else delete globalThis.window;
   });
-  const defaults = { muted: false, volume: backgroundSong.volume };
+  const defaults = { muted: true, volume: backgroundSong.volume };
   assert.deepEqual(readAudioSettings(), defaults);
   for (stored of ["{", "null", "42", '{"volume":null}', '{"volume":"bad"}']) {
     assert.deepEqual(readAudioSettings(), defaults);
   }
   stored = '{"muted":true,"volume":0.6}';
   assert.deepEqual(readAudioSettings(), { muted: true, volume: 0.6 });
+  stored = '{"muted":false,"volume":0.4}';
+  assert.deepEqual(readAudioSettings(), { muted: true, volume: 0.4 });
   stored = '{"volume":5}';
   assert.equal(readAudioSettings().volume, 1);
   stored = '{"volume":-2}';

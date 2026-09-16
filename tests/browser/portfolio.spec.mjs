@@ -191,6 +191,9 @@ test("audio controls survive unavailable storage and restore zero volume", async
   });
   await page.reload({ waitUntil: "domcontentloaded" });
   const toggle = page.locator(".audio-toggle");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(toggle).toHaveAttribute("aria-label", /Play or unmute/);
+  await expect.poll(() => page.locator("audio").evaluate((audio) => audio.muted)).toBe(true);
   await toggle.click();
   await expect(toggle).toHaveAttribute("aria-pressed", "true");
   await expect
