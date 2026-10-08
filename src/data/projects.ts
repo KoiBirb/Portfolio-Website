@@ -108,16 +108,6 @@ export const projects: Project[] = [
           imageIndex: 1,
         },
         {
-          heading: "Enclosure",
-          paragraphs: ["WIP"],
-          imageIndex: -1,
-        },
-        {
-          heading: "Testing & Outcome",
-          paragraphs: ["WIP"],
-          imageIndex: -1,
-        },
-        {
           heading: "Technical Summary",
           items: [
             "Architecture: analog-input Class D amplifier with a MOSFET half-bridge.",
@@ -138,6 +128,7 @@ export const projects: Project[] = [
       { title: "Schematic", image: "./projects/Class D Amplifier/Schematic.png" },
       { title: "PCB Layout", image: "./projects/Class D Amplifier/Routing.png" },
       { title: "3D Model", image: "./projects/Class D Amplifier/3D Model.png" },
+      { title: "PCB manufactured", image: "./projects/Class D Amplifier/RealPCB.jpg" },
     ],
   },
   {
