@@ -5,25 +5,37 @@ export function PdfPreview() {
   const documentRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [url, setUrl] = useState("");
-  const [notice, setNotice] = useState("Preparing your PDF…");
   const [attempt, setAttempt] = useState(0);
   const [failed, setFailed] = useState(false);
   useLayoutEffect(() => {
     const container = scrollRef.current!;
     const document = documentRef.current!;
+    let lastWidth = -1;
+    let frame = 0;
     const fit = () => {
-      document.style.zoom = String(Math.min(1, container.clientWidth / document.offsetWidth));
+      const width = container.clientWidth;
+      if (width === lastWidth) return;
+      lastWidth = width;
+      document.style.zoom = String(Math.min(1, width / document.offsetWidth));
+      document.style.setProperty(
+        "--pdf-text-scale",
+        String(Math.min(1, Math.max(0.85, width / 650))),
+      );
     };
     fit();
-    const observer = new ResizeObserver(fit);
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(fit);
+    });
     observer.observe(container);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
   }, []);
   useEffect(() => {
     let disposed = false;
     let objectUrl = "";
-    let timer: ReturnType<typeof setTimeout>;
-    setNotice("Preparing your PDF…");
     setFailed(false);
     document.title = "Leo Bogaert | Portfolio PDF";
     void (async () => {
@@ -33,18 +45,14 @@ export function PdfPreview() {
         if (disposed) return;
         objectUrl = URL.createObjectURL(blob);
         setUrl(objectUrl);
-        setNotice("Your PDF is ready.");
-        timer = setTimeout(() => setNotice(""), 4000);
       } catch (error) {
         if (disposed) return;
         console.error("PDF preview failed", error);
         setFailed(true);
-        setNotice("Could not prepare the PDF. Please try again.");
       }
     })();
     return () => {
       disposed = true;
-      clearTimeout(timer);
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [attempt]);
@@ -64,9 +72,6 @@ export function PdfPreview() {
           </button>
         )}
       </header>
-      <div className="pdf-preview-notice" role="status">
-        {notice}
-      </div>
       <div className="pdf-preview-scroll" ref={scrollRef}>
         <div className="portfolio-pdf-document" ref={documentRef}>
           <section className="portfolio-pdf-page pdf-cover">

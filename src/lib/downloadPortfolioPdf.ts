@@ -14,6 +14,7 @@ export async function createPortfolioPdf(root: HTMLElement) {
   const pdf = new jsPDF({ unit: "mm", format: "a4", compress: true });
   pdf.setProperties({ title: "Leo Bogaert - Engineering Portfolio", author: "Leo Bogaert" });
   for (const [index, page] of pages.entries()) {
+    const links: { x: number; y: number; width: number; height: number; url: string }[] = [];
     const canvas = await html2canvas(page, {
       scale: 2,
       backgroundColor: "#2a0905",
@@ -24,21 +25,27 @@ export async function createPortfolioPdf(root: HTMLElement) {
       // Preview scaling must not reduce the exported page resolution or layout.
       onclone: (_document, clonedPage) => {
         const preview = clonedPage.closest<HTMLElement>(".portfolio-pdf-document");
-        if (preview) preview.style.zoom = "1";
+        if (preview) {
+          preview.style.zoom = "1";
+          preview.style.setProperty("--pdf-text-scale", "1");
+        }
+        const parent = clonedPage.getBoundingClientRect();
+        for (const link of clonedPage.querySelectorAll<HTMLAnchorElement>("a[href]")) {
+          const bounds = link.getBoundingClientRect();
+          links.push({
+            x: ((bounds.x - parent.x) * 210) / parent.width,
+            y: ((bounds.y - parent.y) * 297) / parent.height,
+            width: (bounds.width * 210) / parent.width,
+            height: (bounds.height * 297) / parent.height,
+            url: link.href,
+          });
+        }
       },
     });
     if (index) pdf.addPage();
     pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", 0, 0, 210, 297);
-    for (const link of page.querySelectorAll<HTMLAnchorElement>("a[href]")) {
-      const bounds = link.getBoundingClientRect();
-      const parent = page.getBoundingClientRect();
-      pdf.link(
-        ((bounds.x - parent.x) * 210) / parent.width,
-        ((bounds.y - parent.y) * 297) / parent.height,
-        (bounds.width * 210) / parent.width,
-        (bounds.height * 297) / parent.height,
-        { url: link.href },
-      );
+    for (const link of links) {
+      pdf.link(link.x, link.y, link.width, link.height, { url: link.url });
     }
     canvas.width = canvas.height = 0;
   }

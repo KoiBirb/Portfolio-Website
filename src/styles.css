@@ -1943,31 +1943,22 @@ body.project-detail-is-returning .year-timeline {
   opacity: 0.6;
   cursor: wait;
 }
-.pdf-preview-notice {
-  position: fixed;
-  z-index: 25;
-  right: 24px;
-  bottom: 24px;
-  max-width: calc(100vw - 48px);
-  background: #2a0905;
-  font: 13px var(--font-mono);
-}
-.pdf-preview-notice:not(:empty) {
-  padding: 16px 22px;
-  border: 1px solid var(--color-accent);
-}
 .pdf-preview-scroll {
   overflow-x: auto;
   touch-action: pan-x pan-y pinch-zoom;
   padding-bottom: 16px;
 }
 .portfolio-pdf-document {
+  --pdf-text-scale: 1;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   width: 794px;
   margin: auto;
   color: #fff7e9;
   font-family: "Manrope", sans-serif;
 }
 .portfolio-pdf-page {
+  overflow-wrap: anywhere;
   position: relative;
   width: 794px;
   height: 1123px;
@@ -2016,14 +2007,14 @@ body.project-detail-is-returning .year-timeline {
 }
 .pdf-cover-heading h1 {
   margin: 24px 0;
-  font: 500 104px/0.95 var(--font-display);
+  font: 500 calc(104px * var(--pdf-text-scale))/0.95 var(--font-display);
   letter-spacing: -0.055em;
 }
 .pdf-cover-heading h1 span {
   color: #f8b331;
 }
 .pdf-cover-heading > p:last-child {
-  font-size: 20px;
+  font-size: calc(20px * var(--pdf-text-scale));
 }
 .pdf-cover-art {
   position: absolute;
@@ -2045,13 +2036,13 @@ body.project-detail-is-returning .year-timeline {
 }
 .pdf-cover-about h2 {
   margin: 20px 0;
-  font: 500 48px/1.05 var(--font-display);
+  font: 500 calc(48px * var(--pdf-text-scale))/1.05 var(--font-display);
   letter-spacing: -0.03em;
   max-width: 470px;
 }
 .pdf-cover-about > p:last-child {
   max-width: 600px;
-  font-size: 15px;
+  font-size: calc(15px * var(--pdf-text-scale));
   line-height: 1.85;
   color: #e0cbbb;
 }
@@ -2150,11 +2141,11 @@ body.project-detail-is-returning .year-timeline {
   margin-bottom: 24px;
 }
 .pdf-project-page > h2 {
-  font-size: 50px;
+  font-size: calc(50px * var(--pdf-text-scale));
   margin-bottom: 16px;
 }
 .pdf-project-page .pdf-project-summary {
-  font-size: 14px;
+  font-size: calc(14px * var(--pdf-text-scale));
   line-height: 1.7;
   margin-bottom: 18px;
 }
@@ -2175,7 +2166,7 @@ body.project-detail-is-returning .year-timeline {
   margin-bottom: 8px;
 }
 .pdf-project-page .pdf-project-description p {
-  font-size: 13px;
+  font-size: calc(13px * var(--pdf-text-scale));
   line-height: 1.65;
   margin-bottom: 16px;
 }
@@ -2196,7 +2187,7 @@ body.project-detail-is-returning .year-timeline {
 }
 .pdf-technical-summary li {
   color: #e0cbbb;
-  font-size: 11px;
+  font-size: calc(11px * var(--pdf-text-scale));
   line-height: 1.6;
 }
 .pdf-project-page .pdf-project-tags {

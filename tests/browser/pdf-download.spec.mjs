@@ -24,12 +24,21 @@ test("opens a dynamic PDF preview with an optional download", async ({ page }) =
   await expectPagesToFit();
   const save = preview.getByRole("link", { name: "Download PDF" });
   await expect(save).toBeVisible({ timeout: 100000 });
-  await expect(preview.getByRole("status")).toHaveText("Your PDF is ready.");
-  await expect(preview.getByRole("status")).toHaveText("", { timeout: 7000 });
+  await expect(preview.locator(".pdf-preview-notice")).toHaveCount(0);
   const overflow = await preview
     .locator(".portfolio-pdf-page")
     .evaluateAll((pages) => pages.filter((p) => p.scrollHeight > p.clientHeight).length);
   expect(overflow).toBe(0);
+  const overflowingText = await preview
+    .locator(
+      ".portfolio-pdf-page h1, .portfolio-pdf-page h2, .portfolio-pdf-page p, .portfolio-pdf-page li, .portfolio-pdf-page figcaption",
+    )
+    .evaluateAll((elements) =>
+      elements
+        .filter((element) => element.scrollWidth > element.clientWidth + 1)
+        .map((element) => element.textContent),
+    );
+  expect(overflowingText).toEqual([]);
   const distortedImages = await preview.locator(".pdf-project-gallery img").evaluateAll((images) =>
     images
       .filter((image) => {
@@ -103,11 +112,19 @@ test("opens a dynamic PDF preview with an optional download", async ({ page }) =
   expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
   expect(bytes.length).toBeGreaterThan(50000);
   if (test.info().project.name === "mobile") {
+    const mobileFontSize = await preview
+      .locator(".pdf-cover h1")
+      .evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
     await preview.setViewportSize({ width: 851, height: 393 });
     await expect
       .poll(async () => (await preview.locator(".pdf-cover").boundingBox()).width)
       .toBe(794);
     await expectPagesToFit();
+    expect(
+      await preview
+        .locator(".pdf-cover h1")
+        .evaluate((element) => parseFloat(getComputedStyle(element).fontSize)),
+    ).toBeGreaterThan(mobileFontSize);
     await preview.setViewportSize({ width: 393, height: 851 });
     await expect
       .poll(async () => (await preview.locator(".pdf-cover").boundingBox()).width)
