@@ -6,8 +6,14 @@ import { ProjectCard } from "./components/ProjectCard";
 import { useAudio } from "./hooks/useAudio";
 import { useStoryProgress } from "./hooks/useStoryProgress";
 import { useAssetLoading } from "./hooks/useAssetLoading";
+import { PdfDownload } from "./components/PdfDownload";
+import { PdfPreview } from "./components/PdfPreview";
 
 export default function App() {
+  return new URLSearchParams(window.location.search).has("pdf") ? <PdfPreview /> : <Portfolio />;
+}
+
+function Portfolio() {
   const { storyRef, imageRef, activeYear, yearPulse, mobileSocialVisible, activeProjectIndex } =
     useStoryProgress();
   const {
@@ -56,6 +62,7 @@ export default function App() {
             <AudioIcon muted={audioAppearsMuted} />
           </button>
         </div>
+        <PdfDownload />
         <a href="https://www.linkedin.com/in/leo-bogaert/" target="_blank" rel="noreferrer">
           <img src="./linkedin.png" alt="Leo Bogaert on LinkedIn" decoding="async" />
         </a>

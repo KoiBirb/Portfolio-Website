@@ -31,6 +31,8 @@ export type Project = {
   title: string;
   collaboration?: Collaboration;
   summary: string;
+  pdfSummary?: string;
+  pdfImageIndices?: number[];
   tags: string[];
   slides: ProjectSlide[];
   details?: ProjectDetails;
@@ -43,6 +45,8 @@ export const projects: Project[] = [
     year: "2026",
     eyebrow: "Audio Electronics / Electrical",
     title: "Class D Amplifier",
+    pdfSummary:
+      "A custom analog-input Class D amplifier using 555-based PWM generation and a MOSFET output stage. Designed the circuit, through-hole PCB, and enclosure, with ongoing performance testing.",
     // collaboration: { label: "Built in collaboration with", highlight: "Name", url: "https://example.com" },
     summary:
       "A custom Class D audio amplifier designed using a 555 timer and analog audio input to generate PWM signals. The design includes a gate driver controlling the MOSFET output stage, driving a speaker at ~80% efficiency. The project included circuit design, component selection, PCB layout in Altium Designer, signal filtering, oscilloscope-based testing, debugging, and enclosure design using Fusion 360.",
@@ -136,6 +140,9 @@ export const projects: Project[] = [
     year: "2026",
     eyebrow: "Embedded Systems / Electrical",
     title: "STM32 Flight Controller",
+    pdfSummary:
+      "A four-layer STM32 flight-controller board for a fixed-wing RC aircraft, combining motion and pressure sensing with nine PWM outputs. Work covered peripheral planning, PCB design, power regulation, and manufacturing preparation.",
+    pdfImageIndices: [0, 2],
     collaboration: {
       label: "In collaboration with",
       highlight: "Moiz Ahmad",
@@ -241,6 +248,9 @@ export const projects: Project[] = [
     githubUrl: "https://github.com/mynteee/tracking-14-a",
     eyebrow: "IoT Asset Tracking / Software & Hardware",
     title: "ESP32 Asset Tracking",
+    pdfSummary:
+      "A hospital asset-tracking prototype combining BLE tags, ESP32 receivers, and a React dashboard. Signal-strength readings travel over Wi-Fi and MQTT to locate equipment by room on an interactive floor plan.",
+    pdfImageIndices: [5, 8],
     collaboration: {
       label: "In collaboration with",
       highlight: "ES1050",
@@ -364,6 +374,9 @@ export const projects: Project[] = [
     year: "2025",
     eyebrow: "Gearbox Design / Mechanical",
     title: "Harmonic Drive",
+    pdfSummary:
+      "A compact 20:1 harmonic gearbox designed to mount flush with a NEMA 17 stepper motor. A nylon flex spline and custom wave generator balance flexibility, stiffness, and durability in a 3D-printed assembly.",
+    pdfImageIndices: [0, 1, 3, 4],
     summary:
       "Designed and developed a custom harmonic drive gearbox using a flex spline printed in nylon and a wave generator to achieve a compact form factor and 20:1 reduction ratio. The project was designed to fit flush with a NEMA 17 stepper motor and focused on mechanical design, gear geometry, material selection, and design for additive manufacturing while balancing flexibility, stiffness, and durability.",
     tags: [
@@ -390,6 +403,9 @@ export const projects: Project[] = [
     year: "2025",
     eyebrow: "Drone Design / Mechanical & Electrical",
     title: "3D-Printed Drone",
+    pdfSummary:
+      "A custom drone with a carbon-fiber-filled PETG airframe and a Betaflight-configured F405 Mini controller. Designed, printed, assembled, and iteratively tested the frame for strength, weight, and component integration.",
+    pdfImageIndices: [0, 1, 2, 3],
     summary:
       "Designed and built a custom 3D-printed drone, developing the airframe from scratch and printing it in carbon-fiber-filled PETG with a focus on weight, strength, and component integration. I used Betaflight to configure an F405 Mini flight controller stack to enable smooth flight. This project combined CAD modeling, additive manufacturing, electronics integration, assembly, and iterative testing to refine the frame and overall flight platform.",
     tags: ["Fusion 360", "Bambu Slicer", "Betaflight", "Additive Manufacturing"],
@@ -407,6 +423,9 @@ export const projects: Project[] = [
     githubUrl: "https://github.com/KoiBirb/Forsaken-Crown",
     eyebrow: "Game Design / Software",
     title: "Arcade Machine Game",
+    pdfSummary:
+      "A Java Swing hack-and-slash platformer inspired by Hollow Knight. Built and maintained a 20,000-line codebase, with Tiled maps and JSON-based map data.",
+    pdfImageIndices: [0, 2, 3, 5],
     collaboration: {
       label: "In collaboration with London Central Secondary School",
       highlight: "",
@@ -431,6 +450,9 @@ export const projects: Project[] = [
     githubUrl: "https://github.com/KoiBirb/Robot-Dog",
     eyebrow: "Quadruped Robotics / Mechanical / Electrical",
     title: "Robot Dog",
+    pdfSummary:
+      "A competition quadruped robot with an ESP32, custom KiCad PCB, and 12 actuated joints. Combined mechanical design, electronics, and inverse kinematics to coordinate walking movements.",
+    pdfImageIndices: [0, 1, 4, 5],
     collaboration: {
       label: "In collaboration with",
       highlight: "Moiz Ahmad",
