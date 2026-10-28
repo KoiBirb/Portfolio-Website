@@ -1958,6 +1958,7 @@ body.project-detail-is-returning .year-timeline {
 }
 .pdf-preview-scroll {
   overflow-x: auto;
+  touch-action: pan-x pan-y pinch-zoom;
   padding-bottom: 16px;
 }
 .portfolio-pdf-document {

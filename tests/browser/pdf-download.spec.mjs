@@ -9,6 +9,19 @@ test("opens a dynamic PDF preview with an optional download", async ({ page }) =
   const preview = await popupEvent;
   await preview.waitForLoadState();
   await expect(preview).toHaveURL(/\?pdf/);
+  const expectPagesToFit = async () => {
+    const bounds = await preview.locator(".pdf-cover").boundingBox();
+    const viewport = preview.viewportSize();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
+    expect(bounds.height / bounds.width).toBeCloseTo(1123 / 794, 2);
+    expect(
+      await preview
+        .locator(".pdf-preview-scroll")
+        .evaluate((element) => element.scrollWidth <= element.clientWidth),
+    ).toBe(true);
+  };
+  await expectPagesToFit();
   const save = preview.getByRole("link", { name: "Download PDF" });
   await expect(save).toBeVisible({ timeout: 100000 });
   await expect(preview.getByRole("status")).toHaveText("Your PDF is ready.");
@@ -89,4 +102,31 @@ test("opens a dynamic PDF preview with an optional download", async ({ page }) =
   const bytes = await readFile(await download.path());
   expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
   expect(bytes.length).toBeGreaterThan(50000);
+  if (test.info().project.name === "mobile") {
+    await preview.setViewportSize({ width: 851, height: 393 });
+    await expect
+      .poll(async () => (await preview.locator(".pdf-cover").boundingBox()).width)
+      .toBe(794);
+    await expectPagesToFit();
+    await preview.setViewportSize({ width: 393, height: 851 });
+    await expect
+      .poll(async () => (await preview.locator(".pdf-cover").boundingBox()).width)
+      .toBeCloseTo(369, 0);
+    await expectPagesToFit();
+    const session = await preview.context().newCDPSession(preview);
+    await expect(preview.locator('meta[name="viewport"]')).not.toHaveAttribute(
+      "content",
+      /user-scalable\s*=\s*no|maximum-scale\s*=\s*1(?:\D|$)/,
+    );
+    const touchAction = await preview
+      .locator(".pdf-preview-scroll")
+      .evaluate((element) => getComputedStyle(element).touchAction);
+    // Browsers may serialize pan-x pan-y pinch-zoom as its manipulation alias.
+    expect(touchAction === "manipulation" || touchAction.includes("pinch-zoom")).toBe(true);
+    await session.send("Emulation.setPageScaleFactor", { pageScaleFactor: 2 });
+    await expect
+      .poll(() => preview.evaluate(() => window.visualViewport.scale))
+      .toBeGreaterThan(1.5);
+    await session.detach();
+  }
 });

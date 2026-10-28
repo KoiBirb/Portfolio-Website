@@ -21,6 +21,11 @@ export async function createPortfolioPdf(root: HTMLElement) {
       logging: false,
       windowWidth: 1200,
       windowHeight: 1123,
+      // Preview scaling must not reduce the exported page resolution or layout.
+      onclone: (_document, clonedPage) => {
+        const preview = clonedPage.closest<HTMLElement>(".portfolio-pdf-document");
+        if (preview) preview.style.zoom = "1";
+      },
     });
     if (index) pdf.addPage();
     pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", 0, 0, 210, 297);
@@ -28,10 +33,10 @@ export async function createPortfolioPdf(root: HTMLElement) {
       const bounds = link.getBoundingClientRect();
       const parent = page.getBoundingClientRect();
       pdf.link(
-        ((bounds.x - parent.x) * 210) / 794,
-        ((bounds.y - parent.y) * 297) / 1123,
-        (bounds.width * 210) / 794,
-        (bounds.height * 297) / 1123,
+        ((bounds.x - parent.x) * 210) / parent.width,
+        ((bounds.y - parent.y) * 297) / parent.height,
+        (bounds.width * 210) / parent.width,
+        (bounds.height * 297) / parent.height,
         { url: link.href },
       );
     }

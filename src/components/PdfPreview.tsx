@@ -1,12 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { projects } from "../data/projects";
 
 export function PdfPreview() {
   const documentRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [url, setUrl] = useState("");
   const [notice, setNotice] = useState("Preparing your PDF…");
   const [attempt, setAttempt] = useState(0);
   const [failed, setFailed] = useState(false);
+  useLayoutEffect(() => {
+    const container = scrollRef.current!;
+    const document = documentRef.current!;
+    const fit = () => {
+      document.style.zoom = String(Math.min(1, container.clientWidth / document.offsetWidth));
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     let disposed = false;
     let objectUrl = "";
@@ -55,7 +67,7 @@ export function PdfPreview() {
       <div className="pdf-preview-notice" role="status">
         {notice}
       </div>
-      <div className="pdf-preview-scroll">
+      <div className="pdf-preview-scroll" ref={scrollRef}>
         <div className="portfolio-pdf-document" ref={documentRef}>
           <section className="portfolio-pdf-page pdf-cover">
             <div className="pdf-cover-masthead">
